@@ -1,0 +1,35 @@
+---
+title: 'Hands on Lab: R Functions'
+author: "Kavya Beheraj"
+date: "February 3, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### PROBLEM
+
+Write two functions. These functions should take a numeric vector as an input, and determine the mean and median from the values in the vector.
+
+
+```{r}
+myMean <- function (x) {
+  sum <- sum(x)
+  len <- length(x)
+  avg <- sum/len
+  print(avg)
+}
+
+myMedian <- function(x) {
+  sorted <- sort(x)
+  len <- length(sorted)
+  print(sorted[len/2])
+}
+
+myMedian(c(12,12,12,12,12,15,455))
+
+myMean(c(12,12,12,12,12,15,455))
+
+```

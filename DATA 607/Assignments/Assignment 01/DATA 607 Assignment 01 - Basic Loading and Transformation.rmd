@@ -1,0 +1,134 @@
+---
+title: 'DATA 607 Week 1 - Basic Loading and Transformation'
+author: "Kavya Beheraj"
+date: "February 3, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library("dplyr")
+library("ggplot2")
+```
+<hr>
+The [Mushroom Dataset](https://archive.ics.uci.edu/ml/datasets/Mushroom) contains descriptions of hypothetical samples corresponding to 23 species of gilled mushrooms in the _Agaricus_ and _Lepiota_ Family. It includes 8,124 instances and 22 variables, and was published on April 27, 1987.
+<br>
+<br>
+In this assignment, I studied the Mushrooms dataset, renamed the columns and variables to make it easier to understand, and created subsets of the data to answer a few questions about it.
+<br>
+<br>
+<hr>
+**1.** Load in the Mushrooms dataset:  
+
+```{r}
+
+mushroom <- read.table("https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data", sep=",")
+
+print(head(mushroom))
+
+```
+<hr>
+<br>
+<br>
+**2.** Rename the columns:  
+
+```{r}
+
+names(mushroom) <- c("Class", "Cap-Shape", "Cap-Surface", "Cap-Color", "Bruises", "Odor", "Gill-Attachment", "Gill-Spacing", "Gill-Size", "Gill-Color", "Stalk-Shape", "Stalk-Root", "Stalk-Surface-Above-Ring", "Stalk-Surface-Below-Ring", "Stalk-Color-Above-Ring", "Stalk-Color-Below-Ring", "Veil-Type", "Veil-Color", "Ring-Number", "Ring-Type", "Spore-Print-Color", "Population", "Habitat")
+
+print(head(mushroom))
+
+```
+<hr>
+<br>
+<br>
+**3.** Rename the variables in each column:  
+
+```{r}
+
+mushroom$Class <- recode(mushroom$Class, e = "edible", p = "poisonous")
+
+mushroom$`Cap-Shape` <- recode(mushroom$`Cap-Shape`, 
+                               b = "bell", c = "conical", x = "convex", f = "flat", k = "knobbed")
+
+mushroom$`Cap-Surface` <- recode(mushroom$`Cap-Surface`, f="fibrous", g="grooves", y="scaly", s="smooth")
+
+mushroom$`Cap-Color` <- recode(mushroom$`Cap-Color`, n = "brown", b = "buff", c = "cinnamon", g = "gray", r = "green", p = "pink", u = "purple", e = "red", w = "white", y = "yellow")
+
+mushroom$Bruises <- recode(mushroom$Bruises, t = "bruises", f = "no-bruises")
+
+mushroom$Odor <- recode(mushroom$Odor, a = 'almond', l = 'anise', c = 'creosote', y = 'fishy', f = 'foul', m = 'musty', n = 'none', p = 'pungent', s = 'spicy')
+
+mushroom$`Gill-Attachment` <- recode(mushroom$`Gill-Attachment`, a = 'attached', d = 'descending', f = 'free', n = 'notched')
+
+mushroom$`Gill-Spacing` <- recode(mushroom$`Gill-Spacing`, c = 'close', w = 'crowded', d = 'distant')
+
+mushroom$`Gill-Size` <- recode(mushroom$`Gill-Size`, b = 'broad', n = 'narrow' )
+
+mushroom$`Gill-Color` <- recode(mushroom$`Gill-Color`, k = 'black', n = 'brown', b = 'buff', h = 'chocolate', g = 'gray', r = 'green', o = 'orange', p = 'pink', u = 'purple', e = 'red', w = 'white', y = 'yellow')
+
+mushroom$`Stalk-Shape` <- recode(mushroom$`Stalk-Shape`, e = 'enlarging', t = 'tapering')
+
+mushroom$`Stalk-Root` <- recode(mushroom$`Stalk-Root`, b = 'bulbous', c = 'club', u = 'cup', e = 'equal', z = 'rhizomorphs', r = 'rooted')
+
+mushroom$`Stalk-Surface-Above-Ring` <- recode(mushroom$`Stalk-Surface-Above-Ring`, f = 'fibrous', y = 'scaly', k = 'silky', s = 'smooth')
+
+mushroom$`Stalk-Surface-Below-Ring` <- recode(mushroom$`Stalk-Surface-Below-Ring`, f = 'fibrous', y = 'scaly', k = 'silky', s = 'smooth')
+
+mushroom$`Stalk-Color-Above-Ring` <- recode(mushroom$`Stalk-Color-Above-Ring`, n = 'brown', b = 'buff', c = 'cinnamon', g = 'gray', o = 'orange', p = 'pink', e = 'red', w = 'white', y = 'yellow')
+
+mushroom$`Stalk-Color-Below-Ring` <- recode(mushroom$`Stalk-Color-Below-Ring`, n = 'brown', b = 'buff', c = 'cinnamon', g = 'gray', o = 'orange', p = 'pink', e = 'red', w = 'white', y = 'yellow')
+
+mushroom$`Veil-Type` <- recode(mushroom$`Veil-Type`, p = 'partial', u = 'universal')
+
+mushroom$`Veil-Color` <- recode(mushroom$`Veil-Color`, n = 'brown', o = 'orange', w = 'white', y = 'yellow')
+
+mushroom$`Ring-Number` <- recode(mushroom$`Ring-Number`, n = 'none', o = 'one', t = 'two')
+
+mushroom$`Ring-Type` <- recode(mushroom$`Ring-Type`, c = 'cobwebby', e = 'evanescent', f = 'flaring', l = 'large', n = 'none', p = 'pendant', s = 'sheathing', z = 'zone')
+
+mushroom$`Spore-Print-Color` <- recode(mushroom$`Spore-Print-Color`, k = 'black', n = 'brown', b = 'buff', h = 'chocolate', r = 'green', o = 'orange', u = 'purple',
+w = 'white', y = 'yellow')
+
+mushroom$Population <- recode(mushroom$Population, a = 'abundant', c = 'clustered', n = 'numerous', s = 'scattered', v = 'several', y = 'solitary')
+
+mushroom$Habitat <- recode(mushroom$Habitat, g = 'grasses', l = 'leaves', m = 'meadows', p = 'paths', u = 'urban', w = 'waste', d = 'woods')
+
+summary(mushroom)
+
+```
+<hr>
+<br>
+<br>  
+**4. Question:** Where are poisonous mushrooms most commonly found compared to edible mushrooms?
+
+```{r}
+subset1 <- subset(mushroom, Class == "poisonous", select = c(Class,Habitat))
+
+subset2 <- subset(mushroom, Class == "edible", select = c(Class,Habitat))
+
+summary(subset1)
+summary(subset2)
+
+```
+<br>
+The data shows that poisonous mushrooms are most often found in the woods and paths, while edible mushrooms are most found in woods and grasses. Few poisonous mushrooms are found in waste or meadows.
+<hr>
+<br>
+<br>
+**5. Question:** What do poisonous mushrooms smell like compared to edible mushrooms?
+
+```{r}
+subset3 <- subset(mushroom, Class == "poisonous", select = c(Class,Odor))
+summary(subset3)
+subset4 <- subset(mushroom, Class == "edible", select = c(Class,Odor))
+summary(subset4)
+qplot(mushroom$Class, mushroom$Odor, xlab="Type of Mushroom", ylab="Odor", geom="jitter")
+
+```
+<br>
+The majority of poisonous mushrooms smell foul, while the majority of edible mushrooms don't smell at all.
+<br>
+<br>
+<hr>
