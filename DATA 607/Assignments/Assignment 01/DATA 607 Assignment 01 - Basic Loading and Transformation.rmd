@@ -19,7 +19,7 @@ In this assignment, I studied the Mushrooms dataset, renamed the columns and var
 <br>
 <br>
 <hr>
-**1.** Load in the Mushrooms dataset:  
+**1. Load in the Mushrooms dataset:**  
 
 ```{r}
 
@@ -31,7 +31,7 @@ print(head(mushroom))
 <hr>
 <br>
 <br>
-**2.** Rename the columns:  
+**2. Rename the columns:**
 
 ```{r}
 
@@ -43,14 +43,14 @@ print(head(mushroom))
 <hr>
 <br>
 <br>
-**3.** Rename the variables in each column:  
+**3. Rename the variables in each column:**  
 
 ```{r}
 
 mushroom$Class <- recode(mushroom$Class, e = "edible", p = "poisonous")
 
 mushroom$`Cap-Shape` <- recode(mushroom$`Cap-Shape`, 
-                               b = "bell", c = "conical", x = "convex", f = "flat", k = "knobbed")
+                               b = "bell", c = "conical", x = "convex", f = "flat", k = "knobbed", s = "sunken")
 
 mushroom$`Cap-Surface` <- recode(mushroom$`Cap-Surface`, f="fibrous", g="grooves", y="scaly", s="smooth")
 
@@ -101,12 +101,12 @@ summary(mushroom)
 <hr>
 <br>
 <br>  
-**4. Question:** Where are poisonous mushrooms most commonly found compared to edible mushrooms?
+**4. Question: Where are poisonous mushrooms most commonly found compared to edible mushrooms?**
 
 ```{r}
-subset1 <- subset(mushroom, Class == "poisonous", select = c(Class,Habitat))
+subset1 <- subset(mushroom, Class == "poisonous", select = c(Class, Population, Habitat))
 
-subset2 <- subset(mushroom, Class == "edible", select = c(Class,Habitat))
+subset2 <- subset(mushroom, Class == "edible", select = c(Class, Population, Habitat))
 
 summary(subset1)
 summary(subset2)
@@ -117,7 +117,7 @@ The data shows that poisonous mushrooms are most often found in the woods and pa
 <hr>
 <br>
 <br>
-**5. Question:** What do poisonous mushrooms smell like compared to edible mushrooms?
+**5. Question: What do poisonous mushrooms smell like compared to edible mushrooms?**
 
 ```{r}
 subset3 <- subset(mushroom, Class == "poisonous", select = c(Class,Odor))
@@ -129,6 +129,35 @@ qplot(mushroom$Class, mushroom$Odor, xlab="Type of Mushroom", ylab="Odor", geom=
 ```
 <br>
 The majority of poisonous mushrooms smell foul, while the majority of edible mushrooms don't smell at all.
+<hr>
 <br>
+<br>
+**6. Question: How does the look of the mushroom's cap affect its edibility?**
+<br>
+```{r}
+
+subset5 <- subset(mushroom, Class == "poisonous", select = c(Class, `Cap-Shape`, `Cap-Color`, `Cap-Surface`))
+
+subset6 <- subset(mushroom, Class == "edible", select = c(Class, `Cap-Shape`, `Cap-Color`, `Cap-Surface`))
+
+summary(subset5)
+summary(subset6)
+
+qplot(mushroom$Class, mushroom$`Cap-Color`, xlab="Type of Mushroom", ylab="Cap Color", geom="jitter")
+
+qplot(mushroom$Class, mushroom$`Cap-Shape`, xlab="Type of Mushroom", ylab="Cap Shape", geom="jitter")
+
+qplot(mushroom$Class, mushroom$`Cap-Surface`, xlab="Type of Mushroom", ylab="Cap Surface", geom="jitter")
+
+```
+<br>
+<br>
+It seems difficult to predict a mushroom's edibility just by looking at its cap. On the whole, both poisonous and edible mushrooms have the same cap color, shape, and surface. 
+<br>
+<br>
+There are a few outliers -- for example, only edible mushrooms have a purple or green cap, but those mushrooms are rare in this sample.
+<br>
+<br>
+My takeaway from this data is that one reliable way to determine a mushroom's edibility is to smell it. Foul mushrooms are always poisonous.
 <br>
 <hr>
