@@ -1,0 +1,145 @@
+---
+title: "DATA 606, Lab 0 - Introduction to R and RStudio"
+author: "Kavya Beheraj"
+date: "February 4, 2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+library("dplyr")
+library("ggplot2")
+```
+
+  
+This lab is an introduction to R and RStudio. 
+
+The datasets I used are:
+
+* [Dr. Arbuthnot's Baptism Records]("https://www.openintro.org/stat/data/?data=arbuthnot")
+* [US Birth Records (Present)]("https://www.openintro.org/stat/data/?data=present"), compiled by OpenIntro Statistics and recorded by the Centers for Disease Control
+
+***
+# **The Data: Dr. Arbuthnot's Baptism Records**
+
+```{r}
+arbuthnot = read.csv("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 606 (Statistics and Probability)/Labs/arbuthnot.csv", sep = ",")
+
+arbuthnot
+```
+
+```{r}
+dim(arbuthnot)
+
+names(arbuthnot)
+
+```
+***
+# Some Exploration
+```{r}
+arbuthnot$boys
+```
+
+***
+
+### **Exercise 1**: What command would you use to extract just the counts of girls baptized?
+  
+You would use the command "arbuthnot$girls".  
+  
+```{r}
+arbuthnot$girls
+```
+
+```{r}
+plot(x = arbuthnot$year, y = arbuthnot$girls)
+plot(x = arbuthnot$year, y = arbuthnot$girls, type = "l")
+```
+```{r}
+?plot
+```
+
+***
+
+### **Exercise 2**: Is there an apparent trend in the number of girls baptized over the years? How would you describe it?
+
+Yes, there appears to be an overall upward trend in the number of girls baptized over the decades, although there was a big dip between 1640 and 1660.
+
+```{r}
+5218 + 4683
+arbuthnot$boys + arbuthnot$girls
+plot(arbuthnot$year, arbuthnot$boys + arbuthnot$girls, type = "l")
+```
+
+```{r}
+5218 / 4683
+arbuthnot$boys / arbuthnot$girls
+5218 / (5218 + 4683)
+arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls)
+```
+
+```{r}
+plot(arbuthnot$year, arbuthnot$boys / (arbuthnot$boys + arbuthnot$girls), type = "l")
+```
+
+```{r}
+arbuthnot$boys > arbuthnot$girls
+```
+
+***
+
+# On Your Own
+```{r}
+present <- read.csv("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 606 (Statistics and Probability)/Labs/present.csv", sep = ",")
+
+head(present)
+summary(present)
+
+```
+
+***
+
+### 1. What years are included in this dataset? What are the dimensions of the data frame and what are the variable or column names?
+```{r}
+str(present$year)
+dim(present)
+names(present)
+```
+  
+This dataset includes all years from 1940 to 2002. The dimensions of this dataset are 63 rows by 3 columns. The variables included are "year", "boys", and "girls".
+
+***
+
+### 2. How do these counts compare to Arbuthnot's? Are they on a similar scale?
+```{r}
+summary(arbuthnot$boys)
+summary(arbuthnot$girls)
+```
+  
+The numbers are not comparable. The present dataset contains an average of 1.9 million male and 1.8 million female births per year. However, Arbuthnot contains an average of 5,900 male and 5,500 female births per year.
+  
+***
+
+### 3. Make a plot that displays the boy-to-girl ratio for every year in the data set. What do you see? Does Arbuthnot's observation about boys being born in greater proportion than girls hold up in the U.S.? Include the plot in your response.
+```{r}
+plot(present$year, present$boys / (present$boys + present$girls), type = "l")
+```
+  
+Yes, Arbuthnot's observation appears to hold up. The ratio of boys to all children born between 1940 and 2002 has been above 0.5 for all years, although the ratio has gone down over the decades.
+
+***
+
+### 4. In what year did we see the most total number of births in the U.S.?
+```{r}
+present$sum <- present$boys + present$girls
+sorted <- present[order(present$sum),]
+
+tail(sorted)
+
+```
+  
+We saw the greatest number of births in 1961 -- a total of 4.3 million boys and girls were born.
+  
+***

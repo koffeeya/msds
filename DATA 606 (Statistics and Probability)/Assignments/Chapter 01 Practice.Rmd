@@ -1,0 +1,59 @@
+---
+title: "DATA 606 - Chapter 1 Practice"
+author: "Kavya Beheraj"
+date: "February 6, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages(c('openintro','OIdata','ggplot2','psych','reshape2',
+				   'knitr','markdown','shiny'), repos = "http://cran.us.r-project.org")
+library('DATA606')
+```
+
+Practice - 1.7, 1.9, 1.23, 1.33, 1.55, 1.69
+
+****
+
+### **1.7 | Fischer's irises**  
+
+##### **(a)** How many cases were included in the data?  
+
+```{r}
+
+data("iris")
+
+nrow(iris)
+
+```
+
+There are 150 cases included in the data.
+  
+
+##### **(b)** How many numerical variables are included in the data? Indicate what they are, and if they are continuous or discrete.
+
+```{r}
+
+names(iris)
+
+```
+
+There are 4 numerical variables included in the dataset: Sepal Length, Sepal Width, Petal Length, and Petal Width. All of them are continuous.
+
+  
+##### **(c)** How many categorical variables are included in the data? Indicate what they are, and the corresponding levels (categories).
+
+****
+
+### **1.9 | Air pollution and birth outcomes, scope of inference** 
+
+##### **(a)** Identify the population of interest and the sample in this study.
+
+##### **(b)** Identify the population of interest and the sample in this study.
+
+****
+
+### **1.23 | Air pollution and birth outcomes, scope of inference** 
+
+
