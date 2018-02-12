@@ -95,7 +95,7 @@ I used the **"dbConnect"** function built into RMySQL to connect R to mySQL.
 [Here's an overview](https://www.r-bloggers.com/accessing-mysql-through-r/) of the steps I took to connect both platforms.
 
 ```{r}
-movies = dbConnect(MySQL(), user='*****', password='*******', dbname='movies', host='127.0.0.1')
+movies = dbConnect(MySQL(), user='*****', password='*******', dbname='movies', host='******')
   
 ```
 
