@@ -1,0 +1,190 @@
+---
+title: "DATA 607 Week 02 - SQL and R"
+author: "Kavya Beheraj"
+date: "February 11, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+****
+
+### **Assignment**
+
+Choose six recent popular movies. Ask at least five people that you know (friends, family, classmates, imaginary friends) to rate each of these movies that they have seen on a scale of 1 to 5. Take the results (observations) and store them in a SQL database. Load the information into an R dataframe.
+
+Your deliverables should include your SQL scripts and your R Markdown code, posted to GitHub.
+
+****
+
+### **Process**
+
+1. [Collect and clean data](#collect-and-clean-data)
+2. [Import data into mySQL](#import-data-into-mysql)
+3. [Connect R to MySQL](#connect-r-to-mysql)
+4. [Load mySQL table into R dataframe](#load-mysql-table-into-r-dataframe)
+5. [Question: Which movies were the highest and lowest rated?](#question-which-movies-were-the-highest-and-lowest-rated)
+
+****
+
+##### **Files needed to re-create my process:**
+
+1. Download [**"movie-ratings.csv"**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv), which contains the cleaned data I collected in Step 1 below.
+
+2. Download and run [**"movieratings.sql"**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movieratings.sql) in mySQL Workbench to import the CSV into a mySQL database.
+
+    + **Note:** On line 12 of the "movieratings.sql" file, remember to   replace the file path with the location you saved "movie-ratings.csv".  
+
+ 
+3. Install the following packages in R:
+
+    + **dplyr** -- "RMySQL" package
+    + **tidyverse** -- "ggplot2" package
+
+****
+
+
+```{r results='hide', warning=FALSE}
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("dplyr", repos = "http://cran.us.r-project.org")
+library(RMySQL)
+library("ggplot2")
+```
+
+****
+
+### **1 | Collect and clean data**
+
+As part of this assignment, I chose six recent popular movies and asked five friends to rate each of the movies they saw on a scale of 1 to 5. These are the movies I chose:
+
+1. [*Star Wars: The Last Jedi* (2017)](http://www.imdb.com/title/tt2527336/)
+2. [*Get Out* (2017)](http://www.imdb.com/title/tt5052448/)
+3. [*Wonder Woman* (2017)](http://www.imdb.com/title/tt0451279/)
+4. [*Coco* (2017)](http://www.imdb.com/title/tt2380307/)
+5. [*Hidden Figures* (2016)](http://www.imdb.com/title/tt4846340/)
+6. [*The Shape of Water* (2017)](http://www.imdb.com/title/tt5580390/)
+
+(*Hidden Figures* was an accident -- I intended to only include movies from 2017.)
+
+I then created [**this Google Form**](https://docs.google.com/forms/d/e/1FAIpQLSfo4LjyG84L3ins_sXhJIcKzTr27jCHrFCJ3tR8Aefi2pPfGQ/viewform?usp=sf_link) to easily collect ratings from my friends and export them in a CSV file.
+
+I ended up with a **raw CSV file** of responses that needed some cleaning to be best manipulated by mySQL. [**Here is the cleaned file**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv), which includes the following three columns:
+
+* **submitted** -- the date and time that each individual submitted the Google Form.
+* **movie** -- the name of the movie being rated.
+* **rating** -- the rating each individual gave the movie, on a scale of 1 to 5.
+
+****
+
+### **2 | Import data into mySQL**
+
+I then put together a [**mySQL script**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movieratings.sql) to:
+
+* Create a new database called **"movies"**.
+* Create a new empty table within "movies" called **"movieratings"** that has columns for "submitted", "movie", and "rating".
+* Load the CSV responses file into the empty "movieratings" table.
+
+****
+
+### **3 | Connect R to MySQL**
+
+I used the **"dbConnect"** function built into RMySQL to connect R to mySQL.
+
+[Here's an overview](https://www.r-bloggers.com/accessing-mysql-through-r/) of the steps I took to connect both platforms.
+
+```{r}
+movies = dbConnect(MySQL(), user='root', password='JHG%*spr^t8g', dbname='movies', host='127.0.0.1')
+  
+```
+
+****
+
+### **4 | Load mySQL table into R dataframe**
+
+To load "movieratings" into an R dataframe, I used the "dbSendQuery" function to select the table, then imported it using "fetch."
+
+```{r}
+dbListTables(movies)
+
+retrieve = dbSendQuery(movies, "select * from movieratings")
+
+moviesimported = fetch(retrieve, n=-1)
+
+head(moviesimported)
+```
+
+****
+
+### **5 | Question: Which movies were the highest and lowest rated?**
+
+I found that *Star Wars: The Last Jedi* was rated the highest among my friends at 4.75, while *Hidden Figures* was rated the lowest at 3.50. 
+
+However, only two of my five friends had seen *Hidden Figures*, while all of them had seen *Star Wars*, so I would take that result with a grain of salt.
+
+In retrospect, I'm sure there has to be a more efficient way of answering my question -- perhaps a script, since I had many repeating actions. I'll continue exploring!
+
+****
+
+I went through the following steps to identify which movie was the highest and lowest rated in my data:
+
+* Created subsets of the ratings by movie.
+
+```{r}
+
+starwars <- subset(moviesimported, moviesimported$movie=="Star Wars: The Last Jedi", select = c(movie, rating))
+
+getout <- subset(moviesimported, moviesimported$movie=="Get Out", select = c(movie, rating))
+
+wonderwoman <- subset(moviesimported, moviesimported$movie=="Wonder Woman", select = c(movie, rating))
+
+coco <- subset(moviesimported, moviesimported$movie=="Coco", select = c(movie, rating))
+
+shapeofwater <- subset(moviesimported, moviesimported$movie=="The Shape of Water", select = c(movie, rating))
+
+hiddenfigures <- subset(moviesimported, moviesimported$movie=="Hidden Figures", select = c(movie, rating))
+
+```
+
+* Averaged each movie's rating separately.
+
+```{r}
+starwarsavg <- mean(starwars$rating)
+getoutavg <- mean(getout$rating)
+wonderwomanavg <- mean(wonderwoman$rating)
+cocoavg <- mean(coco$rating)
+shapeofwateravg <- mean(coco$rating)
+hiddenfiguresavg <- mean(hiddenfigures$rating)
+
+```
+
+* Created a dataframe "movie_avg.data" that brought together the average ratings.
+
+```{r}
+rating_avg <- c(starwarsavg,
+getoutavg,
+wonderwomanavg,
+cocoavg,
+shapeofwateravg,
+hiddenfiguresavg)
+
+movie <- c("Star Wars", "Get Out", "Wonder Woman", "Coco", "Shape of Water", "Hidden Figures")
+
+movie_avg.data <- data.frame(movie, rating_avg)
+
+movie_avg.data
+
+```
+
+
+* Plotted the dataframe in a quick plot.
+
+```{r}
+
+qplot(movie_avg.data$movie, movie_avg.data$rating_avg, xlab = "Movie", ylab = "Rating (1-5)")
+
+```
+
+****
+
