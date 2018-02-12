@@ -127,22 +127,37 @@ $(document).ready(function () {
 
 
 <hr />
-<div id="background" class="section level3">
-<h3><strong>Background</strong></h3>
-<p>The purpose of this assignment was to practice creating tables in mySQL and importing them into R.</p>
-<p>I used the following packages:</p>
-<ul>
-<li><strong>tidyverse</strong> – “ggplot2” package</li>
-<li><strong>dplyr</strong> – “RMySQL” package</li>
-</ul>
-<p>Here are GitHub links to the files I created and used:</p>
-<ul>
-<li>Movie ratings responses file (CSV)</li>
-<li>mySQL CSV import file</li>
-</ul>
+<div id="assignment" class="section level3">
+<h3><strong>Assignment</strong></h3>
+<p>Choose six recent popular movies. Ask at least five people that you know (friends, family, classmates, imaginary friends) to rate each of these movies that they have seen on a scale of 1 to 5. Take the results (observations) and store them in a SQL database. Load the information into an R dataframe.</p>
+<p>Your deliverables should include your SQL scripts and your R Markdown code, posted to GitHub.</p>
 <hr />
-<div id="install-packages" class="section level5">
-<h5><strong>Install packages</strong></h5>
+</div>
+<div id="process" class="section level3">
+<h3><strong>Process</strong></h3>
+<ol style="list-style-type: decimal">
+<li><a href="#collect-and-clean-data">Collect and clean data</a></li>
+<li><a href="#import-data-into-mysql">Import data into mySQL</a></li>
+<li><a href="#connect-r-to-mysql">Connect R to MySQL</a></li>
+<li><a href="#load-mysql-table-into-r-dataframe">Load mySQL table into R dataframe</a></li>
+<li><a href="#question-which-movies-were-the-highest-and-lowest-rated">Question: Which movies were the highest and lowest rated?</a></li>
+</ol>
+<hr />
+<div id="files-needed-to-re-create-my-process" class="section level5">
+<h5><strong>Files needed to re-create my process:</strong></h5>
+<ol style="list-style-type: decimal">
+<li><p>Download <a href="https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv"><strong>“movie-ratings.csv”</strong></a>, which contains the cleaned data I collected in Step 1 below.</p></li>
+<li><p>Download and run <a href="https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movieratings.sql"><strong>“movieratings.sql”</strong></a> in mySQL Workbench to import the CSV into a mySQL database.</p>
+<ul>
+<li><strong>Note:</strong> On line 12 of the “movieratings.sql” file, remember to replace the file path with the location you saved “movie-ratings.csv”.</li>
+</ul></li>
+<li><p>Install the following packages in R:</p>
+<ul>
+<li><strong>dplyr</strong> – “RMySQL” package</li>
+<li><strong>tidyverse</strong> – “ggplot2” package</li>
+</ul></li>
+</ol>
+<hr />
 <pre class="r"><code>install.packages(&quot;tidyverse&quot;, repos = &quot;http://cran.us.r-project.org&quot;)</code></pre>
 <pre><code>## Installing package into 'C:/Users/Kavya/Documents/R/win-library/3.4'
 ## (as 'lib' is unspecified)</code></pre>
@@ -155,67 +170,120 @@ $(document).ready(function () {
 <hr />
 </div>
 </div>
-<div id="step-1-collect-and-clean-data" class="section level3">
-<h3><strong>STEP 1 | Collect and clean data</strong></h3>
+<div id="collect-and-clean-data" class="section level3">
+<h3><strong>1 | Collect and clean data</strong></h3>
 <p>As part of this assignment, I chose six recent popular movies and asked five friends to rate each of the movies they saw on a scale of 1 to 5. These are the movies I chose:</p>
-<ul>
+<ol style="list-style-type: decimal">
 <li><a href="http://www.imdb.com/title/tt2527336/"><em>Star Wars: The Last Jedi</em> (2017)</a></li>
 <li><a href="http://www.imdb.com/title/tt5052448/"><em>Get Out</em> (2017)</a></li>
 <li><a href="http://www.imdb.com/title/tt0451279/"><em>Wonder Woman</em> (2017)</a></li>
 <li><a href="http://www.imdb.com/title/tt2380307/"><em>Coco</em> (2017)</a></li>
 <li><a href="http://www.imdb.com/title/tt4846340/"><em>Hidden Figures</em> (2016)</a></li>
 <li><a href="http://www.imdb.com/title/tt5580390/"><em>The Shape of Water</em> (2017)</a></li>
-</ul>
+</ol>
 <p>(<em>Hidden Figures</em> was an accident – I intended to only include movies from 2017.)</p>
 <p>I then created <a href="https://docs.google.com/forms/d/e/1FAIpQLSfo4LjyG84L3ins_sXhJIcKzTr27jCHrFCJ3tR8Aefi2pPfGQ/viewform?usp=sf_link"><strong>this Google Form</strong></a> to easily collect ratings from my friends and export them in a CSV file.</p>
-<p>I ended up with a CSV file of responses that needed some light cleaning to be understood by mySQL. Here is the cleaned file.</p>
+<p>I ended up with a <a href="https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/RAW%20Movie%20Ratings.csv"><strong>raw CSV file</strong></a> of responses that needed some cleaning to be best manipulated by mySQL. <a href="https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv"><strong>Here is the cleaned file</strong></a>, which includes the following three columns:</p>
+<ul>
+<li><strong>submitted</strong> – the date and time that each individual submitted the Google Form.</li>
+<li><strong>movie</strong> – the name of the movie being rated.</li>
+<li><strong>rating</strong> – the rating each individual gave the movie, on a scale of 1 to 5.</li>
+</ul>
 <hr />
 </div>
-<div id="step-2-import-csv-into-mysql" class="section level3">
-<h3><strong>STEP 2 | Import CSV into mySQL</strong></h3>
-<p>I then</p>
+<div id="import-data-into-mysql" class="section level3">
+<h3><strong>2 | Import data into mySQL</strong></h3>
+<p>I then put together a <a href="https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movieratings.sql"><strong>mySQL script</strong></a> to:</p>
+<ul>
+<li>Create a new database called <strong>“movies”</strong>.</li>
+<li>Create a new empty table within “movies” called <strong>“movieratings”</strong> that has columns for “submitted”, “movie”, and “rating”.</li>
+<li>Load the CSV responses file into the empty “movieratings” table.</li>
+</ul>
 <hr />
 </div>
-<div id="step-3-connect-r-to-mysql-database" class="section level3">
-<h3><strong>STEP 3 | Connect R to MySQL database</strong></h3>
-<p>I used the “dbConnect” function to</p>
+<div id="connect-r-to-mysql" class="section level3">
+<h3><strong>3 | Connect R to MySQL</strong></h3>
+<p>I used the <strong>“dbConnect”</strong> function built into RMySQL to connect R to mySQL.</p>
+<p><a href="https://www.r-bloggers.com/accessing-mysql-through-r/">Here’s an overview</a> of the steps I took to connect both platforms.</p>
+<pre class="r"><code>movies = dbConnect(MySQL(), user='root', password='JHG%*spr^t8g', dbname='movies', host='127.0.0.1')</code></pre>
 <hr />
 </div>
-<div id="step-4-load-information-into-r-dataframe" class="section level3">
-<h3><strong>STEP 4 | Load information into R dataframe</strong></h3>
+<div id="load-mysql-table-into-r-dataframe" class="section level3">
+<h3><strong>4 | Load mySQL table into R dataframe</strong></h3>
+<p>To load “movieratings” into an R dataframe, I used the “dbSendQuery” function to select the table, then imported it using “fetch.”</p>
 <pre class="r"><code>dbListTables(movies)</code></pre>
 <pre><code>## [1] &quot;movieratings&quot;</code></pre>
 <pre class="r"><code>retrieve = dbSendQuery(movies, &quot;select * from movieratings&quot;)
 
 moviesimported = fetch(retrieve, n=-1)
 
-moviesimported</code></pre>
-<pre><code>##                     submitted                    movie rating
-## 1  2018/02/03 10:55:29 PM EST Star Wars: The Last Jedi      4
-## 2  2018/02/04 12:05:53 AM EST Star Wars: The Last Jedi      5
-## 3   2018/02/04 8:39:42 AM EST Star Wars: The Last Jedi      5
-## 4   2018/02/06 6:09:06 PM EST Star Wars: The Last Jedi      5
-## 5  2018/02/03 10:55:29 PM EST                  Get Out      4
-## 6  2018/02/04 12:05:53 AM EST                  Get Out      3
-## 7   2018/02/04 8:39:42 AM EST                  Get Out      5
-## 8   2018/02/06 6:09:06 PM EST                  Get Out      5
-## 9   2018/02/07 2:42:40 AM EST                  Get Out      4
-## 10 2018/02/03 10:55:29 PM EST             Wonder Woman      3
-## 11 2018/02/04 12:05:53 AM EST             Wonder Woman      4
-## 12  2018/02/04 8:39:42 AM EST             Wonder Woman      5
-## 13  2018/02/06 6:09:06 PM EST             Wonder Woman      5
-## 14  2018/02/07 2:42:40 AM EST             Wonder Woman      3
-## 15 2018/02/03 10:55:29 PM EST                     Coco      5
-## 16 2018/02/04 12:05:53 AM EST                     Coco      3
-## 17 2018/02/03 10:55:29 PM EST       The Shape of Water      5
-## 18 2018/02/04 12:05:53 AM EST       The Shape of Water      3
-## 19  2018/02/06 6:09:06 PM EST       The Shape of Water      5
-## 20 2018/02/03 10:55:29 PM EST           Hidden Figures      3
-## 21 2018/02/04 12:05:53 AM EST           Hidden Figures      4</code></pre>
+head(moviesimported)</code></pre>
+<pre><code>##                    submitted                    movie rating
+## 1 2018/02/03 10:55:29 PM EST Star Wars: The Last Jedi      4
+## 2 2018/02/04 12:05:53 AM EST Star Wars: The Last Jedi      5
+## 3  2018/02/04 8:39:42 AM EST Star Wars: The Last Jedi      5
+## 4  2018/02/06 6:09:06 PM EST Star Wars: The Last Jedi      5
+## 5 2018/02/03 10:55:29 PM EST                  Get Out      4
+## 6 2018/02/04 12:05:53 AM EST                  Get Out      3</code></pre>
 <hr />
 </div>
-<div id="step-5-question-which-movie-was-the-most-highly-rated-among-my-friends" class="section level3">
-<h3><strong>STEP 5 | Question: Which movie was the most highly rated among my friends?</strong></h3>
+<div id="question-which-movies-were-the-highest-and-lowest-rated" class="section level3">
+<h3><strong>5 | Question: Which movies were the highest and lowest rated?</strong></h3>
+<p>I found that <em>Star Wars: The Last Jedi</em> was rated the highest among my friends at 4.75, while <em>Hidden Figures</em> was rated the lowest at 3.50.</p>
+<p>However, only two of my five friends had seen <em>Hidden Figures</em>, while all of them had seen <em>Star Wars</em>, so I would take that result with a grain of salt.</p>
+<p>In retrospect, I’m sure there has to be a more efficient way of answering my question – perhaps a script, since I had many repeating actions. I’ll continue exploring!</p>
+<hr />
+<p>I went through the following steps to identify which movie was the highest and lowest rated in my data:</p>
+<ul>
+<li>Created subsets of the ratings by movie.</li>
+</ul>
+<pre class="r"><code>starwars &lt;- subset(moviesimported, moviesimported$movie==&quot;Star Wars: The Last Jedi&quot;, select = c(movie, rating))
+
+getout &lt;- subset(moviesimported, moviesimported$movie==&quot;Get Out&quot;, select = c(movie, rating))
+
+wonderwoman &lt;- subset(moviesimported, moviesimported$movie==&quot;Wonder Woman&quot;, select = c(movie, rating))
+
+coco &lt;- subset(moviesimported, moviesimported$movie==&quot;Coco&quot;, select = c(movie, rating))
+
+shapeofwater &lt;- subset(moviesimported, moviesimported$movie==&quot;The Shape of Water&quot;, select = c(movie, rating))
+
+hiddenfigures &lt;- subset(moviesimported, moviesimported$movie==&quot;Hidden Figures&quot;, select = c(movie, rating))</code></pre>
+<ul>
+<li>Averaged each movie’s rating separately.</li>
+</ul>
+<pre class="r"><code>starwarsavg &lt;- mean(starwars$rating)
+getoutavg &lt;- mean(getout$rating)
+wonderwomanavg &lt;- mean(wonderwoman$rating)
+cocoavg &lt;- mean(coco$rating)
+shapeofwateravg &lt;- mean(coco$rating)
+hiddenfiguresavg &lt;- mean(hiddenfigures$rating)</code></pre>
+<ul>
+<li>Created a dataframe “movie_avg.data” that brought together the average ratings.</li>
+</ul>
+<pre class="r"><code>rating_avg &lt;- c(starwarsavg,
+getoutavg,
+wonderwomanavg,
+cocoavg,
+shapeofwateravg,
+hiddenfiguresavg)
+
+movie &lt;- c(&quot;Star Wars&quot;, &quot;Get Out&quot;, &quot;Wonder Woman&quot;, &quot;Coco&quot;, &quot;Shape of Water&quot;, &quot;Hidden Figures&quot;)
+
+movie_avg.data &lt;- data.frame(movie, rating_avg)
+
+movie_avg.data</code></pre>
+<pre><code>##            movie rating_avg
+## 1      Star Wars       4.75
+## 2        Get Out       4.20
+## 3   Wonder Woman       4.00
+## 4           Coco       4.00
+## 5 Shape of Water       4.00
+## 6 Hidden Figures       3.50</code></pre>
+<ul>
+<li>Plotted the dataframe in a quick plot.</li>
+</ul>
+<pre class="r"><code>qplot(movie_avg.data$movie, movie_avg.data$rating_avg, xlab = &quot;Movie&quot;, ylab = &quot;Rating (1-5)&quot;)</code></pre>
+<p><img src="data:image/png;base64,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" width="672" /></p>
 <hr />
 </div>
 

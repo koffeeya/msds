@@ -70,7 +70,7 @@ As part of this assignment, I chose six recent popular movies and asked five fri
 
 I then created [**this Google Form**](https://docs.google.com/forms/d/e/1FAIpQLSfo4LjyG84L3ins_sXhJIcKzTr27jCHrFCJ3tR8Aefi2pPfGQ/viewform?usp=sf_link) to easily collect ratings from my friends and export them in a CSV file.
 
-I ended up with a **raw CSV file** of responses that needed some cleaning to be best manipulated by mySQL. [**Here is the cleaned file**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv), which includes the following three columns:
+I ended up with a [**raw CSV file**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/RAW%20Movie%20Ratings.csv) of responses that needed some cleaning to be best manipulated by mySQL. [**Here is the cleaned file**](https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Assignments/Assignment%2002/movie-ratings.csv), which includes the following three columns:
 
 * **submitted** -- the date and time that each individual submitted the Google Form.
 * **movie** -- the name of the movie being rated.
@@ -95,7 +95,7 @@ I used the **"dbConnect"** function built into RMySQL to connect R to mySQL.
 [Here's an overview](https://www.r-bloggers.com/accessing-mysql-through-r/) of the steps I took to connect both platforms.
 
 ```{r}
-movies = dbConnect(MySQL(), user='root', password='JHG%*spr^t8g', dbname='movies', host='127.0.0.1')
+movies = dbConnect(MySQL(), user='*****', password='*******', dbname='movies', host='127.0.0.1')
   
 ```
 
