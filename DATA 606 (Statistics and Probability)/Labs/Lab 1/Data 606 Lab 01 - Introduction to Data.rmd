@@ -1,0 +1,25 @@
+---
+title: "Data 606 Lab 01 - Introduction to Data"
+author: "Kavya Beheraj"
+date: "February 11, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+install.packages(c('openintro','OIdata','devtools','ggplot2','psych','reshape2', 'knitr','markdown','shiny'))
+devtools::install_github("jbryer/DATA606", 'force = TRUE')
+```
+
+```{r}
+library(DATA606)
+getLabs()
+```
+
+```{r}
+startLab("Lab1")
+```
+
