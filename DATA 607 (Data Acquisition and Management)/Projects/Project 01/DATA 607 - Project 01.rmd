@@ -1,0 +1,299 @@
+---
+title: "DATA 607 -- Project 01"
+author: "Kavya Beheraj"
+date: "February 24, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("dplyr")
+library("tidyr")
+library("stringr")
+
+```
+
+****
+
+In this project, I was given a **text file** with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **.CSV file** with the following information for all players:
+
+* Player's Name
+* Player's State
+* Total Number of Points
+* Player's Pre-Rating
+* Average Pre Chess Rating of Opponents
+
+****
+
+### **1. Read in the file.**
+
+* I read in the raw tournament file, set the separator to be a |, and filled in the empty spaces in the data.
+
+```{r}
+
+df <- read.table("tournamentinfo.txt",sep = "|", fill = TRUE)
+
+```
+
+****
+
+### **2. Examine the data.**
+
+* I first renamed the columns in the raw dataframe to be more descriptive. Then, I took a look at the data.
+
+```{r}
+names(df) <- c("Pair_Num", "Player_Name", "Total_Pts", "Round_1", "Round_2", "Round_3", "Round_4", "Round_5", "Round_6", "Round_7", "NA")
+
+head(df)
+
+```
+
+
+*  I noticed right away that the raw tournament data was not **[tidy](http://garrettgman.github.io/tidying/)**. To be tidy -- that is, organized and easily manipulated by R -- a dataframe needs to meet the following criteria:
+    
+    + Each variable in the data set should be placed in its own column.
+    
+    + Each observation should be placed in its own row.
+
+    + Each value should placed in its own cell.
+
+
+* The raw data did not meet these criteria. For example, the column I titled "Player Name" had 5 different pieces of information within it -- player first name, player last name, player ID, pre-score, and post-score.
+
+
+* Before I could determine the average pre-score for the opponents of each player, I needed to (1) separate each player's information, (2) identify their opponents, and (3) identify the opponents' pre-scores. This meant the data needed to be tidier.
+
+
+****
+
+### **3. Reshape the data.**
+
+* To begin the tidying process, I first filtered the dataframe to only show distinct rows (which got rid of the horizontal dashed lines from the txt file) and removed the first three rows (which got rid of the leftover headers).
+
+
+```{r}
+
+df <- distinct(df)
+
+df <- df[ -c(1:3), ]
+
+```
+
+* The original file had each player's outcome per round in seven separate columns. I used the `gather` function from dplyr to collapse these seven columns into two: Round and Outcome.
+
+```{r}
+df2 <- df %>% gather(Round, Outcome, Round_1, Round_2, Round_3, Round_4, Round_5, Round_6, Round_7)
+
+head(df2)
+
+```
+
+****
+
+### **4. Separate the data -- Part 1.**
+
+* I noticed that the first two columns of the dataframe held many different key pieces of information: state, pair number, player name, player ID, pre-score, and post-score. 
+
+* Since the data was stored in a pattern of every other row, I used `grep` to extract the information into separate columns, with the idea that they would stay in the same order when extracted.
+
+* Then, I created a new dataframe called "df3" that held these extracted columns. 
+
+* In retrospect, I should not have used `grep` to extract the columns in this step, since that meant I had to merge them into a dataframe solely by position (as opposed to using keys, which are agnostic to position and much less prone to error).
+
+```{r}
+
+state <- grep("[[:alpha:]]+", df2$Pair_Num, value=T)
+
+pair_number <- grep("[[:digit:]]+", df2$Pair_Num, value=T)
+
+id <- grep("[[:digit:]]+", df2$Player_Name, value=T)
+
+Player_Name <- grep("[[:alpha:]]+[[:space:]][[:alpha:]]+", df2$Player_Name, value=T)
+
+df3 <- data.frame(state, pair_number, id, Player_Name)
+
+head(df3)
+
+```
+
+****
+
+### **5. Join the separated data to the main dataframe.**
+
+* Then, I joined the df2 (which held the original data) with df3 (which held the `grep` extracted data) together with a left join along the common "Player Name" column.
+
+```{r}
+
+joined <- distinct(left_join(df3, df2, by="Player_Name"))
+
+joined <- joined[ , -2 ]
+
+```
+
+### **6. Separate the data -- Part 2.**
+
+In this step, I applied a series of separations to the `joined` dataframe to pull out the player's Outcome (of each round), Opponent, ID, Pre-Score, and Post-Score.
+
+* Separate `Outcome` into `Outcome` and `Opponent`, and then `id` into `id` and `score`.
+
+``` {r}
+joined1 <- joined %>%
+  separate(Outcome, c("Outcome", "Opponent"), sep = "[[:space:]]+") %>%
+  separate(id, c("id", "score"), sep = "[\\/]")
+```
+
+* Separate the `score` column roughly into pre- and post-score.
+
+``` {r}
+joined2 <- joined1 %>%
+  separate(score, c("Pre-Score", "Post-Score"), sep = "[\\-]")
+```
+
+* Separate `pre-score` into "R" and the number.
+
+```{r}
+joined3 <- joined2 %>%
+  separate(`Pre-Score`, c("Pre-Score2", "Pre-Score"), sep = "[\\:]")
+```
+
+* Remove the letters after the pre-scores that have them.
+
+```{r}
+joined4 <- joined3 %>%
+  separate(`Pre-Score`, c("Pre-Score", "Pre-Score2"), sep = "[[:alpha:]]+")
+```
+
+* Separate `post-score` into the angle brace and the number.
+
+```{r}
+joined5 <- joined4 %>%
+  separate(`Post-Score`, c("Post-Score2", "Post-Score"), sep = "[\\>]")
+```
+
+* Remove the letters after the post-scores that have them. 
+
+```{r}
+joined6 <- joined5 %>%
+  separate(`Post-Score`, c("Post-Score", "Post-Score2"), sep = "[[:alpha:]]+")
+```
+
+* Remove the unnecessary columns to make the final join.
+
+```{r}
+final_join <- joined6[ , c(-5,-6) ]
+
+head(final_join)
+```
+
+****
+
+### **7. Create a reference dataframe.**
+
+* I decided to create a separate dataframe to hold pair number and pre-score as a reference. I called this dataframe `opponent_info`.
+
+```{r}
+opponent_info <- distinct((data.frame(final_join$`Pre-Score`, final_join$Pair_Num)))
+
+names(opponent_info) <- c("Opponent_Score", "Opponent")
+
+head(opponent_info)
+
+```
+
+****
+
+### **8. Make the columns numeric.**
+
+* My next goal was to create a column in my main dataframe (`final_join`) that held the pre-score of the opponent of each round. 
+
+* To do this, I planned to join the `opponent_info` dataframe with `final_join`. The two dataframes had the `Opponent` column in common.
+
+* However, this was harder than I thought -- when I used a `full_join` along the `Opponent` column, the pre-scores did not match up correctly. It took a lot of trial and error to find out why.
+
+* Back in Step 5, I got a warning that the columns I used to join dataframes had different levels, which meant R had to coerce them to a character vector. I didn't understand what that meant at the time and moved on, but that is what prevented R from recognizing how the `Opponent` columns matched.
+
+* I then made sure R recognized the columns with numbers in both dataframes as numeric.
+
+```{r}
+
+final_join$Pair_Num <- as.numeric(final_join$Pair_Num)
+
+final_join <- mutate(final_join, Pair_Num = Pair_Num - 1)
+
+final_join$Opponent <- as.numeric(final_join$Opponent)
+
+opponent_info$Opponent <- as.numeric(opponent_info$Opponent)
+
+opponent_info <- mutate(opponent_info, Opponent = Opponent - 1)
+
+```
+
+****
+
+### **9. Merge the opponent data with the full dataframe.**
+
+* After making the columns numeric, I was finally able to join the two datasets and add the opponent's pre-score to each round.
+
+* I renamed the columns of this merged dataset to be more consistent.
+
+```{r}
+merged <- full_join(final_join, opponent_info[, c("Opponent", "Opponent_Score")], by="Opponent")
+
+names(merged) <- c("Player_Name", "Player_ID", "Pre_Score", "Post_Score", "Player_State", "Pair_Num", "Total_Pts", "NA", "Round", "Outcome", "Opponent", "Opponent_Score")
+
+head(merged)
+```
+
+****
+
+### **10. Aggregate the opponent's pre-scores.**
+
+* After adding an opponent pre-score to each round, I could then get an average opponent pre-score for each player by using the `aggregate` function.
+
+* However, it turned out that the `Opponent_Score` variable was a factor, which meant it could not be aggregated. I had to first coerce it into a character and then a numeric.
+
+```{r}
+
+merged$Opponent_Score <- as.character(merged$Opponent_Score)
+
+merged$Opponent_Score <- as.numeric(merged$Opponent_Score)
+
+```
+
+* Once that step was complete, I was able to create a separate dataframe called `aggregated` with the mean opponent pre-score for each pair number (that is, each player).
+
+```{r}
+aggregated <- aggregate(merged[ , 12], list(merged$Pair_Num), mean)
+
+head(aggregated)
+```
+
+****
+
+### **11. Create a final dataframe with the merged data and aggregated pre-scores.**
+
+* Finally, I had the pieces to put together a dataframe that contained all of the information requested in the project's prompt. I called this dataframe `final`, and renamed the columns to reflect the average opponent score.
+
+```{r}
+
+final <- distinct(data.frame(merged$Pair_Num, merged$Player_Name, merged$Player_State, merged$Total_Pts, merged$Pre_Score))
+
+final <- merge(final, aggregated, by.x = "merged.Pair_Num", by.y = 1, all.x = TRUE)
+
+names(final) <- c("Pair_Num", "Player_Name", "Player_State", "Total_Pts", "Pre_Score", "Avg_Opponent_Score")
+
+head(final)
+
+```
+
+****
+
+### **12. Write the dataframe into a CSV file and save it to the working directory.**
+
+```{r}
+
+write.csv(final, "tournamentinfo.csv")
+
+```
+

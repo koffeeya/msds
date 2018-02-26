@@ -1,0 +1,175 @@
+---
+title: "DATA 606, Chapter 2 -- Probability"
+author: "Kavya Beheraj"
+date: "February 18, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("VennDiagram")
+```
+
+
+***
+
+### **2.6: Dice Rolls** 
+If you roll a pair of fair dice, what is the probability of:
+
+#### **(a)** getting a sum of 1?
+
+> ##### $P(sum(1))= 0$.
+> ##### The minimum sum that a pair of fair dice can have is 2.
+
+#### **(b)** getting a sum of 5?
+
+> ##### $P(sum(5))= \frac{4}{36} \approx 0.12$.
+> ##### A pair of dice can get a sum of 5 in 4 ways: (1,4), (4,1), (2,3), and (3,2). There are 36 possible combinations, so the probability of getting a sum of 5 is approximately 0.12.
+
+#### **(c)** getting a sum of 12?
+
+> ##### $P(sum(12))= \frac{1}{36} \approx 0.03$.
+> ##### A pair of dice can get a sum of 12 only one way: by rolling a (6,6). This makes the probability approximately 0.03.
+
+***
+
+### **2.8: Poverty and Language**
+The 2010 American Community Survey estimates that 14.6% of Americans live below the poverty line, 20.7% speak a language other than English (foreign language) at home, and 4.2% fall into both categories.
+
+#### **(a)** Are living below the poverty line and speaking a foreign language at home disjoint?
+
+> ##### No. Both events can occur at the same time, so they are not disjoint.
+
+#### **(b)** Draw a Venn diagram summarizing the variables and their associated probabilities.
+
+```{r}
+venn.plot <- draw.pairwise.venn(14.6, 20.7, 4.2, c("% Living below poverty line", "% Speaking foreign language"), cat.pos = 180, fill = c("darkorchid4","darkblue"), cat.fontfamily = "sans", fontfamily = "sans", fontface = "bold", alpha = 0.3, cat.dist = c(0.03, 0.03))
+grid.draw(venn.plot)
+```
+
+
+#### **(c)** What percent of Americans live below the poverty line and only speak English at home?
+
+> ##### 10.4% of Americans fall into this category.
+
+#### **(d)** What percent of Americans live below the poverty line or speak a foreign language at home?
+
+> ##### 26.9% of Americans fall into this category.
+
+#### **(e)** What percent of Americans live above the poverty line and only speak English at home?
+
+> ##### 100% -- 4.2% = 95.8% of Americans fall into this category
+
+#### **(f)** Is the event that someone lives below the poverty line independent of the event that the person speaks a foreign language at home?
+
+> ##### Yes. The two events can overlap (that is, a person can both speak a foreign language and live below the poverty line), but the occurrence of one event does not affect the probability of the other.
+
+***
+
+### **2.20: Assortative mating**
+
+#### **(a)** What is the probability that a randomly chosen male respondent or his partner has blue eyes?
+
+> ##### There are 114 participants with blue eyes in this sample, out of 204 participants. 
+>
+> ##### P(blue eyes) $= \frac{114}{204} \approx 0.56$
+>
+> ##### P(blue eyed partner) $= \frac{108}{204} \approx 0.53$
+>
+> ##### P(blue eyes or blue eyed partner) $= \frac{114 + 108}{204 + 204} \approx 0.54$
+
+#### **(b)** What is the probability that a randomly chosen male respondent with blue eyes has a partner with blue eyes?
+
+> ##### P(blue-eyed partner | blue eyes) $= \frac{78}{114} \approx 0.68$
+
+#### **(c)** What is the probability that a randomly chosen male respondent with brown eyes has a partner with blue eyes? What about the probability of a randomly chosen male respondent with green eyes having a partner with blue eyes?
+
+> ##### P(blue-eyed partner | brown eyes) $= \frac{19}{54} \approx 0.35$
+>
+> ##### P(blue-eyed partner | green eyes) $= \frac{11}{36} \approx 0.31$
+
+#### **(d)** Does it appear that the eye colors of male respondents and their partners are independent? Explain your reasoning.
+
+> ##### No, eye color is not independent, otherwise the conditional probabilities given different eye colors would be the same.
+
+***
+
+### **2.30: Books on a bookshelf**
+
+#### **(a)** Find the probability of drawing a hardcover book first then a paperback fiction book second when drawing without replacement.
+
+> ##### P(harcover) $= \frac{28}{95} \approx 0.29$
+>
+> ##### P(paperback fiction) $= \frac{59}{94} \approx 0.63$
+>
+> ##### P(paperback fiction | hardcover) $= \frac{28}{95} * \frac{59}{94} \approx 0.18$
+
+#### **(b)** Determine the probability of drawing a fiction book first and then a hardcover book second, when drawing without replacement.
+
+> ##### P(fiction) $= \frac{72}{95} \approx 0.76$
+>
+> ##### P(hardcover) $= \frac{28}{94} \approx 0.30$
+>
+> ##### P(hardcover | fiction) $= \frac{72}{95} * \frac{28}{94} \approx 0.23$
+
+#### **(c)** Calculate the probability of the scenario in part (b), except this time complete the calculations under the scenario where the first book is placed back on the bookcase before randomly drawing the second book.
+
+> ##### P(hardcover | fiction) $= \frac{72}{95} * \frac{28}{95} \approx 0.22$
+
+#### **(d)** The final answers to parts (b) and (c) are very similar. Explain why this is the case.
+
+> ##### The two probabilities are similar because only one book is being replaced in part (c), so the total number of books does not change very much.
+
+***
+
+### **2.38: Baggage fees**
+
+#### **(a)** Build a probability model, compute the average revenue per passenger, and compute the corresponding standard deviation.
+
+> ##### The average revenue per passenger is **$12.70**.
+> ##### The variance is $198.21, and the standard deviation is **$14.08**.
+
+> ##### $E(X) = (0 * 0.54) + (25 * 0.34) + (35 * 0.12) = 12.70$ 
+
+> ##### $\sigma^2(0 bags) = (0 - 12.70)^2 * 0.54 \approx 87.10$
+> ##### $\sigma^2(1 bag) = (25 - 12.70)^2 * 0.34 \approx 51.44$
+> ##### $\sigma^2(2 bags) = (35 - 12.70)^2 * 0.12 \approx 59.67$
+> ##### $\sigma^2 = 87.10 + 51.44 + 59.67 = 198.21$
+
+> ##### $\sigma = \sqrt{198.21} = 14.08$
+
+
+#### **(b)** About how much revenue should the airline expect for a flight of 120 passengers? With what standard deviation? Note any assumptions you make and if you think they are justified.
+
+> ##### The airline can expect $120 * 12.70 =$ **$1,524** in revenue, with a standard deviation of $120 * 14.08 =$ **$1,689.60**.
+>
+> ##### We assume that the passengers of this flight will check in bags with the same proportion that we used earlier. However, if the proportion is generally accurate, then this assumption is justified.
+
+***
+
+### **2.44: Income and gender**
+
+#### **(a)** Describe the distribution of total personal income.
+
+> ##### The distribution is normal, with the largest bin being $35,000 to $49,999. 
+
+#### **(b)** What is the probability that a randomly chosen US resident makes less than $50,000 per year?
+
+> ##### There is a **62.2%** chance that a random US resident makes less than $50,000 a year.
+
+#### **(c)** What is the probability that a randomly chosen US resident makes less than $50,000 per year and is female? Note any assumptions you make.
+
+> ##### If we assume that income and being female are totally independent, then the probability is $0.622 * 0.41 \approx 0.26.$
+
+#### **(d)** The same data source indicates that 71.8% of females make less than $50,000 per year. Use this value to determine whether or not the assumption you made in part (c) is valid.
+
+> ##### The assumption I made was not valid, since the actual probability is much higher than the 26% that I calculated. This tells me that the two variables are not independent.
+
+***
+
+
+
+
+
+
+

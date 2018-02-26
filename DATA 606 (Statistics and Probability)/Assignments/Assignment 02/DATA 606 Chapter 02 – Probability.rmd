@@ -1,0 +1,25 @@
+---
+title: "DATA 606 Chapter 2 - Probability"
+author: "Kavya Beheraj"
+date: "February 18, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("ggplot2")
+```
+
+***
+
+HW 2: #2.6, 2.8, 2.20, 2.30, 2.38, 2.44
+
+***
+
+### **2.6** If you roll a pair of fair dice, what is the probability of
+
+> **(a)** getting a sum of 1?
+
+> **(b)** getting a sum of 5?
+
+> **(c)** getting a sum of 12?

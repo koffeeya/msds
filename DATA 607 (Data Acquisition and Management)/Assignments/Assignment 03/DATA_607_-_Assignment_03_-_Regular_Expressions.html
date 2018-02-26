@@ -142,7 +142,7 @@ names</code></pre>
 <pre><code>## [1] &quot;Moe Szyslak&quot;          &quot;Burns, C. Montgomery&quot; &quot;Rev. Timothy Lovejoy&quot;
 ## [4] &quot;Ned Flanders&quot;         &quot;Simpson, Homer&quot;       &quot;Dr. Julius Hibbert&quot;</code></pre>
 <blockquote>
-<p><strong>(ii)</strong> Then, I removed the titles from the names, and trimmed the white space left over. I identified the titles and middle initial by looking for a pattern of 2 to 3 characters plus a period.</p>
+<p><strong>(ii)</strong> Then, I removed the titles from the names, and trimmed the white space left over. I identified the titles by looking for a pattern of 2 to 3 characters plus a period.</p>
 </blockquote>
 <pre class="r"><code>trimmed &lt;- str_replace_all(names, &quot;[[:alpha:]]{2,3}\\.&quot;, &quot;&quot;)
 

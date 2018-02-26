@@ -31,7 +31,7 @@ names
 
 ```
 
-> **(ii)** Then, I removed the titles from the names, and trimmed the white space left over. I identified the titles and middle initial by looking for a pattern of 2 to 3 characters plus a period.
+> **(ii)** Then, I removed the titles from the names and trimmed the white space left over. I identified the titles by looking for a pattern of 2 to 3 characters plus a period.
 
 ```{r}
 
