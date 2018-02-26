@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "DATA 607, Week 3 -- Regular Expressions"
 author: "Kavya Beheraj"
@@ -221,3 +222,228 @@ secret
 ```
 
 ***
+=======
+---
+title: "DATA 607, Week 3 -- Regular Expressions"
+author: "Kavya Beheraj"
+date: "February 17, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+library(ggplot2)
+```
+
+***
+
+The purpose of this assignment was to practice using regular expressions in R. These questions are from the end of Chapter 8 in the textbook *Automated Data Collection with R*.
+
+***
+
+### **3a:** Use the tools of this chapter to rearrange the vector so that all elements conform to the standard `first_name` `last_name`.
+
+> **(i)** To start, I loaded the raw data and extracted the names.
+
+```{r}
+
+namesraw <- c("555-1239Moe Szyslak(636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer5553642Dr. Julius Hibbert")
+
+names <- unlist(str_extract_all(namesraw, "[[:alpha:]., ]{2,}"))
+
+names
+
+```
+
+> **(ii)** Then, I removed the titles from the names, and trimmed the white space left over. I identified the titles and middle initial by looking for a pattern of 2 to 3 characters plus a period.
+
+```{r}
+
+trimmed <- str_replace_all(names, "[[:alpha:]]{2,3}\\.", "")
+
+trimmed <- str_trim(trimmed)
+
+trimmed
+
+```
+
+> **(iii)** To fix the names, my goal was to create clean lists of first names and last names that I could easily concatenate back together in the right order. I started by creating a clean list of last names. I identified last names as:
+>
+> * the pattern of all printable characters before a comma; OR
+> * the specific pattern of 1 character + 1 blank space + any number of characters.
+>
+>Then, I removed the 1 character + 1 blank space pattern, and also removed the commas. This left me with a clean list of last names.
+
+```{r}
+last_names <- str_extract_all(trimmed,"[[:print:]]+[\\,]|[[:alpha:]][[:blank:]]{1}[[:alpha:]]+")
+
+last_names <- str_replace_all(last_names,"[[:alpha:]]{1}[[:blank:]]{1}", "")
+
+last_names <- str_replace_all(last_names, "\\,","")
+
+last_names
+
+
+```
+
+> **(iv)** The clean list of first names was easier. I identified first names as:
+>
+> * the pattern of all printable characters after a comma, OR
+> * the pattern of characters + blank spaces.
+>
+>Then, I removed the commas and trimmed the blank spaces, and got a clean list of first names.
+
+```{r}
+first_names <- str_extract_all(trimmed,"[\\,][[:print:]]+|[[:alpha:]]+[[:blank:]]+")
+
+first_names <- str_replace_all(first_names,"[\\,]+[[:blank:]]{1,2}", "")
+
+first_names <- str_trim(first_names)
+
+first_names
+
+```
+
+> **(v)** Finally, I concatenated both lists in the right order and separated the names with a space.
+
+```{r}
+final <- str_c(first_names, last_names, sep=" ")
+
+final
+
+```
+
+
+***
+
+### **3b:** Construct a logical vector indicating whether the character has a title.
+
+> A title is a pattern of two or three characters followed by a period. Two of the names fit this pattern.
+
+```{r}
+
+title <- grepl("[[:alpha:]]{2,3}\\.", names)
+
+title
+
+```
+
+***
+
+### **3c:** Construct a logical vector indicating whether the character has a second name.
+
+> I used my cleaned list of first and last names to answer this question, since it only contains names (without titles). I identified a second name as characters followed by a period. Only one name fit this pattern.
+
+```{r}
+
+secondname <- grepl("[[:alpha:]]+\\.", final)
+
+secondname
+
+```
+
+***
+
+### Describe the types of strings that conform to the following regular expressions and construct an example that is matched by the regular expression.
+
+### **4a:** `[0-9]+\\$`
+
+> This pattern matches a string that has a number from 0 to 9 (at least once) followed by a dollar sign.
+>
+> Example: "4$"
+
+```{r}
+
+a1 <- c("4$", "4", "10$")
+
+a2 <- grepl("[0-9]+\\$", a1)
+
+a2
+
+```
+
+### **4b:** `\\b[a-z]{1,4}\\b`
+
+> This pattern describes a string that has 1-4 letters from edge to edge.
+>
+> Example: "dddd"
+
+```{r}
+
+b1 <- c("hodc", "ff", "dddd", "5gs", "ggggg")
+
+b2 <- grepl("\\b[a-z]{1,4}\\b", b1)
+
+b2
+
+```
+
+### **4c:** `.*?\\.txt$`
+
+> This pattern describes a string of any length (found at least once) that ends in ".txt".
+>
+> Example: "assignment.txt"
+
+```{r}
+
+c1 <- c("assignment.txt", "m.txt", ".txtm", "r.txt.y.txt")
+
+c2 <- grepl(".*?\\.txt$", c1)
+
+c2
+
+```
+
+### **4d:** `\\d{2}/\\d{2}/\\d{4}`
+
+> This pattern describes a string with 2 digits, a forward slash, two digits, another forward slash, and 4 digits. It is constructed like a date.
+>
+> Example: "11/22/2018"
+
+```{r}
+
+d1 <- c("11222018", "11/22/2018")
+
+d2 <- grepl("\\d{2}/\\d{2}/\\d{4}", d1)
+
+d2
+
+```
+
+### **4e:** `<(.+?)>.+?</\\1>`
+
+> This pattern matches an HTML tag with at least one character between the tags. It also has a backreference `\1`.
+>
+>Example: "`<b>bold</b>`"
+
+```{r}
+
+e1 <- c("<b>bold</b>", "<i>italics</i>")
+
+e2 <- grepl("<(.+?)>.+?</\\1>", e1)
+
+e2
+
+```
+
+***
+
+### **9:** The following code hides a secret message. Crack it with R and regular expressions.
+
+```{r}
+
+secret <- "clcopCow1zmstc0d87wnkig7OvdicpNuggvhryn92Gjuwczi8hqrfpRxs5Aj5dwpn0TanwoUwisdij7Lj8kpf03AT5Idr3coc0bt7yczjatOaootj55t3Nj3ne6c4Sfek.r1w1YwwojigOd6vrfUrbz2.2bkAnbhzgv4R9i05zEcrop.wAgnb.SqoU65fPa1otfb7wEm24k6t3sR9zqe5fy89n6Nd5t9kc4fE905gmc4Rgxo5nhDk!gr"
+
+secret <- str_replace_all(secret, "[[:digit:]]", "")
+
+secret <- str_replace_all(secret, "[[:lower:]]", "")
+
+secret <- str_replace_all(secret, "\\.", " ")
+
+secret
+
+```
+
+***
+>>>>>>> 90d3f545e12439f1336a5c04e43fdb80ea6f816f
