@@ -16,7 +16,7 @@ library("stringr")
 
 ****
 
-In this project, I was given a **text file** with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **.CSV file** with the following information for all players:
+In this project, I was given a [**text file**]("https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Projects/Project%2001/tournamentinfo.txt") with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **CSV file** with the following information for all players:
 
 * Player's Name
 * Player's State
@@ -24,15 +24,17 @@ In this project, I was given a **text file** with chess tournament results where
 * Player's Pre-Rating
 * Average Pre Chess Rating of Opponents
 
+My process for this project was to read in tournament data, tidy it, aggregate the opponent pre-scores, and return a CSV file.
+
 ****
 
 ### **1. Read in the file.**
 
-* I read in the raw tournament file, set the separator to be a |, and filled in the empty spaces in the data.
+* I saved the tournament file to a folder on my desktop. Then, I read in the file, set the separator to be a |, and filled in the empty spaces in the data.
 
 ```{r}
 
-df <- read.table("tournamentinfo.txt",sep = "|", fill = TRUE)
+df <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 (Data Acquisition and Management)/Projects/Project 01/tournamentinfo.txt",sep = "|", fill = TRUE)
 
 ```
 
@@ -80,7 +82,7 @@ df <- df[ -c(1:3), ]
 
 ```
 
-* The original file had each player's outcome per round in seven separate columns. I used the `gather` function from dplyr to collapse these seven columns into two: Round and Outcome.
+* The original file had each player's outcome per round in seven separate columns. I used the `gather` function from dplyr to collapse these seven columns into two: Round and Outcome (of the round).
 
 ```{r}
 df2 <- df %>% gather(Round, Outcome, Round_1, Round_2, Round_3, Round_4, Round_5, Round_6, Round_7)
@@ -93,11 +95,11 @@ head(df2)
 
 ### **4. Separate the data -- Part 1.**
 
-* I noticed that the first two columns of the dataframe held many different key pieces of information: state, pair number, player name, player ID, pre-score, and post-score. 
+* Like I mentioned above, the first few columns of this dataframe held many key pieces of information: state, pair number, player name, player ID, pre-score, and post-score.
 
-* Since the data was stored in a pattern of every other row, I used `grep` to extract the information into separate columns, with the idea that they would stay in the same order when extracted.
+* I noticed the data was stored in a pattern -- every other row held the same type of information. I used `grep` to extract the information into separate columns, with the idea that they would stay in the same order when extracted.
 
-* Then, I created a new dataframe called "df3" that held these extracted columns. 
+* Then, I created a new dataframe called `df3` that held these extracted columns. 
 
 * In retrospect, I should not have used `grep` to extract the columns in this step, since that meant I had to merge them into a dataframe solely by position (as opposed to using keys, which are agnostic to position and much less prone to error).
 
@@ -121,7 +123,7 @@ head(df3)
 
 ### **5. Join the separated data to the main dataframe.**
 
-* Then, I joined the df2 (which held the original data) with df3 (which held the `grep` extracted data) together with a left join along the common "Player Name" column.
+* Then, I left-joined `df2` (which held the original data) with `df3` (which held the `grep` extracted data) along a common "Player Name" column. This added the separated columns to the main dataframe.
 
 ```{r}
 
@@ -129,13 +131,15 @@ joined <- distinct(left_join(df3, df2, by="Player_Name"))
 
 joined <- joined[ , -2 ]
 
+head(joined)
+
 ```
 
 ### **6. Separate the data -- Part 2.**
 
-In this step, I applied a series of separations to the `joined` dataframe to pull out the player's Outcome (of each round), Opponent, ID, Pre-Score, and Post-Score.
+In this step, I applied a series of further separations to the main dataframe using regular expressions to pull out the player's Outcome, Opponent, ID, Pre-Score, and Post-Score.
 
-* Separate `Outcome` into `Outcome` and `Opponent`, and then `id` into `id` and `score`.
+* Separated the `Outcome` column into `Outcome` and `Opponent`, and `id` into `id` and `score`.
 
 ``` {r}
 joined1 <- joined %>%
@@ -143,42 +147,42 @@ joined1 <- joined %>%
   separate(id, c("id", "score"), sep = "[\\/]")
 ```
 
-* Separate the `score` column roughly into pre- and post-score.
+* Separated the `score` column roughly into pre- and post-score.
 
 ``` {r}
 joined2 <- joined1 %>%
   separate(score, c("Pre-Score", "Post-Score"), sep = "[\\-]")
 ```
 
-* Separate `pre-score` into "R" and the number.
+* Separated `pre-score` into "R" and the score number.
 
 ```{r}
 joined3 <- joined2 %>%
   separate(`Pre-Score`, c("Pre-Score2", "Pre-Score"), sep = "[\\:]")
 ```
 
-* Remove the letters after the pre-scores that have them.
+* Removed the combination of letters and numbers after the pre-scores that had them.
 
 ```{r}
 joined4 <- joined3 %>%
   separate(`Pre-Score`, c("Pre-Score", "Pre-Score2"), sep = "[[:alpha:]]+")
 ```
 
-* Separate `post-score` into the angle brace and the number.
+* Separated `post-score` into the angle brace and the number.
 
 ```{r}
 joined5 <- joined4 %>%
   separate(`Post-Score`, c("Post-Score2", "Post-Score"), sep = "[\\>]")
 ```
 
-* Remove the letters after the post-scores that have them. 
+* Removed the combination of letters and numbers after the post-scores that had them. 
 
 ```{r}
 joined6 <- joined5 %>%
   separate(`Post-Score`, c("Post-Score", "Post-Score2"), sep = "[[:alpha:]]+")
 ```
 
-* Remove the unnecessary columns to make the final join.
+* Removed the unnecessary columns to make the final join.
 
 ```{r}
 final_join <- joined6[ , c(-5,-6) ]
@@ -203,9 +207,9 @@ head(opponent_info)
 
 ****
 
-### **8. Make the columns numeric.**
+### **8. Make the variables numeric.**
 
-* My next goal was to create a column in my main dataframe (`final_join`) that held the pre-score of the opponent of each round. 
+* My next goal was to create a variable in my main dataframe (now called `final_join`) that held the pre-score of the opponent of each round. 
 
 * To do this, I planned to join the `opponent_info` dataframe with `final_join`. The two dataframes had the `Opponent` column in common.
 
@@ -231,11 +235,11 @@ opponent_info <- mutate(opponent_info, Opponent = Opponent - 1)
 
 ****
 
-### **9. Merge the opponent data with the full dataframe.**
+### **9. Add the opponent's pre-score to each round.**
 
 * After making the columns numeric, I was finally able to join the two datasets and add the opponent's pre-score to each round.
 
-* I renamed the columns of this merged dataset to be more consistent.
+* I renamed the columns of this newly-merged dataset to be more consistent.
 
 ```{r}
 merged <- full_join(final_join, opponent_info[, c("Opponent", "Opponent_Score")], by="Opponent")
@@ -249,7 +253,7 @@ head(merged)
 
 ### **10. Aggregate the opponent's pre-scores.**
 
-* After adding an opponent pre-score to each round, I could then get an average opponent pre-score for each player by using the `aggregate` function.
+* After adding `Opponent_Score` to each round, I could then get an average opponent pre-score for each player by using the `aggregate` function.
 
 * However, it turned out that the `Opponent_Score` variable was a factor, which meant it could not be aggregated. I had to first coerce it into a character and then a numeric.
 
@@ -271,9 +275,9 @@ head(aggregated)
 
 ****
 
-### **11. Create a final dataframe with the merged data and aggregated pre-scores.**
+### **11. Create a final dataframe.**
 
-* Finally, I had the pieces to put together a dataframe that contained all of the information requested in the project's prompt. I called this dataframe `final`, and renamed the columns to reflect the average opponent score.
+* Finally, I had the pieces to put together a dataframe that contained all of the information requested in the project's prompt. I called this dataframe `final`, and renamed the columns to include the average opponent score.
 
 ```{r}
 
@@ -289,7 +293,9 @@ head(final)
 
 ****
 
-### **12. Write the dataframe into a CSV file and save it to the working directory.**
+### **12. Write the dataframe into a CSV file.**
+
+* As a last step, I wrote the database to a file in my working directory called "tournamentinfo.csv".
 
 ```{r}
 
@@ -297,3 +303,4 @@ write.csv(final, "tournamentinfo.csv")
 
 ```
 
+****

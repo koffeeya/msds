@@ -1,0 +1,65 @@
+"","Pair_Num","Player_Name","Player_State","Total_Pts","Pre_Score","Avg_Opponent_Score"
+"1",1,"   ON "," GARY HUA                        ","6.0  "," 1794   ",1605.28571428571
+"2",2,"   MI "," DAKSHESH DARURI                 ","6.0  "," 1553   ",1469.28571428571
+"3",3,"   MI "," ADITYA BAJAJ                    ","6.0  "," 1384   ",1563.57142857143
+"4",4,"   MI "," PATRICK H SCHILLING             ","5.5  "," 1716   ",1573.57142857143
+"5",5,"   MI "," HANSHI ZUO                      ","5.5  "," 1655   ",1500.85714285714
+"6",6,"   OH "," HANSEN SONG                     ","5.0  "," 1686   ",1518.71428571429
+"7",7,"   MI "," GARY DEE SWATHELL               ","5.0  "," 1649   ",1372.14285714286
+"8",8,"   MI "," EZEKIEL HOUGHTON                ","5.0  "," 1641",1468.42857142857
+"9",9,"   ON "," STEFANO LEE                     ","5.0  "," 1411   ",1523.14285714286
+"10",10,"   MI "," ANVIT RAO                       ","5.0  "," 1365   ",1554.14285714286
+"11",11,"   MI "," CAMERON WILLIAM MC LEMAN        ","4.5  "," 1712   ",1467.57142857143
+"12",12,"   MI "," KENNETH J TACK                  ","4.5  "," 1663   ",NA
+"13",13,"   MI "," TORRANCE HENRY JR               ","4.5  "," 1666   ",1497.85714285714
+"14",14,"   MI "," BRADLEY SHAW                    ","4.5  "," 1610   ",1515
+"15",15,"   MI "," ZACHARY JAMES HOUGHTON          ","4.5  "," 1220",1483.85714285714
+"16",16,"   MI "," MIKE NIKITIN                    ","4.0  "," 1604   ",NA
+"17",17,"   MI "," RONALD GRZEGORCZYK              ","4.0  "," 1629   ",1498.57142857143
+"18",18,"   MI "," DAVID SUNDEEN                   ","4.0  "," 1600   ",1480
+"19",19,"   MI "," DIPANKAR ROY                    ","4.0  "," 1564   ",1426.28571428571
+"20",20,"   MI "," JASON ZHENG                     ","4.0  "," 1595   ",1410.85714285714
+"21",21,"   ON "," DINH DANG BUI                   ","4.0  "," 1563",1470.42857142857
+"22",22,"   MI "," EUGENE L MCCLURE                ","4.0  "," 1555   ",NA
+"23",23,"   ON "," ALAN BUI                        ","4.0  "," 1363   ",1213.85714285714
+"24",24,"   MI "," MICHAEL R ALDRICH               ","4.0  "," 1229   ",1357
+"25",25,"   MI "," LOREN SCHWIEBERT                ","3.5  "," 1745   ",1363.28571428571
+"26",26,"   ON "," MAX ZHU                         ","3.5  "," 1579   ",1506.85714285714
+"27",27,"   MI "," GAURAV GIDWANI                  ","3.5  "," 1552   ",NA
+"28",28,"   MI "," SOFIA ADINA STANESCU-BELLU      ","3.5  "," 1507   ",1522.14285714286
+"29",29,"   MI "," CHIEDOZIE OKORIE                ","3.5  "," 1602",NA
+"30",30,"   ON "," GEORGE AVERY JONES              ","3.5  "," 1522   ",1144.14285714286
+"31",31,"   MI "," RISHI SHETTY                    ","3.5  "," 1494   ",1259.85714285714
+"32",32,"   ON "," JOSHUA PHILIP MATHEWS           ","3.5  "," 1441   ",1378.71428571429
+"33",33,"   MI "," JADE GE                         ","3.5  "," 1449   ",1276.85714285714
+"34",34,"   MI "," MICHAEL JEFFERY THOMAS          ","3.5  "," 1399   ",1375.28571428571
+"35",35,"   MI "," JOSHUA DAVID LEE                ","3.5  "," 1438   ",1149.71428571429
+"36",36,"   MI "," SIDDHARTH JHA                   ","3.5  "," 1355   ",NA
+"37",37,"   MI "," AMIYATOSH PWNANANDAM            ","3.5  ","  980",NA
+"38",38,"   MI "," BRIAN LIU                       ","3.0  "," 1423   ",NA
+"39",39,"   MI "," JOEL R HENDON                   ","3.0  "," 1436",1429.57142857143
+"40",40,"   MI "," FOREST ZHANG                    ","3.0  "," 1348   ",1390.57142857143
+"41",41,"   MI "," KYLE WILLIAM MURPHY             ","3.0  "," 1403",NA
+"42",42,"   MI "," JARED GE                        ","3.0  "," 1332   ",1149.85714285714
+"43",43,"   MI "," ROBERT GLEN VASEY               ","3.0  "," 1283   ",1106.57142857143
+"44",44,"   MI "," JUSTIN D SCHILLING              ","3.0  "," 1199   ",NA
+"45",45,"   MI "," DEREK YAN                       ","3.0  "," 1242   ",1152
+"46",46,"   MI "," JACOB ALEXANDER LAVALLEY        ","3.0  ","  377",1357.71428571429
+"47",47,"   MI "," ERIC WRIGHT                     ","2.5  "," 1362   ",1392
+"48",48,"   MI "," DANIEL KHAIN                    ","2.5  "," 1382   ",NA
+"49",49,"   MI "," MICHAEL J MARTIN                ","2.5  "," 1291",NA
+"50",50,"   MI "," SHIVAM JHA                      ","2.5  "," 1056   ",NA
+"51",51,"   MI "," TEJAS AYYAGARI                  ","2.5  "," 1011   ",1356.14285714286
+"52",52,"   MI "," ETHAN GUO                       ","2.5  ","  935   ",1494.57142857143
+"53",53,"   MI "," JOSE C YBARRA                   ","2.0  "," 1393   ",NA
+"54",54,"   MI "," LARRY HODGE                     ","2.0  "," 1270   ",NA
+"55",55,"   MI "," ALEX KONG                       ","2.0  "," 1186   ",NA
+"56",56,"   MI "," MARISA RICCI                    ","2.0  "," 1153   ",NA
+"57",57,"   MI "," MICHAEL LU                      ","2.0  "," 1092   ",NA
+"58",58,"   MI "," VIRAJ MOHILE                    ","2.0  ","  917   ",NA
+"59",59,"   MI "," SEAN M MC CORMICK               ","2.0  ","  853   ",NA
+"60",60,"   MI "," JULIA SHEN                      ","1.5  ","  967   ",NA
+"61",61,"   ON "," JEZZEL FARKAS                   ","1.5  ","  955",1327.28571428571
+"62",62,"   MI "," ASHWIN BALAJI                   ","1.0  "," 1530   ",NA
+"63",63,"   MI "," THOMAS JOSEPH HOSMER            ","1.0  "," 1175   ",NA
+"64",64,"   MI "," BEN LI                          ","1.0  "," 1163   ",1263

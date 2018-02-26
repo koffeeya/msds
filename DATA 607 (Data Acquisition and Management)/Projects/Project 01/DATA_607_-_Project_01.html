@@ -127,7 +127,7 @@ $(document).ready(function () {
 
 
 <hr />
-<p>In this project, I was given a <strong>text file</strong> with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a <strong>.CSV file</strong> with the following information for all players:</p>
+<p>In this project, I was given a <a href="%22https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Projects/Project%2001/tournamentinfo.txt%22"><strong>text file</strong></a> with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a <strong>CSV file</strong> with the following information for all players:</p>
 <ul>
 <li>Player’s Name</li>
 <li>Player’s State</li>
@@ -135,23 +135,20 @@ $(document).ready(function () {
 <li>Player’s Pre-Rating</li>
 <li>Average Pre Chess Rating of Opponents</li>
 </ul>
+<p>My process for this project was to read in tournament data, tidy it, aggregate the opponent pre-scores, and return a CSV file.</p>
 <hr />
 <div id="read-in-the-file." class="section level3">
 <h3><strong>1. Read in the file.</strong></h3>
 <ul>
-<li>I set the working directory to be a folder on my desktop.</li>
+<li>I saved the tournament file to a folder on my desktop. Then, I read in the file, set the separator to be a |, and filled in the empty spaces in the data.</li>
 </ul>
-<pre class="r"><code>setwd(&quot;C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 (Data Acquisition and Management)/Projects/Project 01&quot;)</code></pre>
-<ul>
-<li>Then, I read in the raw tournament file, set the separator to be a |, and filled in the empty spaces in the data.</li>
-</ul>
-<pre class="r"><code>df &lt;- read.table(&quot;tournamentinfo.txt&quot;,sep = &quot;|&quot;, fill = TRUE)</code></pre>
+<pre class="r"><code>df &lt;- read.table(&quot;C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 (Data Acquisition and Management)/Projects/Project 01/tournamentinfo.txt&quot;,sep = &quot;|&quot;, fill = TRUE)</code></pre>
 <hr />
 </div>
 <div id="examine-the-data." class="section level3">
 <h3><strong>2. Examine the data.</strong></h3>
 <ul>
-<li>I first renamed the columns in the raw dataframe to be more descriptive.</li>
+<li>I first renamed the columns in the raw dataframe to be more descriptive. Then, I took a look at the data.</li>
 </ul>
 <pre class="r"><code>names(df) &lt;- c(&quot;Pair_Num&quot;, &quot;Player_Name&quot;, &quot;Total_Pts&quot;, &quot;Round_1&quot;, &quot;Round_2&quot;, &quot;Round_3&quot;, &quot;Round_4&quot;, &quot;Round_5&quot;, &quot;Round_6&quot;, &quot;Round_7&quot;, &quot;NA&quot;)
 
@@ -198,7 +195,7 @@ head(df)</code></pre>
 
 df &lt;- df[ -c(1:3), ]</code></pre>
 <ul>
-<li>The original file had each player’s outcome per round in seven separate columns. I used the <code>gather</code> function from dplyr to collapse these seven columns into two: Round and Outcome.</li>
+<li>The original file had each player’s outcome per round in seven separate columns. I used the <code>gather</code> function from dplyr to collapse these seven columns into two: Round and Outcome (of the round).</li>
 </ul>
 <pre class="r"><code>df2 &lt;- df %&gt;% gather(Round, Outcome, Round_1, Round_2, Round_3, Round_4, Round_5, Round_6, Round_7)</code></pre>
 <pre><code>## Warning: attributes are not identical across measure variables;
@@ -216,9 +213,9 @@ df &lt;- df[ -c(1:3), ]</code></pre>
 <div id="separate-the-data-part-1." class="section level3">
 <h3><strong>4. Separate the data – Part 1.</strong></h3>
 <ul>
-<li><p>I noticed that the first two columns of the dataframe held many different key pieces of information: state, pair number, player name, player ID, pre-score, and post-score.</p></li>
-<li><p>Since the data was stored in a pattern of every other row, I used <code>grep</code> to extract the information into separate columns, with the idea that they would stay in the same order when extracted.</p></li>
-<li><p>Then, I created a new dataframe called “df3” that held these extracted columns.</p></li>
+<li><p>Like I mentioned above, the first few columns of this dataframe held many key pieces of information: state, pair number, player name, player ID, pre-score, and post-score.</p></li>
+<li><p>I noticed the data was stored in a pattern – every other row held the same type of information. I used <code>grep</code> to extract the information into separate columns, with the idea that they would stay in the same order when extracted.</p></li>
+<li><p>Then, I created a new dataframe called <code>df3</code> that held these extracted columns.</p></li>
 <li><p>In retrospect, I should not have used <code>grep</code> to extract the columns in this step, since that meant I had to merge them into a dataframe solely by position (as opposed to using keys, which are agnostic to position and much less prone to error).</p></li>
 </ul>
 <pre class="r"><code>state &lt;- grep(&quot;[[:alpha:]]+&quot;, df2$Pair_Num, value=T)
@@ -251,53 +248,69 @@ head(df3)</code></pre>
 <div id="join-the-separated-data-to-the-main-dataframe." class="section level3">
 <h3><strong>5. Join the separated data to the main dataframe.</strong></h3>
 <ul>
-<li>Then, I joined the df2 (which held the original data) with df3 (which held the <code>grep</code> extracted data) together with a left join along the common “Player Name” column.</li>
+<li>Then, I left-joined <code>df2</code> (which held the original data) with <code>df3</code> (which held the <code>grep</code> extracted data) along a common “Player Name” column. This added the separated columns to the main dataframe.</li>
 </ul>
 <pre class="r"><code>joined &lt;- distinct(left_join(df3, df2, by=&quot;Player_Name&quot;))</code></pre>
 <pre><code>## Warning: Column `Player_Name` joining factors with different levels,
 ## coercing to character vector</code></pre>
-<pre class="r"><code>joined &lt;- joined[ , -2 ]</code></pre>
+<pre class="r"><code>joined &lt;- joined[ , -2 ]
+
+head(joined)</code></pre>
+<pre><code>##    state                                id
+## 1    ON   15445895 / R: 1794   -&gt;1817     
+## 2    ON   15445895 / R: 1794   -&gt;1817     
+## 3    ON   15445895 / R: 1794   -&gt;1817     
+## 4    ON   15445895 / R: 1794   -&gt;1817     
+## 5    ON   15445895 / R: 1794   -&gt;1817     
+## 6    ON   15445895 / R: 1794   -&gt;1817     
+##                         Player_Name Pair_Num Total_Pts NA   Round Outcome
+## 1  GARY HUA                               1      6.0   NA Round_1   W  39
+## 2  GARY HUA                               1      6.0   NA Round_2   W  21
+## 3  GARY HUA                               1      6.0   NA Round_3   W  18
+## 4  GARY HUA                               1      6.0   NA Round_4   W  14
+## 5  GARY HUA                               1      6.0   NA Round_5   W   7
+## 6  GARY HUA                               1      6.0   NA Round_6   D  12</code></pre>
 </div>
 <div id="separate-the-data-part-2." class="section level3">
 <h3><strong>6. Separate the data – Part 2.</strong></h3>
-<p>In this step, I applied a series of separations to the <code>joined</code> dataframe to pull out the player’s Outcome (of each round), Opponent, ID, Pre-Score, and Post-Score.</p>
+<p>In this step, I applied a series of further separations to the main dataframe using regular expressions to pull out the player’s Outcome, Opponent, ID, Pre-Score, and Post-Score.</p>
 <ul>
-<li>Separate <code>Outcome</code> into <code>Outcome</code> and <code>Opponent</code>, and then <code>id</code> into <code>id</code> and <code>score</code>.</li>
+<li>Separated the <code>Outcome</code> column into <code>Outcome</code> and <code>Opponent</code>, and <code>id</code> into <code>id</code> and <code>score</code>.</li>
 </ul>
 <pre class="r"><code>joined1 &lt;- joined %&gt;%
   separate(Outcome, c(&quot;Outcome&quot;, &quot;Opponent&quot;), sep = &quot;[[:space:]]+&quot;) %&gt;%
   separate(id, c(&quot;id&quot;, &quot;score&quot;), sep = &quot;[\\/]&quot;)</code></pre>
 <ul>
-<li>Separate the <code>score</code> column roughly into pre- and post-score.</li>
+<li>Separated the <code>score</code> column roughly into pre- and post-score.</li>
 </ul>
 <pre class="r"><code>joined2 &lt;- joined1 %&gt;%
   separate(score, c(&quot;Pre-Score&quot;, &quot;Post-Score&quot;), sep = &quot;[\\-]&quot;)</code></pre>
 <ul>
-<li>Separate <code>pre-score</code> into “R” and the number.</li>
+<li>Separated <code>pre-score</code> into “R” and the score number.</li>
 </ul>
 <pre class="r"><code>joined3 &lt;- joined2 %&gt;%
   separate(`Pre-Score`, c(&quot;Pre-Score2&quot;, &quot;Pre-Score&quot;), sep = &quot;[\\:]&quot;)</code></pre>
 <ul>
-<li>Remove the letters after the pre-scores that have them.</li>
+<li>Removed the combination of letters and numbers after the pre-scores that had them.</li>
 </ul>
 <pre class="r"><code>joined4 &lt;- joined3 %&gt;%
   separate(`Pre-Score`, c(&quot;Pre-Score&quot;, &quot;Pre-Score2&quot;), sep = &quot;[[:alpha:]]+&quot;)</code></pre>
 <pre><code>## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 378 rows [1,
 ## 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
 <ul>
-<li>Separate <code>post-score</code> into the angle brace and the number.</li>
+<li>Separated <code>post-score</code> into the angle brace and the number.</li>
 </ul>
 <pre class="r"><code>joined5 &lt;- joined4 %&gt;%
   separate(`Post-Score`, c(&quot;Post-Score2&quot;, &quot;Post-Score&quot;), sep = &quot;[\\&gt;]&quot;)</code></pre>
 <ul>
-<li>Remove the letters after the post-scores that have them.</li>
+<li>Removed the combination of letters and numbers after the post-scores that had them.</li>
 </ul>
 <pre class="r"><code>joined6 &lt;- joined5 %&gt;%
   separate(`Post-Score`, c(&quot;Post-Score&quot;, &quot;Post-Score2&quot;), sep = &quot;[[:alpha:]]+&quot;)</code></pre>
 <pre><code>## Warning: Expected 2 pieces. Missing pieces filled with `NA` in 392 rows [1,
 ## 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, ...].</code></pre>
 <ul>
-<li>Remove the unnecessary columns to make the final join.</li>
+<li>Removed the unnecessary columns to make the final join.</li>
 </ul>
 <pre class="r"><code>final_join &lt;- joined6[ , c(-5,-6) ]
 
@@ -337,10 +350,10 @@ head(opponent_info)</code></pre>
 ## 6        1686          6</code></pre>
 <hr />
 </div>
-<div id="make-the-columns-numeric." class="section level3">
-<h3><strong>8. Make the columns numeric.</strong></h3>
+<div id="make-the-variables-numeric." class="section level3">
+<h3><strong>8. Make the variables numeric.</strong></h3>
 <ul>
-<li><p>My next goal was to create a column in my main dataframe (<code>final_join</code>) that held the pre-score of the opponent of each round.</p></li>
+<li><p>My next goal was to create a variable in my main dataframe (now called <code>final_join</code>) that held the pre-score of the opponent of each round.</p></li>
 <li><p>To do this, I planned to join the <code>opponent_info</code> dataframe with <code>final_join</code>. The two dataframes had the <code>Opponent</code> column in common.</p></li>
 <li><p>However, this was harder than I thought – when I used a <code>full_join</code> along the <code>Opponent</code> column, the pre-scores did not match up correctly. It took a lot of trial and error to find out why.</p></li>
 <li><p>Back in Step 5, I got a warning that the columns I used to join dataframes had different levels, which meant R had to coerce them to a character vector. I didn’t understand what that meant at the time and moved on, but that is what prevented R from recognizing how the <code>Opponent</code> columns matched.</p></li>
@@ -357,11 +370,11 @@ opponent_info$Opponent &lt;- as.numeric(opponent_info$Opponent)
 opponent_info &lt;- mutate(opponent_info, Opponent = Opponent - 1)</code></pre>
 <hr />
 </div>
-<div id="merge-the-opponent-data-with-the-full-dataframe." class="section level3">
-<h3><strong>9. Merge the opponent data with the full dataframe.</strong></h3>
+<div id="add-the-opponents-pre-score-to-each-round." class="section level3">
+<h3><strong>9. Add the opponent’s pre-score to each round.</strong></h3>
 <ul>
 <li><p>After making the columns numeric, I was finally able to join the two datasets and add the opponent’s pre-score to each round.</p></li>
-<li><p>I renamed the columns of this merged dataset to be more consistent.</p></li>
+<li><p>I renamed the columns of this newly-merged dataset to be more consistent.</p></li>
 </ul>
 <pre class="r"><code>merged &lt;- full_join(final_join, opponent_info[, c(&quot;Opponent&quot;, &quot;Opponent_Score&quot;)], by=&quot;Opponent&quot;)
 
@@ -394,7 +407,7 @@ head(merged)</code></pre>
 <div id="aggregate-the-opponents-pre-scores." class="section level3">
 <h3><strong>10. Aggregate the opponent’s pre-scores.</strong></h3>
 <ul>
-<li><p>After adding an opponent pre-score to each round, I could then get an average opponent pre-score for each player by using the <code>aggregate</code> function.</p></li>
+<li><p>After adding <code>Opponent_Score</code> to each round, I could then get an average opponent pre-score for each player by using the <code>aggregate</code> function.</p></li>
 <li><p>However, it turned out that the <code>Opponent_Score</code> variable was a factor, which meant it could not be aggregated. I had to first coerce it into a character and then a numeric.</p></li>
 </ul>
 <pre class="r"><code>merged$Opponent_Score &lt;- as.character(merged$Opponent_Score)
@@ -415,10 +428,10 @@ head(aggregated)</code></pre>
 ## 6       6 1518.714</code></pre>
 <hr />
 </div>
-<div id="create-a-final-dataframe-with-the-merged-data-and-aggregated-pre-scores." class="section level3">
-<h3><strong>11. Create a final dataframe with the merged data and aggregated pre-scores.</strong></h3>
+<div id="create-a-final-dataframe." class="section level3">
+<h3><strong>11. Create a final dataframe.</strong></h3>
 <ul>
-<li>Finally, I had the pieces to put together a dataframe that contained all of the information requested in the project’s prompt. I called this dataframe <code>final</code>, and renamed the columns to reflect the average opponent score.</li>
+<li>Finally, I had the pieces to put together a dataframe that contained all of the information requested in the project’s prompt. I called this dataframe <code>final</code>, and renamed the columns to include the average opponent score.</li>
 </ul>
 <pre class="r"><code>final &lt;- distinct(data.frame(merged$Pair_Num, merged$Player_Name, merged$Player_State, merged$Total_Pts, merged$Pre_Score))
 
@@ -443,9 +456,13 @@ head(final)</code></pre>
 ## 6   1686              1518.714</code></pre>
 <hr />
 </div>
-<div id="write-the-dataframe-into-a-csv-file-and-save-it-to-the-working-directory." class="section level3">
-<h3><strong>12. Write the dataframe into a CSV file and save it to the working directory.</strong></h3>
-<pre class="r"><code>#write.csv(final, &quot;tournamentfinal.csv&quot;)</code></pre>
+<div id="write-the-dataframe-into-a-csv-file." class="section level3">
+<h3><strong>12. Write the dataframe into a CSV file.</strong></h3>
+<ul>
+<li>As a last step, I wrote the database to a file in my working directory called “tournamentinfo.csv”.</li>
+</ul>
+<pre class="r"><code>write.csv(final, &quot;tournamentinfo.csv&quot;)</code></pre>
+<hr />
 </div>
 
 
