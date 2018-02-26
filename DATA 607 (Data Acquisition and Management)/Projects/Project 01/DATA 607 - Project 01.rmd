@@ -16,7 +16,7 @@ library("stringr")
 
 ****
 
-In this project, I was given a [**text file**]("https://github.com/koffeeya/msds/blob/master/DATA%20607%20(Data%20Acquisition%20and%20Management)/Projects/Project%2001/tournamentinfo.txt") with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **CSV file** with the following information for all players:
+In this project, I was given a [**text file**]("https://goo.gl/9oQpb8") with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **CSV file** with the following information for all players:
 
 * Player's Name
 * Player's State
@@ -25,6 +25,8 @@ In this project, I was given a [**text file**]("https://github.com/koffeeya/msds
 * Average Pre Chess Rating of Opponents
 
 My process for this project was to read in tournament data, tidy it, aggregate the opponent pre-scores, and return a CSV file.
+
+[Here is a link]("https://goo.gl/V5CXQj") to the CSV file I created.
 
 ****
 
