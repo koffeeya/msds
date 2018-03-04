@@ -16,7 +16,7 @@ library("stringr")
 
 ****
 
-In this project, I was given a [**text file**]("https://goo.gl/9oQpb8") with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **CSV file** with the following information for all players:
+In this project, I was given a text file with chess tournament results where the information had some structure. My goal was to create an R Markdown file that generates a **CSV file** with the following information for all players:
 
 * Player's Name
 * Player's State
@@ -26,7 +26,7 @@ In this project, I was given a [**text file**]("https://goo.gl/9oQpb8") with che
 
 My process for this project was to read in tournament data, tidy it, aggregate the opponent pre-scores, and return a CSV file.
 
-[Here is a link]("https://goo.gl/V5CXQj") to the CSV file I created.
+Here is a [GitHub repository]("https://goo.gl/6u5gif") with links to the original text file and the CSV file I created.
 
 ****
 

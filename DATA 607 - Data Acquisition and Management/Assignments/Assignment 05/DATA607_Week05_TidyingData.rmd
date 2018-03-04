@@ -1,0 +1,184 @@
+---
+title: "DATA 607, Week 5 -- Tidying and Transforming Data"
+author: "Kavya Beheraj"
+date: "March 4, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("dplyr")
+library("tidyr")
+library("knitr")
+library("kableExtra")
+
+```
+
+****
+
+In this assignment, I practiced tidying and transforming data for downstream analysis.
+
+The assignment included the following image of a flight arrivals table for two airlines:
+
+![](C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Assignments/Assignment 05/assignment05_table.png)
+
+I created a .CSV file from this table, read the file into R, transformed and tidied the data, and performed an analysis.
+
+I used the following packages:
+
+* **tidyr** -- to gather and separate the data
+* **dplyr** -- to group and summarize the data
+* **knitr** and **kableExtra** -- to create responsive HTML tables
+
+****
+
+### **1. Create and read in the CSV.**
+
+To begin, I entered the data in a CSV file exactly as it appeared in the image. Then, I saved the file to a folder on my desktop and read it into R.
+
+```{r}
+flights <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Assignments/Assignment 05/flightdelays.csv",sep = ",", fill = TRUE, header = TRUE)
+
+flights %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+### **2. Prepare the data.**
+
+I did a few preliminary steps to prepare the data for reshaping. First, I removed the third row of the dataset, which was empty.
+
+```{r}
+flights <- flights[ -3, ]
+```
+
+I renamed the columns to be more descriptive.
+
+```{r}
+names(flights) <- c("Airline", "Status", "Los Angeles", "Phoenix", "San Diego", "San Francisco", "Seattle")
+```
+
+I filled in the empty rows of the `Airline` variable.
+
+```{r}
+flights$Airline <- c("ALASKA", "ALASKA", 
+                     "AM WEST", "AM WEST")
+
+flights %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+
+****
+
+### **3. Gather the data.**
+
+Next, I reshaped the data from a wide format to a long format. I assumed that the numbers in the original table referred to number of flights. 
+
+I used the `gather` function to collapse `Destination` and number of flights (`N`) into 20 rows.
+
+```{r}
+
+f_gathered <- gather(flights, "Destination", "N", 3:7)
+
+f_gathered %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+### **4. Spread the data.**
+
+I noticed that the `Status` and `N` columns could be further tidied. I spread the columns into two: 
+
+* `delayed` -- the number of flights that arrived with a delay at that destination and airline.
+* `on time` -- the number of flights that arrived on time at that destination and airline.
+
+```{r}
+
+f_spread <- spread(f_gathered, "Status", "N")
+
+f_spread %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+### **5. Add calculated columns.**
+
+With the data now tidy, I could begin calculating new variables to explore the results.
+
+Using the `mutate` function in `dplyr`, I added three columns to the dataframe:
+
+* `total` -- the total number of flights observed.
+* `% delayed` -- the percentage of flights that arrived with a delay at that destination and airline.
+* `% on time` -- the percentage of flights that arrived on time at that destination and airline.
+
+
+```{r}
+
+f_mutated <- mutate(f_spread, "total" = f_spread$delayed + f_spread$`on time`)
+
+f_mutated <- mutate(f_mutated, "% delayed" = round(( f_mutated$delayed / f_mutated$total ) * 100, 2), 
+                               "% on time" = round(( f_mutated$`on time` / f_mutated$total ) * 100, 2) )
+
+f_mutated %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+### **6. Group and summarize the data.**
+
+Finally, I decided to calculate the percentage of flights from each airline that arrived on time and with a delay. 
+
+I grouped the data by airline, and used the `summarise` function to calculate the sum of on-time and delayed flights. Then, I added more columns using `mutate` to determine the percentages.
+
+```{r}
+
+f_grouped <- group_by(f_mutated, Airline)
+
+f_sum <- f_grouped %>% 
+  summarise(delayed_sum = sum(`delayed`), 
+            ontime_sum = sum(`on time`))
+
+f_sum <- mutate(f_sum, 
+                "total" = f_sum$delayed_sum + f_sum$ontime_sum)
+
+f_sum <- mutate(f_sum, 
+                "% delayed" = round(( f_sum$`delayed_sum` / f_sum$total ) * 100, 2),
+                "% on time" = round(( f_sum$`ontime_sum` / f_sum$total ) * 100, 2) )
+
+names(f_sum) <- c("Airline", "# Flights Delayed", "# Flights On Time", "Total # Flights", "% Flights Delayed", "% Flights on Time")
+
+f_sum %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+### **7. Analysis.**
+
+Overall, I see that ALASKA has a higher percentage of flights that arrive with a delay compared to AM WEST. However, AM WEST has about 4,000 more flights recorded in the database than ALASKA. 
+
+From the summary table by destination in Step 5, I see that both airlines are delayed most often when the destination is San Francisco. This could lead to the conclusion that something about the San Francisco airport causes more arrival delays than other airports.
+
+However, it's important to note that the airlines don't go to each destination equally -- for example, more ALASKA planes go to Seattle than AM WEST, and more AM WEST planes go to Phoenix than ALASKA. This unequal distribution could affect the results. We also don't have data about the individual airports, like how busy each they usually get, or the efficiency of their air traffic controllers.
+
+****
+
+
+
