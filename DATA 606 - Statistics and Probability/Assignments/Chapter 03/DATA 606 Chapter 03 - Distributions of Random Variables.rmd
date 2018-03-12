@@ -1,0 +1,342 @@
+---
+title: "DATA 606 Chapter 03 - Distributions of Random Variables"
+author: "Kavya Beheraj"
+date: "March 4, 2018"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DATA606)
+```
+
+****
+
+# **3.02  |  Area under the curve, Part II** 
+
+What percent of a standard normal distribution is found in each region? Be sure to draw a graph.
+
+#### **(a)  $Z > -1.13 =$ 87.1% **
+
+```{r}
+
+normalPlot(mean = 0, sd = 1, bounds = c(-1.13, 4), tails = FALSE)
+
+```
+
+<br>
+
+#### **(b)  $Z < 0.18 =$ 57.1% **
+
+```{r}
+
+normalPlot(mean = 0, sd = 1, bounds = c(-4, 0.18), tails = FALSE)
+
+```
+
+<br>
+
+#### **(c)  $Z > 8 =$ 0% **
+
+```{r}
+
+normalPlot(mean = 0, sd = 1, bounds = c(8, 4), tails = FALSE)
+
+```
+
+<br>
+
+#### **(d)  $|Z| < 0.5 =$ 19.1% **
+
+```{r}
+
+normalPlot(mean = 0, sd = 1, bounds = c(0, 0.5), tails = FALSE)
+
+```
+
+<br>
+
+****
+
+<br>
+
+# **3.04  |  Triathalon Times, Part I** 
+
+<br>
+
+#### **(a)** Write down the short-hand for these two normal distributions.
+
+* Mens $= N(4313, 583)$
+     
+* Womens $= N(5261, 807)$
+
+<br>
+
+#### **(b)** What are the Z-scores for Leo's and Mary's finishing times? What do these Z-scores tell you?
+
+* Leo $=\frac{4948-4313}{583} \approx 1.04$
+
+* Mary $=\frac{5513-5261}{807} \approx 0.31$
+     
++ These Z-scores tell us the number of standard deviations that their finishing times fall above the mean for their group.
+
+<br>
+
+#### **(c)** Did Leo or Mary rank better in their respective groups? Explain your reasoning.
+
+* Leo ranked better in his group than Mary did in hers. His Z-score is higher than Mary's, which indicates that his finishing time is farther from the mean, and therefore more unusual.
+
+<br>
+
+#### **(d)** What percent of the triathletes did Leo finish faster than in his group?
+
+* Leo finished faster than **86.2%** of triathletes in his group.
+
+```{r}
+
+normalPlot(mean = 4313, sd = 583, bounds = c(0, 4948), tails = FALSE)
+
+```
+
+
+<br>
+
+#### **(e)** What percent of the triathletes did Mary finish faster than in her group? 
+
+* Mary finished faster than **62.3%** of triathletes in her group.
+
+```{r}
+
+normalPlot(mean = 5261, sd = 807, bounds = c(0, 5513), tails = FALSE)
+
+```
+
+<br>
+
+#### **(f)** If the distributions of finishing times are not nearly normal, would your answers to parts (b) -- (e) change?
+
+* Yes. If the distribution is not normal, then we can't assume that the area under it is equal to 1, and we can't determine Z-scores or percentiles.
+
+<br>
+
+****
+
+<br>
+
+# **3.18  |  Heights of female college students** 
+
+Mean = 61.52 inches
+
+Standard deviation = 4.58
+
+<br>
+
+#### **(a)** Use this information to determine if the heights approximately follow the 68-95-99.7% Rule.
+
+* Yes, the heights follow the rule.
+
+* The probability of falling within 1 $\sigma$ of $\mu$) = **68.3%**
+```{r}
+normalPlot(mean = 61.52, sd = 4.58, bounds = c(56.94, 66.10), tails = FALSE)
+```
+
+* The probability of falling within 2 $\sigma$ of $\mu$) = **95.4%**
+```{r}
+normalPlot(mean = 61.52, sd = 4.58, bounds = c(52.36, 70.68), tails = FALSE)
+```
+
+* The probability of falling within 3 $\sigma$ of $\mu$) = **99.7%**
+```{r}
+normalPlot(mean = 61.52, sd = 4.58, bounds = c(47.78, 75.26), tails = FALSE)
+```
+
+<br>
+
+#### **(b)** Do these data appear to follow a normal distribution?
+
+* The data appears to follow the normal distribution, for the most part. Looking at simulated data, however, we see deviations from the normal line at the start and end of the distribution.
+
+```{r}
+
+heights <- c(54,55,56,56,57,58,58,59,60,60,60,61,61,62,62,63,63,63,64,65,65,67,67,69,73)
+
+sim_norm <- rnorm(n = length(heights), mean = mean(heights), sd = sd(heights))
+
+qqnorm(sim_norm)
+qqline(sim_norm)
+
+```
+
+<br>
+
+****
+
+<br>
+
+# **3.22  |  Defective rate**
+
+A machine that produces a special type of transistor (a component of computers) has a 2% defective rate. The production is considered a random process where each transistor is independent of the others.
+
+<br>
+
+#### **(a)** What is the probability that the 10th transistor produced is the first with a defect?
+
+* The probability is approximately **1.67%**.
+
+* $(0.98)^9 \times 0.02 \approx .0167$
+
+<br>
+
+#### **(b)** What is the probability that the machine produces no defective transistors in a batch of 100?
+
+* The probability is approximately **13.3%**.
+
+* $(0.98)^{100} \approx 0.133$
+
+<br>
+
+#### **(c)** On average, how many transistors would you expect to be produced before the first with a defect? What is the standard deviation?
+
+* $\mu = \frac{1}{0.02} =$ **50** transistors produced before defect
+
+* $\sigma^2 = \frac{1-0.02}{0.02^2} =$ 2450
+
+* $\sigma \approx$ **49.5**
+
+<br>
+
+#### **(d)** Another machine has a 5% defective rate. On average how many transistors would you expect to be produced with this machine before the first with a defect? What is the standard deviation?
+
+* $\mu = \frac{1}{0.05} =$ **20** transistors produced before defect
+
+* $\sigma^2 = \frac{1-0.05}{0.05^2} =$ 380
+
+* $\sigma \approx$ **19.5**
+
+<br>
+
+#### **(e)** Based on your answers to parts (c) and (d), how does increasing the probability of an event affect the mean and standard deviation of the wait time until success?
+
+* Increasing the probability of an event reduces the average amount of time until success and reduces the standard deviation.
+
+<br>
+
+****
+
+<br>
+
+# **3.38  |  Male children**
+
+While it is often assumed that the probabilities of having a boy or a girl are the same, the actual probability of having a boy is slightly higher at 0.51. Suppose a couple plans to have 3 kids.
+
+<br>
+
+#### **(a)** Use the binomial model to calculate the probability that two of them will be boys.
+
+* The probability using the binomial model is **0.382347**.
+
+```{r}
+
+pM <- 0.51     # Probability of getting a boy
+pF <- 1 - pM   # Probability of getting a girl
+nM <- 3        # Number of trials
+kM <- 2        # Number of successes
+
+fN <- factorial(nM)
+fK <- factorial(kM)
+fN_K <- factorial(nM - kM)
+
+a <- ((fN/(fK*fN_K)) * (pM)^2 * (1-pM)^(nM - kM))
+
+a
+
+```
+
+<br>
+
+#### **(b)** Write out all possible orderings of 3 children, 2 of whom are boys. Use these scenarios to calculate the same probability from part (a) but using the addition rule for disjoint outcomes. Confirm that your answers from parts (a) and (b) match.
+
+* There are **3 possible orderings** of 2 boys and 1 girl.
+
+```{r}
+
+t1 <- c("F", "M", "M") # 1st possible ordering
+t2 <- c("M", "F", "M") # 2nd possible ordering
+t3 <- c("M", "M", "F") # 3rd possible ordering
+
+df <- data.frame(t1,t2,t3)
+
+df
+
+```
+
+* The probability using the addition rule is **0.382347**, the same as in part A.
+
+```{r}
+b <- (pF * pM * pM) + (pM * pF * pM) + (pM * pM * pF)
+
+b
+```
+
+<br>
+
+#### **(c)** If we wanted to calculate the probability that a couple who plans to have 8 kids will have 3 boys, briefly describe why the approach from part (b) would be more tedious than the approach from part (a).
+
+* The approach from part B would be more tedious because there are many more possible orderings of 8 children with 3 boys, which makes the equation much longer.
+
+<br>
+
+****
+
+<br>
+
+# **3.42  |  Serving in volleyball**
+
+A not-so-skilled volleyball player has a 15% chance of making the serve, which involves hitting the ball so it passes over the net on a trajectory such that it will land in the opposing team's court. Suppose that her serves are independent of each other.
+
+<br>
+
+#### **(a)** What is the probability that on the 10th try she will make her 3rd successful serve?
+
+* The probability is **0.001081948.**
+
+```{r}
+
+pS <- 0.15    # Probability of a successful serve
+pL <- 1 - pS  # Probability of an unsuccessful serve
+nA <- 10      # Number of trials 
+kA <- 3       # Number of successes
+
+# Negative binomial distribution:
+
+v1 <- (pS)^(kA) * (1 - pS)^(nA - kA)
+
+v1
+
+```
+
+
+<br>
+
+#### **(b)** Suppose she has made two successful serves in nine attempts. What is the probability that her 10th serve will be successful?
+
+* Since each serve is independent, the probability of a successful 10th serve is the same as the probability of any successful serve, **0.15.**
+
+<br>
+
+#### **(c)** Even though parts (a) and (b) discuss the same scenario, the probabilities you calculated should be different. Can you explain the reason for this discrepancy?
+
+* Part (a) is the probability of a specific scenario: the probability that the 10th trial is a success given two prior successes. In part (b), we are only calculating the probability that her 10th trial is a success.
+
+<br>
+
+
+****
+
+
+
+

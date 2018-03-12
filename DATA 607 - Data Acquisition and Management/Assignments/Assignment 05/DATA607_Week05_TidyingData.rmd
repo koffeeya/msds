@@ -23,7 +23,7 @@ The assignment included the following image of a flight arrivals table for two a
 
 ![](C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Assignments/Assignment 05/assignment05_table.png)
 
-I created a .CSV file from this table, read the file into R, transformed and tidied the data, and performed an analysis.
+I created a [.CSV file](https://github.com/koffeeya/msds/blob/master/DATA%20607%20-%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2005/flightdelays.csv) from this table, read the file into R, transformed and tidied the data, and performed an analysis.
 
 I used the following packages:
 

@@ -1,0 +1,685 @@
+---
+title: "DATA  607: Project 02"
+author: "Kavya Beheraj"
+date: "March 11, 2018"
+output: 
+  html_document:
+    theme: journal
+    highlight: haddock
+    toc: true
+    toc_depth: 4
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("tidyr")
+library("dplyr")
+library("stringr")
+library("knitr")
+library("kableExtra")
+library("ggplot2")
+```
+
+<hr>
+
+# Background
+
+In this project, I imported three CSV datasets, tidied them, and answered questions about them. The datsets and questions were chosen by my classmates and posted in the DATA 607 BlackBoard forum.
+
+
+### Datasets
+
+Here are links to the datsets I tidied and the classmate who posted them.
+
+1. [**U.S. Marriage and Divorce Rates**]("https://github.com/xiaoxiaogao-DD/DATA607-Project1/blob/master/national_marriage_divorce_rates_00-16.csv"), posted by Jiadi Li
+    
+2. **Time Use by Gender in Europe**, posted by Nicholas Schettini
+    
+3. **School Attendance**, posted by Baron Curtin
+    
+
+### Packages
+
+* `tidyr`, `dplyr`, and `stringr` -- to reshape, replace, and tidy the data
+
+* `knitr` and `kableExtra` -- to create responsive HTML tables
+
+* `ggplot2` -- to visualize the data
+
+<hr>
+
+# U.S. Marriage and Divorce Rates
+
+### 1. Import and examine the dataset.
+
+I imported the CSV from a folder on my desktop.
+
+```{r}
+
+df1 <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Projects/Project 02/national_marriage_divorce_rates_00-16.csv",sep = ",", fill = TRUE, header = TRUE)
+
+
+```
+
+The dataset contains two tables: one that describes the number of marriages per year in the U.S population from 2000 -- 2016, and one that describes the number of divorces and annulments during the same period.
+
+The dataset also contains many extraneous columns, and variables that aren't formatted correctly.
+
+<hr>
+
+### 2. Prepare the dataset.
+
+I split the original dataset into two -- one for marriages and one for divorces -- and renamed the headers to be consistent.
+
+```{r}
+
+marriage <- df1[3:19, 1:4]
+
+names(marriage) <- c("Year", "Marriages", "Population", "Marriage_Rate")
+
+head(marriage) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
+
+```
+
+```{r}
+
+divorce <- df1[32:48, 1:4]
+
+names(divorce) <- c("Year", "Divorces", "Population", "Divorce_Rate")
+
+head(divorce) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<hr>
+
+### 3. Clean up the variables.
+
+#### Remove notes
+
+First, I focused on removing the notes that were added to the "Year" column with a forward slash.
+
+```{r}
+marriage_sep <- marriage %>%
+  separate(Year, c("Year", "X"), sep = "[\\/]")
+
+marriage <- marriage_sep[, -2]
+
+```
+
+```{r}
+divorce_sep <- divorce %>%
+  separate(Year, c("Year", "X"), sep = "[\\/]")
+
+divorce <- divorce_sep[, -2]
+
+```
+
+</br>
+
+#### Coerce into numeric
+
+Then, I removed the commas from the datasets and coerced each variable into a numeric.
+
+I started with the "Marriages" dataset:
+
+```{r}
+
+# Coerce "Year" into a numeric
+marriage$Year <- as.numeric(
+                 as.character(marriage$Year))
+
+# Remove commas and coerce "Marriages" into a numeric
+m_replace1 <- str_replace_all(marriage$Marriages, "[\\,]", "")
+
+marriage$Marriages <- as.numeric(
+                      as.character(m_replace1))
+
+# Remove commas and coerce "Population" into a numeric
+m_replace2 <- str_replace_all(marriage$Population, "[\\,]", "")
+
+marriage$Population <- as.numeric(
+                       as.character(m_replace2))
+
+# Coerce "Rate_Per_1000" into a numeric
+marriage$Marriage_Rate <- as.numeric(
+                          as.character(marriage$Marriage_Rate))
+
+```
+
+I did the same to the "Divorces" dataset:
+
+```{r}
+
+# Coerce "Year" into a numeric
+divorce$Year <- as.numeric(
+                as.character(divorce$Year))
+
+# Remove commas and coerce "Divorces" into a numeric
+d_replace1 <- str_replace_all(divorce$Divorces, "[\\,]", "")
+
+divorce$Divorces <- as.numeric(
+                    as.character(d_replace1))
+
+# Remove commas and coerce "Population" into a numeric
+d_replace2 <- str_replace_all(divorce$Population, "[\\,]", "")
+
+divorce$Population <- as.numeric(
+                      as.character(d_replace2))
+
+# Coerce "Rate_Per_1000" into a numeric
+divorce$Divorce_Rate <- as.numeric(
+                         as.character(divorce$Divorce_Rate))
+
+```
+
+</br>
+
+#### View cleaned data
+
+At the end of this step, I got two datasets that had clean variables in the correct format.
+
+```{r}
+
+head(marriage) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+head(divorce) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+
+<hr>
+
+### 4. Analyze the data.
+
+**Is the decrease in divorce rate due to the decrease in marriage rate?**
+
+Jiadi posed this question in her original post on BlackBoard. While we may not be able to prove causality using this dataset, we can certainly investigate whether the two rates move in the same direction, and what that might mean.
+
+</br>
+
+#### Reshape the data
+
+The data I wanted to visualize were the divorce rates and marriage rates over time. The two datasets have the "Year" column in common, so I performed a left join based on year. 
+
+Then, I created a separate dataframe called `d1_viz` with just the year and rates, and gathered the data into columns by `Rate_Type` -- Marriage or Divorce -- and `Rate`.
+
+```{r}
+# Join the "Marriage" and "Divorce" datasets by Year
+d1_joined <- left_join(marriage, divorce, by="Year")
+
+# Create a new dataset with Year, Marriage Rate, and Divorce Rate
+d1_viz <- data.frame(d1_joined$Year, d1_joined$Marriage_Rate, d1_joined$Divorce_Rate)
+
+# Rename the columns of the new dataset
+names(d1_viz) <- c("Year", "Marriage_Rate", "Divorce_Rate")
+
+# Gather the dataset
+d1_viz <- gather(d1_viz, "Rate_Type", "Rate", 2:3)
+
+head(d1_viz) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+  
+```
+
+</br>
+
+#### Visualize the data
+
+I used `ggplot2` to visualize the data in a smoothed line graph, which helped to uncover trends. 
+
+```{r}
+
+ggplot(d1_viz, aes(x = d1_viz$Year, y = d1_viz$Rate, group = d1_viz$Rate_Type, colour = d1_viz$Rate_Type)) +
+  geom_point() +
+  labs(title = "U.S. Marriage and Divorce Rates from 2000 - 2016", colour = "") +
+  xlab("Year") +
+  ylab("Rate (per 1000 people)") +
+  geom_smooth(method = "auto")
+
+```
+
+#### Analysis
+
+The chart shows that both marriage and divorce rates have been on a downward decline since the year 2000 in the United States. However, I was surprised to see that the marriage rate appears to *increase* slightly after 2010, while the divorce rate continues to decline. This complicates the hypothesis that a decline in marriage causes a decline in divorce.
+
+[A TIME Magazine article]("http://time.com/4575495/divorce-rate-nearly-40-year-low/") from 2016 observed the same trend of an increasing marriage rate, and noted that the two measurements -- marriage rate and divorce rate -- may not necessarily even be related. The article also mentions that divorce and marriage rates vary drastically depending on factors like income level, political preference, and location.
+
+**Is the decrease in divorce rate due to the decrease in marriage rate?**
+
+We don't have enough information to answer this question. The question assumes that both marriage and divorce rate move negatively together and directly affect one other. However, the data shows that they do not always move together, and we don't have enough information on individuals -- like income level and location -- to assign causality.
+
+Personally, I would be interested in building a model to predict whether a person will divorce, taking into account the divorce rate for each of the individual's relevant attributes .
+
+<hr>
+
+
+# Time Use by Gender in Europe
+
+### 1. Import and examine the dataset.
+
+```{r}
+df2 <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Projects/Project 02/TimeUse.csv",sep = ",", fill = TRUE, header = TRUE)
+
+head(df2) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+This dataset records how females and males in 14 European countries spend their time. It shows the time they spend in one day on 57 different activities.
+
+The dataset is very wide, since each activity is in its own column. In addition, the time spent is recorded in a time format (HH:MM), which makes it hard to analyze and compare.
+
+
+<hr>
+
+### 2. Gather the data.
+
+To begin, I decided to gather the activity data into a new dataframe with two columns -- Activity Type and Time Spent. The dataset transformed from having 58 columns and 28 rows to having 5 columns and 1,540 rows.
+
+```{r}
+
+t <- gather(df2, "Activity_Type", "Time_Spent", 4:58)
+
+head(t) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<hr>
+
+### 2. Convert the time to minutes.
+
+First, I separated the "Time Spent" variable into columns for Hours and Minutes, and coerced those columns into a numeric.
+
+```{r}
+
+t_sep <- t %>%
+  separate(Time_Spent, c("Hours_Spent", "Minutes_Spent"), sep = "[\\:]")
+
+t_sep$Hours_Spent <- as.numeric(
+                     as.character(t_sep$Hours_Spent))
+
+t_sep$Minutes_Spent <- as.numeric(
+                       as.character(t_sep$Minutes_Spent))
+
+head(t_sep) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+</br>
+
+Then, I converted hours column into minutes using the `mutate` function.
+
+```{r}
+
+t_mutate <- mutate(t_sep, Hours_Spent = Hours_Spent * 60)
+
+head(t_mutate) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+</br>
+
+Finally, I added together the new hours spent column with the minutes column to get the total number of minutes spent on the activity. I removed the leftover `Hours_Spent`, `Minutes_Spent`, and `Total` columns.
+
+```{r}
+
+t_sum <- mutate(t_mutate, Time_Spent = Hours_Spent + Minutes_Spent)
+
+t_sum1 <- t_sum[, -5]
+
+t_sum2 <- t_sum1[, -5]
+
+t_sum <- t_sum2[, -3]
+
+head(t_sum) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<hr>
+
+### 3. Calculate time spent as a percentage.
+
+Since there are 1,440 minutes in a day, we can calculate the time spent on each activity as a percentage.
+
+```{r}
+
+t_percent <- mutate(t_sum, Percent_Time_Spent = (Time_Spent / 1440)*100)
+
+names(t_percent) <- c("Sex", "Country", "Activity_Type", "Time_Spent", "Percent_Time_Spent")
+
+head(t_percent) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<hr>
+
+### 4. Analyze the data.
+
+My classmates identified two questions of interest in this dataset:
+
+1. **What is the activity individuals in a country spend the greatest percent of their time doing?**
+
+2. **How do males and females spend their time?**
+
+</br>
+
+#### Activity with greatest percent of time
+
+To answer the first question, I grouped the data by Country and Activity Type, calculated the average percentage of time spent on each activity, and filtered the data by the largest percentages.
+
+```{r}
+
+t_max <- group_by(t_percent, Country, Activity_Type) %>%
+           summarise(Avg_Time_Spent = mean(Percent_Time_Spent)) %>%
+           filter(Avg_Time_Spent == max(Avg_Time_Spent))
+
+t_max %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+The table shows that men and women in all countries spend the biggest proportion of their time on **"Personal Care"** -- sleeping, eating, or grooming.
+
+</br>
+
+#### Male and female comparison
+
+The second question was very broad, so I decided to narrow it down to comparing how much time men and women in different countries spend on specific activities.
+
+
+**Household and Family Care**
+
+First, I filtered the dataframe by the "Household and Family Care" activity type, and grouped the data by country and sex. Then, I created a summary of the data the added up time spent.
+
+I then plotted the data using a stacked bar graph, and ordered the bars from most to least overall time.
+
+```{r}
+
+t_plot <- filter(t_percent, Activity_Type == "Household.and.family.care") %>%
+          group_by(Country, Sex) %>%
+          summarise(Time_Sum = sum(Time_Spent))
+
+ggplot(data = t_plot, aes(x = reorder(Country, Time_Sum), y = Time_Sum, fill = Sex)) + 
+                geom_bar(stat = "identity") + 
+                coord_flip() +
+                xlab("Country") +
+                ylab("Time Spent (Min.)") +
+                labs(title = "Time Spent on Household and Family Care by Gender", fill = "")
+
+```
+
+The chart shows a clear trend: females spend more minutes in a day on household and family care when compared to men in all countries. 
+
+Bulgarians spend the most time on household care overall, but Italy appears to be the most unequal.
+
+
+</br>
+
+**TV and Video**
+
+I followed the same procedure as above to visualize the time spent on watching TV and Video by gender.
+
+```{r}
+
+t_plot2 <- filter(t_percent, Activity_Type == "TV.and.video") %>%
+          group_by(Country, Sex) %>%
+          summarise(Time_Sum = sum(Time_Spent))
+
+ggplot(data = t_plot2, aes(x = reorder(Country, Time_Sum), y = Time_Sum, fill = Sex)) + 
+                geom_bar(stat = "identity") + 
+                coord_flip() +
+                xlab("Country") +
+                ylab("Time Spent (Min.)") +
+                labs(title = "Time Spent on Watching TV / Video by Gender", fill = "")
+
+```
+
+It seems like males and females in all countries watch TV / Video about equally. Interesting that Bulgarians are at the top of the list for both TV-watching and household care -- it makes me wonder if that's is due to a bias in the data, if it's just coincidence, or if those two activities are somehow related.
+
+
+<hr>
+
+
+# School Attendance
+
+### 1. Import and examine the dataset.
+
+```{r}
+
+df3 <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Projects/Project 02/attendance.csv",sep = ",", fill = TRUE)
+
+```
+
+This dataset records different metrics related to average daily student attendance by state. It was collected in 2003-04 and 2007-08 as part of a Schools and Staffing Survey from the U.S. Department of Education.
+
+The data itself is quite untidy. It contains three different tables in one:
+
+* Columns 2-9 are a summary table for Elementary and Secondary schools
+
+* Columns 10-13 refer to Elementary schools
+
+* Columns 14-17 refer to Secondary schools
+
+<hr>
+
+### 2. Trim the data.
+
+For the purposes of this assignment, I decided to remove the numbers in parentheses -- which refer to standard errors -- from the dataframe.
+
+I chose all of the columns that did not contain standard error and placed them in a dataframe called `a1`.
+
+```{r}
+# Trim the data and choose only distinct rows
+a <- distinct(df3[2:65, 1:16])
+
+a1 <- data.frame(a$V1, a$V2, a$V4, a$V6, a$V8, a$V10, a$V12, a$V14, a$V16)
+
+
+```
+
+Then, I went ahead and prepared the first column -- State -- by removing the periods after each state name.
+
+```{r}
+
+a_replace <- str_replace_all(a1$a.V1, "[\\.]", "")
+
+a1$a.V1 <- as.character(a_replace)
+
+```
+
+Finally, I removed the 3rd and 9th rows of the dataframe, which did not contain useful information.
+
+```{r}
+
+a2 <- a1[-3, ]
+
+a1 <- a2[-9, ]
+
+head(a1) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+<hr>
+
+### 3. Separate and clean the data.
+
+Next, my goal was to separate the data into 3 dataframes based on type of attendance data:
+
+* `a_total` -- total attendance data
+
+* `a_elem` -- elementary school attendance data
+
+* `a_sec` -- secondary school attendance data
+
+</br> 
+
+#### Total Attendance Data
+
+To get this data, I chose the relevant columns from the full dataframe, removed irrelevant rows, and coerced the column into a numeric. I used similar methods below to get elementary school and secondary school data.
+
+```{r}
+
+# Choose columns that relate to total attendance data and place them in a new dataframe.
+a_total <- data.frame(a1$a.V1, a1$a.V2, a1$a.V4, a1$a.V6, a1$a.V8)
+
+# Rename the columns
+names(a_total) <- c("State","ADA as percent of enrollment", "Average hours in school day", "Average days in school year", "Average hours in school year")
+
+# Remove the first 3 rows from the dataset
+a_total <- a_total[ 4:54, ]
+
+# Remove the comma from the "Average hours in school year" column
+a_replace2 <- str_replace_all(a_total$`Average hours in school year`, "[\\,]", "")
+
+# Coerce the column into a numeric
+a_total$`Average hours in school year` <- as.numeric(as.character(a_replace2))
+
+# Coerce the rest of the columns into a numeric
+a_total[, 2] <- as.numeric(as.character(a_total[, 2]))
+a_total[, 3] <- as.numeric(as.character(a_total[, 3]))
+a_total[, 4] <- as.numeric(as.character(a_total[, 4]))
+
+head(a_total) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+</br>
+
+#### Elementary School Attendance Data
+
+```{r}
+
+# Choose columns that relate to elementary school attendance data and place them in a new dataframe.
+a_elem <- data.frame(a1$a.V1, a1$a.V10, a1$a.V12)
+
+# Rename the columns
+names(a_elem) <- c("State","ADA as percent of enrollment", "Average hours in school day")
+
+# Remove the first 3 rows from the dataset
+a_elem <- a_elem[ 4:54, ]
+
+# Coerce the columns into a numeric
+a_elem[, 2] <- as.numeric(as.character(a_elem[, 2]))
+a_elem[, 3] <- as.numeric(as.character(a_elem[, 3]))
+
+head(a_elem) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+</br>
+
+#### Secondary School Attendance Data
+
+```{r}
+# Choose columns that relate to secondary school attendance data and place them in a new dataframe.
+a_sec <- data.frame(a1$a.V1, a1$a.V14, a1$a.V16)
+
+# Rename the columns
+names(a_sec) <- c("State","ADA as percent of enrollment", "Average hours in school day")
+
+# Remove the first 3 rows from the dataset
+a_sec <- a_sec[ 4:54, ]
+
+# Coerce the columns into a numeric
+a_sec[, 2] <- as.numeric(as.character(a_sec[, 2]))
+a_sec[, 3] <- as.numeric(as.character(a_sec[, 3]))
+
+head(a_sec) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+
+<hr>
+
+### 3. Analyze the data.
+
+#### Population Plot
+
+I thought I would try a new kind of plot to compare attendance at the elementary school and secondary school levels -- a **population plot**. To make this kind of plot, I had to change the percentage attendance at the elementary school level to be negative.
+
+```{r}
+# Create a new dataframe with the variables to plot
+a_plot <- data.frame(a_elem$State, a_elem$`ADA as percent of enrollment`, a_sec$`ADA as percent of enrollment`)
+
+# Rename the dataframe
+names(a_plot) <- c("State", "Elem_School", "Secondary School")
+
+# Add a column with Elementary School attendance as negative.
+a_mutate <- mutate(a_plot, "Elementary School" = Elem_School * -1)
+
+# Gather the data into two columns.
+a_plot2 <- gather(a_mutate, "School_Level", "Attendance_Percentage", 2:4)
+
+```
+
+Once I put together the dataframe, I created the plot and ordered it by lowest to highest elementary school attendance.
+
+(In retrospect, a population plot may not have been the best way to represent this data, since the y-axis is very long and the data isn't that varied.)
+
+```{r, fig.width=10,fig.height=8}
+
+# Specify range and markers of y-axis
+brks <- seq(-100, 100, 25)
+
+#Specify labels of y-axis and take the absolute value to keep them positive
+lbls = abs(seq(-100, 100, 25))
+
+# Create the plot
+ggplot(data = a_plot2, aes(x = reorder(State, Attendance_Percentage), y = Attendance_Percentage, fill = School_Level)) + 
+                geom_bar(data = subset(a_plot2, School_Level == "Elementary School"), stat = "identity") + 
+                geom_bar(data = subset(a_plot2, School_Level == "Secondary School"), stat = "identity") + 
+                scale_y_continuous(breaks = brks, labels = lbls) + # Make a continuous x-axis
+                coord_flip() +
+                xlab("State") +
+                ylab("Average Daily Attendance as Percent of Enrollment") +
+                labs(title = "Attendance in Elementary and Secondary Schools by State", fill = "")
+
+```
+
+</br>
+
+#### Analysis
+
+Elementary schools in Washington have the lowest average attendance and elementary schools in North Dakota have the highest average attendance.
+
+I wondered if [state population]("https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_population") had something to do with elementary school attendance. Interestingly, North Dakota has one of the lowest state populations (at 0.7 million people), and Washington is within the top 15 most-populous states (at 1.7 million people). It's also worth noting how much lower the attendance rate of Washington is compared to Connecticut, the state with the next-lowest attendance rate. 
+
+I did some digging and it seems like Washington is [still struggling]("https://www.seattletimes.com/education-lab/high-numbers-of-washington-students-miss-school-which-hinders-learning-for-all/") with school attendance -- as of 2014, it is still ranked among the lowest in the nation.
+
+However, the article mentions that other states may actually be *under*-reporting attendance data, since (according to the article) Washington educators are more faithfully recording attendance.
+
+If that's the case, I would want to compare the sample sizes included in this dataset with the student population of each state, to get a rough estimate of the sample's representativeness.
+
+<hr>
