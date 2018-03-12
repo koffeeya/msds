@@ -27,18 +27,18 @@ library("ggplot2")
 
 # Background
 
-In this project, I imported three CSV datasets, tidied them, and answered questions about them. The datsets and questions were chosen by my classmates and posted in the DATA 607 BlackBoard forum.
+In this project, I imported three CSV datasets, tidied them, and answered questions about them. The datsets and questions were chosen by my classmates and posted to the DATA 607 BlackBoard forum.
 
 
 ### Datasets
 
-Here are links to the datsets I tidied and the classmate who posted them.
+Here are links to the original datasets and the classmate who posted them.
 
-1. [**U.S. Marriage and Divorce Rates**]("https://github.com/xiaoxiaogao-DD/DATA607-Project1/blob/master/national_marriage_divorce_rates_00-16.csv"), posted by Jiadi Li
+1. [**U.S. Marriage and Divorce Rates**]("https://github.com/koffeeya/msds/blob/master/DATA%20607%20-%20Data%20Acquisition%20and%20Management/Projects/Project%2002/national_marriage_divorce_rates_00-16.csv"), posted by Jiadi Li
     
-2. **Time Use by Gender in Europe**, posted by Nicholas Schettini
+2. [**Time Use by Gender in Europe**]("https://github.com/koffeeya/msds/blob/master/DATA%20607%20-%20Data%20Acquisition%20and%20Management/Projects/Project%2002/TimeUse.csv"), posted by Nicholas Schettini
     
-3. **School Attendance**, posted by Baron Curtin
+3. [**School Attendance**]("https://github.com/koffeeya/msds/tree/master/DATA%20607%20-%20Data%20Acquisition%20and%20Management/Projects/Project%2002"), posted by Baron Curtin
     
 
 ### Packages
