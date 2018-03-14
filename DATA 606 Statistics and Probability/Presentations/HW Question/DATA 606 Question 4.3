@@ -1,0 +1,38 @@
+---
+title: "DATA 606 - Question 4.3"
+author: "Kavya Beheraj"
+date: "March 13, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DATA606)
+```
+
+# **4.3  College Credits**
+
+College credits. A college counselor is interested in estimating how many credits a student typically enrolls in each semester. The counselor decides to randomly sample 100 students by using the registrar's database of students. The histogram below shows the distribution of the number of credits taken by these students. Sample statistics for this distribution are also provided.
+
+(a) What is the point estimate for the average number of credits taken per semester by students at this college? What about the median?
+
+* Point estimate of average credits = sample mean = **13.65**
+
+(b) What is the point estimate for the standard deviation of the number of credits taken per semester by students at this college? What about the IQR?
+
+*  Standard deviation point estimate = standard deviation of sample = **1.91**
+
+* IQR = Q3 - Q1 = 15-13 = **2**
+
+(c) Is a load of 16 credits unusually high for this college? What about 18 credits? Explain your reasoning. *Hint: Observations farther than two standard deviations from the mean are usually considered to be unusual.*
+
+```{r}
+normalPlot(mean = 13.65, sd = 1.91, bounds = c(8, 18), tails = FALSE)
+```
+
+
+* 
+
+(d) The college counselor takes another random sample of 100 students and this time finds a sample mean of 14.02 units. Should she be surprised that this sample statistic is slightly different than the one from the original sample? Explain your reasoning.
+
+(e) The sample means given above are point estimates for the mean number of credits taken by all students at that college. What measures do we use to quantify the variability of this estimate (Hint: recall that SDx = mean / sqrt(n) )? Compute this quantity using the data from the original sample.

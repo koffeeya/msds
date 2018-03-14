@@ -64,7 +64,7 @@ df1 <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - D
 
 ```
 
-The dataset contains two tables: one that describes the number of marriages per year in the U.S population from 2000 -- 2016, and one that describes the number of divorces and annulments during the same period.
+This dataset contains two tables: one that describes the number of marriages per year in the U.S population from 2000 -- 2016, and one that describes the number of divorces and annulments during the same period.
 
 The dataset also contains many extraneous columns, and variables that aren't formatted correctly.
 
@@ -75,9 +75,10 @@ The dataset also contains many extraneous columns, and variables that aren't for
 I split the original dataset into two -- one for marriages and one for divorces -- and renamed the headers to be consistent.
 
 ```{r}
-
+# Choose the data related to marriage
 marriage <- df1[3:19, 1:4]
 
+# Rename the headers
 names(marriage) <- c("Year", "Marriages", "Population", "Marriage_Rate")
 
 head(marriage) %>% 
@@ -87,9 +88,10 @@ head(marriage) %>%
 ```
 
 ```{r}
-
+# Choose the data related to divorce
 divorce <- df1[32:48, 1:4]
 
+# Rename the headers
 names(divorce) <- c("Year", "Divorces", "Population", "Divorce_Rate")
 
 head(divorce) %>% 
@@ -107,17 +109,21 @@ head(divorce) %>%
 First, I focused on removing the notes that were added to the "Year" column with a forward slash.
 
 ```{r}
+# Separate the "Year" column by the forward slash.
 marriage_sep <- marriage %>%
   separate(Year, c("Year", "X"), sep = "[\\/]")
 
+# Remove the extra column created by the separation.
 marriage <- marriage_sep[, -2]
 
 ```
 
 ```{r}
+# Separate the "Year" column by the forward slash.
 divorce_sep <- divorce %>%
   separate(Year, c("Year", "X"), sep = "[\\/]")
 
+# Remove the extra column created by the separation.
 divorce <- divorce_sep[, -2]
 
 ```
@@ -273,10 +279,6 @@ Personally, I would be interested in building a model to predict whether a perso
 ```{r}
 df2 <- read.table("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 - Data Acquisition and Management/Projects/Project 02/TimeUse.csv",sep = ",", fill = TRUE, header = TRUE)
 
-head(df2) %>% 
-  kable("html") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-
 ```
 
 This dataset records how females and males in 14 European countries spend their time. It shows the time they spend in one day on 57 different activities.
@@ -325,7 +327,7 @@ head(t_sep) %>%
 
 </br>
 
-Then, I converted hours column into minutes using the `mutate` function.
+Then, I converted the hours column into minutes using the `mutate` function.
 
 ```{r}
 
@@ -339,7 +341,7 @@ head(t_mutate) %>%
 
 </br>
 
-Finally, I added together the new hours spent column with the minutes column to get the total number of minutes spent on the activity. I removed the leftover `Hours_Spent`, `Minutes_Spent`, and `Total` columns.
+Finally, I added together the new hours spent column with the minutes column to get the total number of minutes spent on each activity. I removed the leftover `Hours_Spent`, `Minutes_Spent`, and `Total` columns.
 
 ```{r}
 
@@ -361,7 +363,7 @@ head(t_sum) %>%
 
 ### 3. Calculate time spent as a percentage.
 
-Since there are 1,440 minutes in a day, we can calculate the time spent on each activity as a percentage.
+Since there are 1,440 minutes in a day, and the time in the dataset refers to time spent in a day, we can calculate the time spent on each activity as a percentage.
 
 ```{r}
 
@@ -408,12 +410,12 @@ The table shows that men and women in all countries spend the biggest proportion
 
 #### Male and female comparison
 
-The second question was very broad, so I decided to narrow it down to comparing how much time men and women in different countries spend on specific activities.
+I decided to narrow down this question to compare how much time men and women in different countries spend on specific activities.
 
 
 **Household and Family Care**
 
-First, I filtered the dataframe by the "Household and Family Care" activity type, and grouped the data by country and sex. Then, I created a summary of the data the added up time spent.
+First, I filtered the dataframe by the "Household and Family Care" activity type, and grouped the data by country and sex. Then, I created a summary of the data that added up time spent.
 
 I then plotted the data using a stacked bar graph, and ordered the bars from most to least overall time.
 
@@ -627,7 +629,7 @@ head(a_sec) %>%
 
 #### Population Plot
 
-I thought I would try a new kind of plot to compare attendance at the elementary school and secondary school levels -- a **population plot**. To make this kind of plot, I had to change the percentage attendance at the elementary school level to be negative.
+I thought I would try a plot I had never attempted before to compare attendance at the elementary school and secondary school levels -- a **population plot**. To make this kind of plot, I had to change the percentage attendance at the elementary school level to be negative.
 
 ```{r}
 # Create a new dataframe with the variables to plot
@@ -650,10 +652,10 @@ Once I put together the dataframe, I created the plot and ordered it by lowest t
 
 ```{r, fig.width=10,fig.height=8}
 
-# Specify range and markers of y-axis
+# Specify range and markers of x-axis
 brks <- seq(-100, 100, 25)
 
-#Specify labels of y-axis and take the absolute value to keep them positive
+#Specify labels of x-axis and take the absolute value to keep them positive
 lbls = abs(seq(-100, 100, 25))
 
 # Create the plot
@@ -672,11 +674,11 @@ ggplot(data = a_plot2, aes(x = reorder(State, Attendance_Percentage), y = Attend
 
 #### Analysis
 
-Elementary schools in Washington have the lowest average attendance and elementary schools in North Dakota have the highest average attendance.
+Elementary schools in Washington have the lowest average attendance, and elementary schools in North Dakota have the highest average attendance.
 
 I wondered if [state population]("https://en.wikipedia.org/wiki/List_of_U.S._states_and_territories_by_population") had something to do with elementary school attendance. Interestingly, North Dakota has one of the lowest state populations (at 0.7 million people), and Washington is within the top 15 most-populous states (at 1.7 million people). It's also worth noting how much lower the attendance rate of Washington is compared to Connecticut, the state with the next-lowest attendance rate. 
 
-I did some digging and it seems like Washington is [still struggling]("https://www.seattletimes.com/education-lab/high-numbers-of-washington-students-miss-school-which-hinders-learning-for-all/") with school attendance -- as of 2014, it is still ranked among the lowest in the nation.
+I did some digging and it seems like Washington [continues to struggle]("https://www.seattletimes.com/education-lab/high-numbers-of-washington-students-miss-school-which-hinders-learning-for-all/") with school attendance -- as of 2014, it is still ranked among the lowest in the nation.
 
 However, the article mentions that other states may actually be *under*-reporting attendance data, since (according to the article) Washington educators are more faithfully recording attendance.
 
