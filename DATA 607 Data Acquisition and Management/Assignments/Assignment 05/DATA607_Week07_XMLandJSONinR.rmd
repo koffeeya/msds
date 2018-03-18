@@ -39,6 +39,8 @@ I recorded each book's title, author(s), year of publication, genre, and [Goodre
 
 ```{r warning=FALSE, message=FALSE}
 library(XML)
+library(rvest)
+library(magrittr)
 library(RCurl)
 library(knitr)
 library(kableExtra)
@@ -73,12 +75,20 @@ html %>%
 
 u2 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml"
 
-raw_xml <- xmlTreeParse(u2)
+raw_xml <- getURL(u2)
 
-topxml <- xmlRoot(raw_xml)
+xml_file <- xmlParse(raw_xml)
 
-class(raw_xml)
+xml_df <- xmlToDataFrame(xml_file, stringsAsFactors = FALSE, nodes = xmlChildren(xmlRoot(xml_file)))
 
+xml_df
+
+```
+
+```{r}
+xml_df2 <- xmlToDataFrame(u2)
+
+xml_df2
 ```
 
 
