@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<books>
+
+    <books id="1">
+        <title>The Dictator&apos;s Handbook</title>
+        <author first="Bruce Bueno de Mesquita" second="Alastair Smith" />
+        <year>2011</year>
+        <genre>Politics</genre>
+        <rating>4.27</rating>
+    </books>
+
+    <books id="2">
+        <title>King Leopold&apos;s Ghost</title>
+        <author first="Adam Hochschild" />
+        <year>1998</year>
+        <genre>History</genre>
+        <rating>4.15</rating>
+    </books>
+
+    <books id="3">
+        <title>The Complete Maus &#40;Maus &#35;1&#45;2&#41;</title>
+        <author first="Art Spiegelman" />
+        <year>1986</year>
+        <genre>Graphic Novel</genre>
+        <rating>4.53</rating>
+    </books>
+
+</books>

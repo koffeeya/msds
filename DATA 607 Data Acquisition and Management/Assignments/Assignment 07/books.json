@@ -1,0 +1,32 @@
+{
+    "books": [
+
+        {
+            "Title": "The Dictator's Handbook",
+            "Author": {
+                "Bruce Bueno de Mesquita",
+                "Alastair Smith"
+            },
+            "Year": "2011",
+            "Genre": "Politics",
+            "Rating": "4.27"
+    },
+
+        {
+            "Title": "King Leopold's Ghost",
+            "Author": "Adam Hochschild",
+            "Year": "1998",
+            "Genre": "History",
+            "Rating": "4.15"
+        },
+
+        {
+            "Title": "The Complete Maus (Maus #1-2)",
+            "Author": "Art Spiegelman",
+            "Year": "1986",
+            "Genre": "Graphic Novel",
+            "Rating": "4.53"
+        }
+
+]
+}
