@@ -19,29 +19,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <br>
 
+<base target="_top"/>
+
 ## Description
 
 In this assignment, I recorded information for three different books, stored the information in an HTML file, XML file, and JSON file, and read the files into R to see how they compare.
 
 These are the three books I chose (from my bookshelf):
 
-* [*The Dictator's Handbook*]("https://www.goodreads.com/book/show/11612989-the-dictator-s-handbook"), by Bruce Bueno de Mesquita and Alastair Smith (2011)
-* [*King Leopold's Ghost*]("https://www.goodreads.com/book/show/347610.King_Leopold_s_Ghost?ac=1&from_search=true"), by Adam Hochschild (1998)
-* [*The Complete Maus (Maus #1-2)*]("https://www.goodreads.com/book/show/15195.The_Complete_Maus?ac=1&from_search=true"), by Art Spiegelman (1986)
+* <a href="https://www.goodreads.com/book/show/11612989-the-dictator-s-handbook", target="_blank">*The Dictator's Handbook*</a>, by Bruce Bueno de Mesquita and Alastair Smith (2011)
+* <a href="https://www.goodreads.com/book/show/347610.King_Leopold_s_Ghost?ac=1&from_search=true", target="_blank">*King Leopold's Ghost*</a>, by Adam Hochschild (1998)
+* <a href="https://www.goodreads.com/book/show/15195.The_Complete_Maus?ac=1&from_search=true", target="_blank">*The Complete Maus (Maus #1-2)*</a>, by Art Spiegelman (1986)
 
-I recorded each book's title, author(s), year of publication, genre, and [Goodreads]("https://www.goodreads.com/") rating to create these three files:
+I recorded each book's title, author(s), year of publication, genre, and <a href="https://www.goodreads.com/", , target="_blank">Goodreads</a> rating to create these three files:
 
-* [HTML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html")
-* [XML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml")
-* [JSON file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json")
+* <a href="https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html", target="_blank">HTML file</a>
+* <a href="https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml", target="_blank">XML file</a>
+* <a href="https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json", target="_blank">JSON file</a>
+
+I found <a href="https://www.datacamp.com/community/tutorials/r-data-import-tutorial", target="_blank">this article</a> from DataCamp very helpful in completing the assignment.
 
 ****
 
 ```{r warning=FALSE, message=FALSE}
 library(XML)
-library(rvest)
-library(magrittr)
 library(RCurl)
+library(jsonlite)
 library(knitr)
 library(kableExtra)
 ```
@@ -79,20 +82,28 @@ raw_xml <- getURL(u2)
 
 xml_file <- xmlParse(raw_xml)
 
-xml_df <- xmlToDataFrame(xml_file, stringsAsFactors = FALSE, nodes = xmlChildren(xmlRoot(xml_file)))
+xml_df <- xmlToDataFrame(xml_file, stringsAsFactors = FALSE)
 
-xml_df
+xml_df %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
-```
-
-```{r}
-xml_df2 <- xmlToDataFrame(u2)
-
-xml_df2
 ```
 
 
 ****
 
-
 ## Reading JSON into R
+
+https://stackoverflow.com/questions/36799124/r-error-in-fromjsonraw-data-incomplete-list
+
+```{r}
+
+u3 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json"
+
+json_file <- fromJSON(u3)
+
+json_file
+
+```
+
