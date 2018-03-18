@@ -2,48 +2,87 @@
 title: "DATA 607, Assignment 07 -- XML and JSON in R"
 author: "Kavya Beheraj"
 date: "March 18, 2018"
-output: html_document
+output: 
+  html_document:
+    theme: journal
+    highlight: haddock
+    toc: true
+    toc_depth: 4
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(XML)
 ```
 
 <br>
 
-****
+## Description
 
-In this assignment, I recorded certain information for three different books, hand-made three files in HTML, XML, and JSON formats to store the information, and read the files into R to see how they compare.
+In this assignment, I recorded information for three different books, stored the information in an HTML file, XML file, and JSON file, and read the files into R to see how they compare.
 
-These are the three books I chose:
+These are the three books I chose (from my bookshelf):
 
-* *The Dictator's Handbook*, by Bruce Bueno de Mesquita and Alastair Smith (2011)
-* *King Leopold's Ghost*, by Adam Hochschild (1998)
-* *The Complete Maus (Maus #1-2)*, by Art Spiegelman (1986)
+* [*The Dictator's Handbook*]("https://www.goodreads.com/book/show/11612989-the-dictator-s-handbook"), by Bruce Bueno de Mesquita and Alastair Smith (2011)
+* [*King Leopold's Ghost*]("https://www.goodreads.com/book/show/347610.King_Leopold_s_Ghost?ac=1&from_search=true"), by Adam Hochschild (1998)
+* [*The Complete Maus (Maus #1-2)*]("https://www.goodreads.com/book/show/15195.The_Complete_Maus?ac=1&from_search=true"), by Art Spiegelman (1986)
 
-Here are links to the raw files:
+I recorded each book's title, author(s), year of publication, genre, and [Goodreads]("https://www.goodreads.com/") rating to create these three files:
 
 * [HTML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html")
-
 * [XML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml")
-
 * [JSON file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json")
 
 ****
 
-<br>
+```{r warning=FALSE, message=FALSE}
+library(XML)
+library(RCurl)
+library(knitr)
+library(kableExtra)
+```
+****
 
-# HTML File
+## Reading HTML into R
+
+```{r tidy=TRUE}
+
+u1 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html"
+
+urldata <- getURL(u1)
+
+raw_html <- readHTMLTable(urldata, stringsAsFactors = FALSE)
+
+html <- data.frame(raw_html)
+
+names(html) <- c("id", "Title", "Author", "Year", "Genre", "Rating")
+
+html %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+```
+
+****
+
+## Reading XML into R
 
 ```{r}
 
-u <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html"
+u2 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml"
 
-html_df <- htmlParse(file = u)
+raw_xml <- xmlTreeParse(u2)
 
-print(html_df)
+topxml <- xmlRoot(raw_xml)
+
+class(raw_xml)
 
 ```
 
 
+****
+
+
+## Reading JSON into R
