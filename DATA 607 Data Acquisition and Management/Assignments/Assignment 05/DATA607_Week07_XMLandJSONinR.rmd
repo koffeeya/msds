@@ -7,27 +7,43 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(XML)
 ```
 
 <br>
 
 ****
 
-<br>
+In this assignment, I recorded certain information for three different books, hand-made three files in HTML, XML, and JSON formats to store the information, and read the files into R to see how they compare.
 
-Pick three of your favorite books on one of your favorite subjects. At least one of the books should have more than one author. For each book, include the title, authors, and two or three other attributes that you find interesting.
+These are the three books I chose:
 
-Take the information that you've selected about these three books, and separately create three files which store the book's information in HTML (using an html table), XML, and JSON formats (e.g. "books.html", "books.xml", and "books.json"). To help you better understand the different file structures, I'd prefer that you create each of these files "by hand" unless you're already very comfortable with the file formats.
+* *The Dictator's Handbook*, by Bruce Bueno de Mesquita and Alastair Smith (2011)
+* *King Leopold's Ghost*, by Adam Hochschild (1998)
+* *The Complete Maus (Maus #1-2)*, by Art Spiegelman (1986)
 
-Write R code, using your packages of choice, to load the information from each of the three sources into separate R data frames. Are the three data frames identical?
+Here are links to the raw files:
 
-Your deliverable is the three source files and the R code. If you can, package your assignment solution up into an .Rmd file and publish to rpubs.com. [This will also require finding a way to make your three text files accessible from the web].
+* [HTML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html")
 
-<br>
+* [XML file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml")
+
+* [JSON file]("https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json")
 
 ****
 
 <br>
 
+# HTML File
+
+```{r}
+
+u <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html"
+
+html_df <- htmlParse(file = u)
+
+print(html_df)
+
+```
 
 
