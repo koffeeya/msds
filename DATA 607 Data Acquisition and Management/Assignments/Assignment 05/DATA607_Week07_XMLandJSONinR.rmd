@@ -1,5 +1,5 @@
 ---
-title: "DATA 607, Assignment 07 -- XML and JSON in R"
+title: "DATA 607, HW 07 -- XML and JSON in R"
 author: "Kavya Beheraj"
 date: "March 18, 2018"
 output: 
@@ -42,27 +42,28 @@ I found <a href="https://www.datacamp.com/community/tutorials/r-data-import-tuto
 ****
 
 ```{r warning=FALSE, message=FALSE}
-library(XML)
-library(RCurl)
-library(jsonlite)
-library(knitr)
-library(kableExtra)
+library(XML)         # To read HTML and XML files
+library(RCurl)       # To get URL data
+library(jsonlite)    # To read JSON files
+library(knitr)       # To create responsive HTML tables
+library(kableExtra)  # To create responsive HTML tables
 ```
 ****
 
 ## Reading HTML into R
 
 ```{r tidy=TRUE}
-
+# Link to HTML file
 u1 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.html"
 
+# Get URL data
 urldata <- getURL(u1)
 
+# Read in the HTML file. Since the entire file is one table, we do not have to specify which table we want to use
 raw_html <- readHTMLTable(urldata, stringsAsFactors = FALSE)
 
+# Convert the HTML into an R dataframe
 html <- data.frame(raw_html)
-
-names(html) <- c("id", "Title", "Author", "Year", "Genre", "Rating")
 
 html %>% 
   kable("html") %>% 
@@ -75,13 +76,16 @@ html %>%
 ## Reading XML into R
 
 ```{r}
-
+# Link to XML file
 u2 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.xml"
 
+# Get URL data
 raw_xml <- getURL(u2)
 
+# Parse the XML data from the URL
 xml_file <- xmlParse(raw_xml)
 
+# Convert the XML data into an R dataframe
 xml_df <- xmlToDataFrame(xml_file, stringsAsFactors = FALSE)
 
 xml_df %>% 
@@ -95,15 +99,30 @@ xml_df %>%
 
 ## Reading JSON into R
 
-https://stackoverflow.com/questions/36799124/r-error-in-fromjsonraw-data-incomplete-list
-
 ```{r}
-
+# Link to JSON file
 u3 <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Assignments/Assignment%2007/books.json"
 
+# Get the JSON data from the URL
 json_file <- fromJSON(u3)
 
-json_file
+# Convert the JSON data into an R dataframe
+json_df <- data.frame(json_file, stringsAsFactors = FALSE)
+
+json_df %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 ```
 
+****
+
+## Comparison
+
+The three dataframes ended up being very similar, but not identical. They all required slightly different steps to be accessible by R.
+
+The JSON file required the fewest steps to read, while the XML required the most. XML also had more strict rules regarding special characters and naming that meant my file needed a few rounds of corrections before it could be read by R.
+
+The column names of each dataframe ended up different depending on the file, reflecting the structure of the language used to create it.
+
+****
