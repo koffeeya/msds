@@ -65,7 +65,7 @@ View(sample1)
 
 <br>
 
-#### 4. Rename column headers
+#### 3. Rename column headers
 ```{r}
 
 names(sample1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
@@ -76,7 +76,7 @@ View(sample1)
 
 <br>
 
-#### 5. Remove state and plus signs from City column
+#### 4. Remove state and plus signs from City column
 ```{r}
 # Separate City column into City and State by pattern of two uppercase letters after a plus sign (i.e., "+NY")
 sample2 <- sample1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
@@ -93,7 +93,7 @@ View(sample2)
 
 <br>
 
-#### 6. Remove rows where Summary is blank
+#### 5. Remove rows where Summary is blank
 ```{r}
 
 sample3 <- filter(sample2, sample2$summary!="")
@@ -106,7 +106,7 @@ View(sample3)
 
 ## **C.** Apply procedure to full dataset
 
-#### 2. Remove brackets surrounding summaries
+#### 1. Remove brackets surrounding summaries
 ```{r}
 
 df1 <- df %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
@@ -119,7 +119,7 @@ View(df1)
 
 <br>
 
-#### 4. Rename column headers
+#### 2. Rename column headers
 ```{r}
 
 names(df1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
@@ -130,7 +130,7 @@ View(df1)
 
 <br>
 
-#### 5. Remove state and plus signs from city column
+#### 3. Remove state and plus signs from city column
 ```{r}
 # Separate city column into city and state by pattern of two uppercase letters after a plus sign (i.e., "+NY")
 df2 <- df1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
@@ -147,7 +147,7 @@ View(df2)
 
 <br>
 
-#### 6. Remove rows where Summary is blank
+#### 4. Remove rows where Summary is blank
 ```{r}
 
 df_final <- filter(df2, df2$summary!="")
@@ -161,10 +161,10 @@ We are left with a dataset that has 1,303 job listings.
 <br>
 
 
-## **4.** Test string extraction on sample dataset's summary column
+## **D.** Test string extraction on sample dataset's summary column
 
 ```{r}
-# Extract strings based on skill list
+#Extract strings based on skill list
 
 #tool.skills <- ".py."
 
