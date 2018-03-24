@@ -1,0 +1,329 @@
+---
+title: "DATA 607, Project 3: The Most Valued Data Science Skills"
+date: "March 25, 2018"
+output:
+  html_document:
+    theme: yeti
+    highlight: haddock
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<hr>
+
+# **1.  Background**
+
+In this project, we used supervised and unsupervised data mining techniques to answer the following question:
+
+>**What are the most valued data science skills?**
+
+We collaborated as a team to understand the question, get the data, clean it, analyze it, and draw conclusions. We used Slack, Google Docs, Google Hangouts, GitHub, and in-person meetings to work together.
+
+<br>
+
+#### **Team Rouge**
+
+* Kavya Beheraj, GitHub
+
+* Paul Britton, GitHub
+
+* Jeremy O'Brien, GitHub
+
+* Rickidon Singh, GitHub
+
+* Violeta Stoyanova, GitHub
+
+* Iden Watanabe, GitHub
+
+<br>
+
+#### **Process**
+
+* Data Acquisition --- *Iden and Paul*
+
+* Data Cleaning --- *Jeremy and Kavya*
+
+* Unsupervised Analysis --- *Iden and Paul*
+
+* Supervised Analysis --- *Ricki and Violeta*
+
+* Conclusions --- *Whole Team*
+
+<br>
+
+#### **Libraries**
+
+```{r warning=FALSE, message=FALSE}
+library(rvest)
+library(RCurl)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(ggplot2)
+library(tm)
+library(wordcloud)
+library(tidytext)
+library(xtable)
+library(readr)
+library(plyr)
+library(tidytext)
+```
+
+
+<br>
+
+<hr>
+
+# **2. Approach**
+
+
+
+<br>
+
+<hr>
+
+# **3. Data Acquisition**
+
+### **A. Note**
+
+This scraper is working code, however, we've disabled here as it can take a while to run.  It's provided here as a working demonstration of how our data was collected.  All the actual work for this project was completed on a static data set which we collected early on in our efforts.  This was done to ensure that all group members were always working with identical data and that any user could re-produce our results as desired. 
+
+The following chunk of code scrapes job postings from indeed.com and collects the results into a dataframe.  It's a port from some python code originally used to scrape our data set.
+
+<br>
+
+### **B. Set the variables**
+
+First we'll set a few variables that we'll use in our scraping activity.  I've used a smaller set of cities as we'll probably just use this to demonstrate how it works.
+
+```{r eval=FALSE}
+city.set_small <- c("New+York+NY", "Seattle+WA")
+
+city.set <- c("New+York+NY", "Seattle+WA", "San+Francisco+CA",
+              "Washington+DC","Atlanta+GA","Boston+MA", "Austin+TX",
+              "Cincinnati+OH", "Pittsburgh+PA")
+
+
+target.job <- "data+scientist"   
+
+base.url <- "https://www.indeed.com/"
+
+max.results <- 50
+
+```
+
+<br>
+
+### **C. Scrape the Details**
+
+Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary
+
+<br>
+
+### **D. Get the full Summary**
+
+After the above is complete, we're going to iterate over all the links that we've collected, pull them, and grab the full job summary for each.  Note that it appears that jobs postings are sometimes removed, in which case, we pull an empty variable.  We could probably do some cleaning in this step while downloading, but we're going to handle that downstream.
+
+```{r eval=FALSE}
+
+#create a df to hold everything that we collect
+jobs.data <- data.frame(matrix(ncol = 7, nrow = 0))
+n <- c("city","job.title","company.name","job.location","summary.short","salary","links,summary.full")
+colnames(jobs.data)
+
+
+for (city in city.set_small){
+  print(paste("Downloading data for: ", city))
+
+  
+  for (start in range(0,max.results,10)){
+
+    url <- paste(base.url,"jobs?q=",target.job,"&l=",city,"&start=", start ,sep="")
+    page <- read_html(url)
+    Sys.sleep(1)
+  
+    #recorded the city search term << not working yet...
+    #i<-i+1
+    #job.city[i] <- city
+  
+    #get the links
+    links <- page %>% 
+      html_nodes("div") %>%
+      html_nodes(xpath = '//*[@data-tn-element="jobTitle"]') %>%
+      html_attr("href")
+    
+  
+    #get the job title
+    job.title <- page %>% 
+      html_nodes("div") %>%
+      html_nodes(xpath = '//*[@data-tn-element="jobTitle"]') %>%
+      html_attr("title")
+  
+    #get the job title
+    job.title <- page %>% 
+      html_nodes("div") %>%
+      html_nodes(xpath = '//*[@data-tn-element="jobTitle"]') %>%
+      html_attr("title")
+    
+    #get the company name
+    company.name <- page %>% 
+      html_nodes("span")  %>% 
+      html_nodes(xpath = '//*[@class="company"]')  %>% 
+      html_text() %>%
+      trimws -> company.name 
+  
+    #get job location
+    job.location <- page %>% 
+      html_nodes("span") %>% 
+      html_nodes(xpath = '//*[@class="location"]')%>% 
+      html_text() %>%
+      trimws -> job.location
+    
+    #get the short sumary
+    summary.short <- page %>% 
+      html_nodes("span")  %>% 
+      html_nodes(xpath = '//*[@class="summary"]')  %>% 
+      html_text() %>%
+      trimws -> summary.short 
+    
+  }
+  
+  #create a structure to hold our full summaries
+  summary.full <- rep(NA, length(links))
+  
+  #fill in the job data
+  job.city <- rep(city,length(links))
+  
+  #add a place-holder for the salary
+  job.salary <- rep(0,length(links))
+  
+  #iterate over the links that we collected
+  for ( n in 1:length(links) ){
+    
+    #build the link
+    link <- paste(base.url,links[n],sep="")
+    
+    #pull the link
+    page <- read_html(link)
+  
+    #get the full summary
+    s.full <- page %>%
+     html_nodes("span")  %>% 
+     html_nodes(xpath = '//*[@class="summary"]') %>% 
+     html_text() %>%
+     trimws -> s.full
+  
+    #check to make sure we got some data and if so, append it.
+    #as expired postings return an empty var
+    if (length(s.full) > 0 ){
+        summary.full[n] = s.full  
+        } 
+  
+    }
+  
+    #add the newly collected data to the jobs.data
+    jobs.data <- rbind(jobs.data,data.frame(city,
+                                            job.title,
+                                            company.name,
+                                            job.location,
+                                            summary.short,
+                                            job.salary,
+                                            links,
+                                            summary.full))
+
+    
+}
+
+
+
+```
+
+<br>
+
+<hr>
+
+# **4. Data Cleaning**
+
+
+
+<br>
+
+<hr>
+
+# **5. Unsupervised Analysis**
+
+
+
+<br>
+
+### **A. TF-IDF**
+
+
+
+<br>
+
+### **B. Sentiment Analysis**
+
+
+
+<br>
+
+<hr>
+
+# **6. Supervised Analysis**
+
+
+
+<br>
+
+### **A. Frequency**
+
+
+
+<br>
+
+### **B. Word Cloud**
+
+
+
+<br>
+
+<hr>
+
+# **7. Conclusions**
+
+
+
+<br>
+
+### **A. About the question**
+
+
+
+<br>
+
+### **B. About the process**
+
+
+
+<br>
+
+<hr>
+
+# **8. Next Steps**
+
+
+
+<br>
+
+<hr>
+
+
+
