@@ -1040,6 +1040,10 @@ The supervised results are so much more coherent than unsupervised. The unsuperv
 It's unclear which are the most valued data science skills from the unsupervised approach.
 [Jeremy to edit more here]
 
+TF-IDF Conclusions/Next Steps:
+
+Hard skills had a higher score in most situations.  "Machine" and "learning", "statistics" and "analysis" appeared high in most of our graphs.  Soft and technical skills didn't appear at all.  However, the results should not be considered conclusive as the TF-IDF approach lacked any proper context.  When the corpus was broken down by cities, the name of companies became the highest scoring terms.  We attempted to make it more coherent by lowering the sparsity, but this method was arbitrary in nature.  This makes sense as TF-IDF is often used in conjunction with other algorithms.  For example, we might have been able to get our much needed context by feeding our TF-IDF matrices into a k-means algorithm.  Then we could see how certain words grouped together.  In this way, we could prune our corpuses to focus solely on what words are important to data scientist jobs, as opposed to what words are important to job posts in general.
+
 <br>
 
 ### **B. About the process**
@@ -1049,13 +1053,13 @@ TF-IDF needed more manipulation to make it more coherent - tuning required for s
 Same with word cloud.
 
 Overall assumptions
-“Skills” include hard skills, soft skills, and technical skills of the individual data scientist. Source?
-We can determine a skill’s value by looking at job postings. Specifically, job postings on Indeed for the search term “Data Scientist”. Employers list skills that they need and find more valuable.
+"Skills" include hard skills, soft skills, and technical skills of the individual data scientist. Source?
+We can determine a skill's value by looking at job postings. Specifically, job postings on Indeed for the search term "Data Scientist". Employers list skills that they need and find more valuable.
 Job postings have the most up-to-date information on real employer needs, compared to other data sources such as data science course curricula, surveys of data scientists, and the Reddit page for data science.
 
 Scraping assumptions
 What we scraped is representative of all jobs. Indeed data is comparable to other job posting websites.
-The moment we scraped data can be longitudinally extrapolated -- it isn’t an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
+The moment we scraped data can be longitudinally extrapolated -- it isn't an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
 To make our approach more robust, we would sample different moments in time and get longitudinal data.
 
 Cleaning assumptions
@@ -1070,14 +1074,17 @@ We assumed certain terms fell into certain categories and searched for them.
 We arrived at these categories / lists based on SMEs (Violeta sourcing)
 Assumed that the tools would lead to conclusions without human intervention.
 Word Cloud
-Removed some stopwords, and in addition other words like “data” that wouldn’t add context
+Removed some stopwords, and in addition other words like "data" that wouldn't add context
 Frequency Distribution (Supervised)
 Unsupervised approach
 We assumed that if we applied the appropriate tools to the raw data would tell us what is important.
 We found that the results of the unsupervised analysis were necessarily be salient on their own.
 Next step: find employment-related stopwords? Custom stopwords?
-TF-IDF
-Expected output to be like supervised, but needed more manipulation to be coherent.
+
+TF-IDF Analysis Assumptions:
+
+We assumed that TF-IDF would simply be a "smarter" version of calculating term-frequency.  After running the algorithm on our corpus of job postings, we thought the key words would be roughly the same as the supervised, but with the added bonus of not having to find a list ahead of time.  This proved not to be the case, as the more valuable words were sometimes generic in nature.  It appeared that the analysis would prove more useful to the business side, helping HR write a better data scientist job posting, rather than the employee trying to figure out what data science skills might be in demand.
+
 Sentiment analysis
 Higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable
 [Jeremy to edit more here]
