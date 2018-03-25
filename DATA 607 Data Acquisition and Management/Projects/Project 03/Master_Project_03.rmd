@@ -20,7 +20,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # **1.  Background**
 
-In this project, we used supervised and unsupervised data mining techniques to answer the following question:
+In this project, we used supervised and unsupervised data mining techniques on a scraped dataset of 1,303 Indeed job listings to answer the following question:
 
 >**What are the most valued data science skills?**
 
@@ -187,7 +187,7 @@ Indeed.com appears to use the "GET" request method, so we can directly mess arou
 
 After the above is complete, we're going to iterate over all the links that we've collected, pull them, and grab the full job summary for each.  Note that it appears that jobs postings are sometimes removed, in which case, we pull an empty variable.  We could probably do some cleaning in this step while downloading, but we're going to handle that downstream.
 
-```{r eval=FALSE}
+```{r warning=FALSE, message=FALSE, eval=FALSE}
 
 #create a df to hold everything that we collect
 jobs.data <- data.frame(matrix(ncol = 7, nrow = 0))
@@ -309,7 +309,7 @@ for (city in city.set_small){
 
 ### **A. Read in the dataframe**
 
-#### Read in raw dataframe, set separator as pipe
+Read in raw dataframe, set separator as pipe
 ```{r}
 url <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Project%2003/indeed_jobs_large.csv"
 
@@ -319,7 +319,7 @@ df <- read.csv(url, sep="|", stringsAsFactors = F)
 
 <br>
 
-#### Remove "location" and "salary" columns, to reduce redundancy.
+Removed "location" and "salary" columns, to reduce redundancy.
 ```{r}
 df <- df[, -c(5,7)]
 
@@ -331,7 +331,7 @@ df <- df[, -c(5,7)]
 
 
 
-#### Take 100-row sample of full dataset
+Took 100-row sample of full dataset.
 ```{r}
 sample <- df[sample(1:nrow(df), 100, replace=F),]
 
@@ -339,7 +339,7 @@ sample <- df[sample(1:nrow(df), 100, replace=F),]
 
 <br>
 
-#### Remove brackets surrounding summaries
+Removed brackets surrounding summaries
 ```{r}
 
 sample1 <- sample %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
@@ -351,7 +351,7 @@ sample1 <- sample1[, -c(5, 8)]
 
 <br>
 
-#### Rename column headers
+Renamed column headers.
 ```{r}
 
 names(sample1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
@@ -361,7 +361,7 @@ names(sample1) <- c("list_ID", "city", "job_title", "company_name", "link", "sum
 
 <br>
 
-#### Remove state and plus signs from City column
+Removed state and plus signs from `city` column.
 ```{r}
 # Separate City column into City and State by pattern of two uppercase letters after a plus sign (i.e., "+NY")
 sample2 <- sample1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
@@ -376,7 +376,7 @@ sample2$city <- str_replace_all(sample2$city, "[\\+]", " ")
 
 <br>
 
-#### Remove rows where Summary is blank
+Removed rows where `summary` is blank.
 ```{r warning=FALSE, message=FALSE}
 
 sample3 <- filter(sample2, sample2$summary!="")
@@ -392,7 +392,7 @@ head(sample3, 2) %>%
 
 ### **C. Apply cleaning procedure to full dataset**
 
-#### Remove brackets surrounding summaries
+Removed brackets surrounding summaries.
 ```{r}
 
 df1 <- df %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
@@ -404,7 +404,7 @@ df1 <- df1[, -c(5, 8)]
 
 <br>
 
-#### Rename column headers
+Renamed column headers.
 ```{r}
 
 names(df1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
@@ -413,7 +413,7 @@ names(df1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary
 
 <br>
 
-#### Remove state and plus signs from city column
+Removed state and plus signs from `city` column.
 ```{r}
 # Separate city column into city and state by pattern of two uppercase letters after a plus sign (i.e., "+NY")
 df2 <- df1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
@@ -428,7 +428,7 @@ df2$city <- str_replace_all(df2$city, "[\\+]", " ")
 
 <br>
 
-#### Remove rows where Summary is blank
+Removed rows where `summary` is blank.
 ```{r warning=FALSE, message=FALSE}
 
 df_final <- filter(df2, df2$summary!="")
@@ -459,7 +459,7 @@ TF-IDF stands for "term frequency-inverse document frequency".  It is calculated
 
 ### **B. Create control List**
 
-```{r tfidf-setup, echo = FALSE}
+```{r tfidf-setup}
 
 tfidf <- read.csv("indeed_final.csv", stringsAsFactors = FALSE)
 
@@ -475,7 +475,7 @@ control_list <- list(removePunctuation = TRUE, stopwords = TRUE, tolower = TRUE,
 
 ### **C. TF-IDF on All Job Postings**
 
-```{r attempt-1, echo = FALSE, warning = FALSE}
+```{r attempt-1, warning = FALSE}
 corpus.all <- VCorpus(VectorSource(tfidf$summary))
 
 tdm.all <- TermDocumentMatrix(corpus.all, control = control_list)
@@ -509,7 +509,7 @@ When each job postings are treated as individual documents, skills like "machine
 <br>
 
 ### **E. TF-IDF on Job Postings by Cities**
-```{r attempt-2, fig.width = 10, fig.height = 11, echo = FALSE, warning = FALSE}
+```{r attempt-2, fig.width = 10, fig.height = 11, warning = FALSE}
 # Trying to divide the corpus by cities
 nyc <- paste(tfidf[tfidf$city == "New York", 6], collapse = " ")
 sea <- paste(tfidf[tfidf$city == "Seattle", 6], collapse = " ")
@@ -561,7 +561,7 @@ In this attempt, job postings were grouped by the cities they were listed in.  W
 <br>
 
 ### **F. TF-IDF Based on Job Titles**
-```{r attempt-3, echo = FALSE, warning = FALSE}
+```{r attempt-3, warning = FALSE}
 # Data Scientist - 739 instances
 ds <- tfidf[grep("data scientist", tolower(tfidf$job_title)), 6]
 ds.corpus <- VCorpus(VectorSource(ds))
@@ -639,9 +639,9 @@ ggplot(tail(df_r, 25), aes(reorder(words, count), count)) +
 
 Though our primary search term was "Data Scientist", Indeed also returned other job titles.  These were some of the most common instances.  Unsurprisingly, "Data Scientist" itself matches with what we see in the analysis of all job postings.  We thought there might be an interesting shift between "senior" level jobs and internships, with perhaps a strong prevelance of "soft skills" for the higher level jobs, but did not see much evidence of that in the data.
 
-
-
 <br>
+
+<hr>
 
 # **6. Sentiment Analysis**
 
@@ -653,7 +653,7 @@ The idea here is to take a look at the "sentiment" of the text within each job p
 
 The first thing that we that we're going to do is tokenize the "summary" column of the data which contains all the text which we are interested in.  The essentially amounts to parsing the column into individual words and reshaping the dataframe into a "tidy" format where all individual words (tokens) are found in their own column.
 
-We'll then remove all the "stop_words" from this newly created data - words like "if", "and", "the"... etc.
+We'll then remove all the "stop_words" from this newly created data -- words like "if", "and", "the"... etc.
 
 <br>
  
