@@ -302,6 +302,8 @@ for (city in city.set_small){
 
 # **4. Data Cleaning**
 
+The previous step resulted in raw CSV file with over 1300 rows. To clean the data, we first read in the CSV file, tested a cleaning procedure on a 100-row sample, and applied the procedure to the full dataset.
+
 ### **A. Read in the dataframe**
 
 Read in raw dataframe, set separator as pipe
@@ -334,7 +336,7 @@ sample <- df[sample(1:nrow(df), 100, replace=F),]
 
 <br>
 
-Removed brackets surrounding summaries
+Removed brackets surrounding summaries.
 ```{r}
 
 sample1 <- sample %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
@@ -448,7 +450,9 @@ head(df_final, 2) %>%
 
 ### **A. About TF-IDF**
 
-TF-IDF stands for "term frequency-inverse document frequency".  It is calculated by first calculated the term frequency of a word, $tf(t,d)$, and multiplying it by its inverse document frequency $idf(t,D)$, so that how frequent a word appears in a document is offset by its frequency in the corpus.  For example, a word might appear frequently in one chapter of a book, so much so that its frequency might put it in the top 10 words, but TF-IDF weighs the value of this word by the fact that it only appears in one chapter of, say, a hundred chapter textbook.
+TF-IDF stands for "term frequency-inverse document frequency".  It is calculated by first calculating the term frequency of a word, $tf(t,d)$, and multiplying it by its inverse document frequency $idf(t,D)$, so that how frequent a word appears in a document is offset by its frequency in the corpus.  
+
+For example, a word might appear frequently in one chapter of a book, so much so that its frequency might put it in the top 10 words, but TF-IDF weighs the value of this word by the fact that it only appears in one chapter of, say, a hundred chapter textbook.
 
 <br>
 
