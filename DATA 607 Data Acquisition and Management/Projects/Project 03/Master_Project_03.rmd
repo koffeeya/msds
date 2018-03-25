@@ -52,7 +52,7 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 * Unsupervised Analysis --- *Iden and Paul*
 
-* Supervised Analysis --- *Ricki and Violeta*
+* Supervised Analysis --- *Rickidon and Violeta*
 
 * Conclusions --- *Whole Team*
 
@@ -769,12 +769,21 @@ ggplot(head(bottom.terms,33), aes(reorder(token, n), n)) +
 
 # **6. Supervised Analysis**
 
+Analysis: 
+To find which are the most valued data science skills using a Supervised approach- created new variables for analyzing three types of skills (Hard skills, Soft skills, and Tools)
+
+Assumptions:
+- We assumed certain terms fell into certain categories and searched for them. 
+- We arrived at these categories / lists based on SMEs 
+- Assumed that the tools would lead to conclusions without human intervention.
 
 <br>
 
 ### **A. Frequency**
 
 #### **Tool Skills**
+
+Used mutate function to create new variables for Tool Skills and preserve existing ones from summary; turned on case insensitivity
 
 ```{r}
 
@@ -793,15 +802,22 @@ toolskills <- df_final %>%
     mutate(javascript = grepl("javascript", summary, ignore.case=TRUE)) %>%
     mutate(spark = grepl("spark", summary, ignore.case=TRUE)) %>%
     select(job_title, company_name, R, python, SQL, hadoop, perl, matplotlib, Cplusplus, VB, java, scala, tensorflow, javascript, spark)
-
-
+```
+Applied the summarise_all function to all (non-grouping) columns
+```{r}
 toolskills2 <- toolskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+```
+Let's visualize the most in demand Tool SKills
+```{r}
 ggplot(toolskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Tool Skills') + coord_flip() + theme_minimal()
 ```
+For Tool Skills - Python, SQL, R are the top skills currently in demand and the least being VB.
 
 <br>
 
 #### Soft Skills
+
+Used mutate function to create new variables for Soft Skills and preserve existing ones; turned on case insensitivity
 
 ```{r}
 
@@ -821,18 +837,27 @@ softskills <- df_final %>%
     mutate(atttodetail = grepl("attention to detail", summary, ignore.case=TRUE)) %>%
     mutate(visualization = grepl("visualization", summary, ignore.case=TRUE)) %>%
     mutate(leadership = grepl("leadership", summary, ignore.case=TRUE)) %>%
-    
-    
-select(job_title, company_name, workingremote, communication, collaborative, creative, critical, problemsolving, activelearning, hypothesis, organized, judgement, selfstarter, interpersonalskills, atttodetail, visualization, leadership)
+    select(job_title, company_name, workingremote, communication, collaborative, creative, critical, problemsolving, activelearning, hypothesis, organized, judgement, selfstarter, interpersonalskills, atttodetail, visualization, leadership)
 summary(softskills) 
+```
+Apply the summarise_all function to all (non-grouping) columns
 
+```{r}
 softskills2 <- softskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+```
+
+Let's visualize the most in demand Soft SKills
+
+```{r}
 ggplot(softskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Soft Skills') + coord_flip() + theme_minimal()
 ```
+Soft Skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
 
 <br>
 
 #### Hard Skills
+
+Used mutate function to create new variables for Hard Skills and preserve existing ones; turned on case insensitivity
 
 ```{r}
 
@@ -844,19 +869,26 @@ hardskills <- df_final %>%
     mutate(quantitative = grepl("quantitative", summary, ignore.case=TRUE)) %>%
     mutate(debugging = grepl("debugging", summary, ignore.case=TRUE)) %>%
     mutate(statistics = grepl("statistics",  summary, ignore.case=TRUE)) %>%
-    
-
-select(job_title, company_name, machinelearning, modeling, statistics, programming, quantitative, debugging, statistics)
+    select(job_title, company_name, machinelearning, modeling, statistics, programming, quantitative, debugging, statistics)
 summary(hardskills) 
+```
+Apply the summarise_all function to all (non-grouping) columns
 
-
+```{r}
 hardskills2 <- hardskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+```
+Let's visualize the most in demand Hard SKills
+
+```{r}
 ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Hard Skills') + coord_flip() + theme_minimal()
 ```
+Hard Skills- Modeling and Machine Learning are the top skills currently in demand, and the least being debugging. 
 
 <br>
 
 ### **B. Word Cloud**
+
+Specified removal of irrelevant words and stopwords that don't add context; the summary column was used to create the Data Science Skills word cloud.
 
 ```{r}
 
@@ -864,9 +896,12 @@ datacloud <- Corpus(VectorSource(df_final$summary))
 datacloud <- tm_map(datacloud, removePunctuation)
 datacloud <- tm_map(datacloud, tolower)
 datacloud <- tm_map(datacloud, removeWords, c("services", "data", "andor", "ability", "using", "new", "science", "scientist" , "you", "must", "will", "including", "can", stopwords('english')))
+```
+Let's visualize our data science word cloud
+
+```{r}
 wordcloud(datacloud, max.words = 80, random.order = FALSE, scale=c(3,.3),random.color = FALSE,colors=palette())
 ```
-
 
 <br>
 
