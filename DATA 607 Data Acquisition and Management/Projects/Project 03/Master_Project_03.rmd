@@ -1105,7 +1105,7 @@ TF-IDF Analysis Assumptions:
 
 We assumed that TF-IDF would simply be a "smarter" version of calculating term-frequency.  After running the algorithm on our corpus of job postings, we thought the key words would be roughly the same as the supervised, but with the added bonus of not having to find a list ahead of time.  This proved not to be the case, as the more valuable words were sometimes generic in nature.  It appeared that the analysis would prove more useful to the business side, helping HR write a better data scientist job posting, rather than the employee trying to figure out what data science skills might be in demand.
 
-Sentiment analysis
+Sentiment Analysis Assumptions:
 Higher-sentiment companies, as gauged by the content of their job postings, are companies more people want to work for and therefore the skills they look for are more valuable.  
 [Jeremy to edit more here]
 
