@@ -95,11 +95,13 @@ To motivate our approach to data collection and analysis, we began with the conc
 
 **Skills**
 
-As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), both "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  We found the following list of categories to use as shorthand:
+As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), both "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  
 
-![]("C:/Users/Kavya/Desktop/Education/MS Data Science/DATA 607 Data Acquisition and Management/Projects/Project 03/data_science_skills.PNG")
+We used the following list of categories -- found in an <a href="https://uptowork.com/blog/data-scientist-resume-example", target="_blank">article on Data Scientist Resume Skills</a> -- as a basis for our supervised analyses. 
 
-<a href="https://uptowork.com/blog/data-scientist-resume-example", target="_blank">Source</a>
+![](C:/Users/Kavya/Desktop/Education/MS Data Science/msds/DATA 607 Data Acquisition and Management/Projects/Project 03/data_science_skills.PNG)
+
+<br>
 
 **Value**
 
@@ -110,17 +112,15 @@ To avoid wading into philosophical abstractions, we interpreted value in its eco
 ### **B. Data Source**
 As the economic value of data science skills is not directly measurable, we discussed three different approaches to getting a datset:  
 
-* Mining custom research on data science practitioners (<a href="https://www.kaggle.com/surveys/2017", target="_blank">like that found here</a>).
+* **Mining existing custom research** on data scientists (<a href="https://www.kaggle.com/surveys/2017", target="_blank">like that found here</a>).
 
-* Analyzing discussions and conversations on online discussion boards focused on data science (<a href="https://www.reddit.com/r/datascience/", target="_blank">like this one on Reddit</a>). 
+* **Analyzing online discussion boards** focused on data science (<a href="https://www.reddit.com/r/datascience/", target="_blank">like this one on Reddit</a>). While threads can provide a historical record (i.e., the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority) and informational contents does not necessarily accord with economic value.
 
-- While threads can provide a historical record (i.e., the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority) and informational contents does not necessarily accord with economic value.
+* **Scraping online job postings** for data science roles provides perspective on what skills employers emphasize and prioritize. This third approach has its limitations: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace, and scraping time-delimited job postings captures a moment in time without any longitudinality.
 
-* Scraping online job postings for data science roles provides perspective on what skills employers emphasize and prioritize.  
+We dimissed custom research as it didn't seem to accord with the intent of the project.  We thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed to focus on **job postings**.  
 
-- This third approach has its limitations: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace, and scraping time-delimited job postings captures a moment in time without any longitudinality.
-
-We dimissed custom research as it didn't seem to accord with the intent of the project.  We thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed to focus on **job postings**.  Constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected in job postings would be a good approach to this project, and one that allowed us to meet technical requirements and collaborate.
+Constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected in job postings would be a good approach to this project, and one that allowed us to meet technical requirements and collaborate.
 
 After some exploration, we decided to focus on <a href="https://www.indeed.com/", target="_blank"><b>Indeed.com</b></a>, which has a wealth of data science job postings that can be scraped.  We scraped them -- first a test set for evaluation and troubleshooting, then a larger, more robust set -- to be cleaned and analyzed.  We initially used Python, and later replicated the scraper in R.
 
@@ -135,6 +135,11 @@ We felt that the project could benefit from a two-pronged approach to analysis:
 2. **A more exploratory, unsupervised approach** based on TF-IDF (term frequency-inverse document frequency) and sentiment analysis, which don't semantically impose preconveived keywords upon job postings (short of filtering out stop-words).
 
 To streamline our process, we conducted the two analyses in parallel, cleaning and preparing the data for both. We iterated and collaborated on the scraper, cleaning, and analysis using Slack and GitHub.
+
+<br>
+
+### **D. Assumptions**
+
 
 <br>
 
@@ -808,16 +813,21 @@ ggplot(head(bottom.terms,33), aes(reorder(token, n), n)) +
 
 # **7. Supervised Analysis**
 
-Our goal was to find the most valued data science skills using a supervised approach. We created new variables for analyzing three types of skills (hard skills, soft skills, and tools).
+Our goal was to find the most valued data science skills using a supervised approach. We created new variables for analyzing three types of skills (hard skills, soft skills, and tool skills).
 
 Assumptions:
+
 - We assumed certain terms fell into certain categories and searched for them. 
-- We arrived at these categories / lists based on SMEs 
-- We assumed that the tools would lead to conclusions without human intervention.
+
+- We arrived at these categories based on outside SMEs (subject-matter experts). 
+
+- We assumed that our analysis tools would lead to conclusions without human intervention.
 
 <br>
 
-### **A. Frequency**
+### **A. Frequency of Skills**
+
+<br>
 
 #### **Technical Skills**
 
@@ -846,7 +856,7 @@ select(job_title, company_name, R, python, SQL, hadoop, perl, matplotlib, Cplusp
 
 <br>
 
-Applied the summarise_all function to all (non-grouping) columns
+Applied the `summarise_all` function to all (non-grouping) columns.
 
 ```{r}
 toolskills2 <- toolskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
@@ -854,13 +864,13 @@ toolskills2 <- toolskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(v
 
 <br>
 
-Let's visualize the most in demand tool sKills:
+Visualized the most in-demand tool sKills:
 
 ```{r}
 ggplot(toolskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Tool Skills') + coord_flip() + theme_minimal()
 ```
 
-For tool skills -- **Python, SQL, and R** are the top skills currently in demand, with the least being VB.
+**Python, SQL, and R** are the most in-demand tool skills according to Indeeed job posts, with the least in-demand tool skill being VB.
 
 <br>
 
@@ -901,7 +911,7 @@ summary(softskills) %>%
 
 <br>
 
-Apply the `summarise_all` function to all (non-grouping) columns
+Applied the `summarise_all` function to all (non-grouping) columns.
 
 ```{r}
 softskills2 <- softskills %>% 
@@ -913,13 +923,13 @@ softskills2 <- softskills %>%
 
 <br>
 
-Let's visualize the most in demand soft sKills:
+Visualized the most in-demand soft sKills:
 
 ```{r}
 ggplot(softskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Soft Skills') + coord_flip() + theme_minimal()
 ```
 
-Communication, Collaboration, Visualization are the top soft skills currently in-demand, with the least being active learning.
+**Communication, collaboration, and visualization** are the most in-demand soft skills according to Indeeed job posts, with the least in-demand soft skill being active learning.
 
 <br>
 
@@ -946,7 +956,10 @@ summary(hardskills) %>%
                kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 ```
-Apply the summarise_all function to all (non-grouping) columns
+
+<br>
+
+Applied the `summarise_all` function to all (non-grouping) columns.
 
 ```{r}
 hardskills2 <- hardskills %>% 
@@ -955,7 +968,10 @@ hardskills2 <- hardskills %>%
                gather(variable,value) %>% 
                arrange(desc(value))
 ```
-Let's visualize the most in demand Hard SKills
+
+<br>
+
+Visualized the most in-demand hard skills:
 
 ```{r}
 ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) + 
@@ -966,13 +982,14 @@ ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) +
   coord_flip() + 
   theme_minimal()
 ```
-Hard Skills- Modeling and Machine Learning are the top skills currently in demand, and the least being debugging. 
+
+**Modeling and machine learning** are the most in-demand hard skills according to Indeeed job posts, with the least in-demand hard skill being debugging.
 
 <br>
 
 ### **B. Word Cloud**
 
-Specified removal of irrelevant words and stopwords that don't add context; the summary column was used to create the Data Science Skills word cloud.
+We used the `summary` column to create a word clou of data science skills. To begin, we specified the removal of irrelevant words and stopwords that don't add context. 
 
 ```{r}
 
@@ -986,7 +1003,9 @@ datacloud <- tm_map(datacloud, removeWords, c("services", "data", "andor", "abil
 
 ```
 
-Let's visualize our data science word cloud
+<br>
+
+Then, we visualized our data science word cloud:
 
 ```{r}
 wordcloud(datacloud, 
