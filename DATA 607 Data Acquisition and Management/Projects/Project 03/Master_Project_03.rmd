@@ -1053,6 +1053,18 @@ Hard skills had a higher score in most situations.  "Machine" and "learning", "s
 
 <br>
 
+Sentiment Conclusions/Next Steps:
+
+The sentiment did not seem to be biased towards either soft or hard skills with terms such as "data", "experience" ,"technical", "modeling" , "development", "python" and "team" coming in near the top.  It did, however, seem to be confused by terms that the supervised approach would never include as "relevant".  For example, terms like "including" and "national" were found near the top of the list - these terms are likely artifacts of the process rather than important data science terms.
+
+There did not appear to be any coherent difference between top and bottom rated companies making drawing a meaningful conclusion from any comparison between the two sets difficult.  One thing of note was that the distribution for "positive sentiment" companies had significantly more right-skew in the frequency of terms being reported as relevant. More analysis would likely be required to uncover the meaning behing this observation.
+
+At a high level, the sentiment testing was likely a bit mis-specified in the sense that a generic sentiment mapping was used and it was applied to individual words (i.e. ignoring the context of the word within the sentence) which may be less than optimal given the specific task here.
+
+Future sentiment-related work here should include an examination of n-grams, sentences, paragraphs, or even entire summaries so as to capture the entire context of what is being said.  A custom list of stop-words would also be beneficial here as there are we found many words that are not traditionally considered stop words, but which recurr in almost every job posting and thus provide little value.
+
+<br>
+
 ### **B. About the process**
 
 By parallelizing our supervised and unsupervised workstreams, we were able to make comparisons between the output of each, which provided a neat and tangible learning opportunity for the team.  On the whole, we found the supervised results much more coherent than the   unsupervised.  For example, a layman could review the table of skills from the supervised analysis and make deductions on which matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity such tuning / pruning comes to approximate a supervised approach.  This seems less efficient than deliberately prescribing keywords and terms up front.
@@ -1111,6 +1123,3 @@ Higher-sentiment companies are companies more people want to work for, therefore
 <br>
 
 <hr>
-
-
-
