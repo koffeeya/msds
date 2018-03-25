@@ -63,6 +63,7 @@ We collaborated as a team to understand the question, get the data, clean it, an
 ```{r warning=FALSE, message=FALSE}
 library(rvest)
 library(RCurl)
+library(plyr)
 library(dplyr)
 library(stringr)
 library(tidyr)
@@ -72,7 +73,6 @@ library(wordcloud)
 library(tidytext)
 library(xtable)
 library(readr)
-library(plyr)
 library(tidytext)
 library(knitr)
 library(kableExtra)
@@ -378,6 +378,7 @@ df2$city <- str_replace_all(df2$city, "[\\+]", " ")
 ```{r warning=FALSE, message=FALSE}
 
 df_final <- filter(df2, df2$summary!="")
+write.csv(df_final, "indeed_final.csv", row.names = FALSE)
 
 head(df_final, 2) %>% 
   kable("html") %>% 
@@ -402,7 +403,9 @@ Once we had our dataset, we distributed it to the team for analysis. Both superv
 
 ### **A. TF-IDF**
 
-# Add description of TD-IDF?
+#### **TF-IDF**
+
+TF-IDF stands for "term frequency-inverse document frequency".  It is calculated by first calculated the term frequency of a word, $tf(t,d)$, and multiplying it by its inverse document frequency $idf(t,D)$, so that how frequent a word appears in a document is offset by its frequency in the corpus.  For example, a word might appear frequently in one chapter of a book, so much so that its frequency might put it in the top 10 words, but TF-IDF weighs the value of this word by the fact that it only appears in one chapter of, say, a hundred chapter textbook.
 
 <br>
 
@@ -410,10 +413,10 @@ Once we had our dataset, we distributed it to the team for analysis. Both superv
 
 ```{r tfidf-setup, echo = FALSE}
 
-tfidf <- df_final
+tfidf <- read.csv("indeed_final.csv", stringsAsFactors = FALSE)
 
 # Make all job titles lower case for later
-tfidf$job_title <- tolower(df_final$job_title)
+tfidf$job_title <- tolower(tfidf$job_title)
 
 # Control list to be used for all corpuses
 control_list <- list(removePunctuation = TRUE, stopwords = TRUE, tolower = TRUE,
@@ -425,7 +428,7 @@ control_list <- list(removePunctuation = TRUE, stopwords = TRUE, tolower = TRUE,
 #### **TF-IDF on All Job Postings**
 
 ```{r attempt-1, echo = FALSE, warning = FALSE}
-corpus.all <- VCorpus(VectorSource(df_final$summary))
+corpus.all <- VCorpus(VectorSource(tfidf$summary))
 
 tdm.all <- TermDocumentMatrix(corpus.all, control = control_list)
 
@@ -460,15 +463,15 @@ When each job postings are treated as individual documents, skills like "machine
 #### **TF-IDF on Job Postings by Cities**
 ```{r attempt-2, fig.width = 10, fig.height = 11, echo = FALSE, warning = FALSE}
 # Trying to divide the corpus by cities
-nyc <- paste(df_final[df_final$city == "New York", 6], collapse = " ")
-sea <- paste(df_final[df_final$city == "Seattle", 6], collapse = " ")
-sf <- paste(df_final[df_final$city == "San Francisco", 6], collapse = " ")
-dc <- paste(df_final[df_final$city == "Washington", 6], collapse = " ")
-atl <- paste(df_final[df_final$city == "Atlanta", 6], collapse = " ")
-bos <- paste(df_final[df_final$city == "Boston", 6], collapse = " ")
-aus <- paste(df_final[df_final$city == "Austin", 6], collapse = " ")
-cin <- paste(df_final[df_final$city == "Cincinnati", 6], collapse = " ")
-pitt <- paste(df_final[df_final$city == "Pittsburgh", 6], collapse = " ")
+nyc <- paste(tfidf[tfidf$city == "New York", 6], collapse = " ")
+sea <- paste(tfidf[tfidf$city == "Seattle", 6], collapse = " ")
+sf <- paste(tfidf[tfidf$city == "San Francisco", 6], collapse = " ")
+dc <- paste(tfidf[tfidf$city == "Washington", 6], collapse = " ")
+atl <- paste(tfidf[tfidf$city == "Atlanta", 6], collapse = " ")
+bos <- paste(tfidf[tfidf$city == "Boston", 6], collapse = " ")
+aus <- paste(tfidf[df_final$city == "Austin", 6], collapse = " ")
+cin <- paste(tfidf[df_final$city == "Cincinnati", 6], collapse = " ")
+pitt <- paste(tfidf[tfidf$city == "Pittsburgh", 6], collapse = " ")
 
 cities <- c(nyc, sea, sf, dc, atl, bos, aus, cin, pitt)
 
@@ -512,7 +515,7 @@ In this attempt, job postings were grouped by the cities they were listed in.  W
 #### **TF-IDF Based on Job Titles**
 ```{r attempt-3, echo = FALSE, warning = FALSE}
 # Data Scientist - 739 instances
-ds <- df_final[grep("data scientist", tolower(df_final$job_title)), 6]
+ds <- tfidf[grep("data scientist", tolower(tfidf$job_title)), 6]
 ds.corpus <- VCorpus(VectorSource(ds))
 ds.tdm <- TermDocumentMatrix(ds.corpus, control = control_list)
 
@@ -531,8 +534,8 @@ ggplot(tail(df_ds, 25), aes(reorder(words, count), count)) +
 # Intern - 61 instance
 # Senior vs Intern
 # Not very illuminating
-senior <- paste(df_final[grep("senior", tolower(df_final$job_title)), 6], collapse = " ")
-intern <- paste(df_final[grep("intern", tolower(df_final$job_title)), 6], collapse = " ")
+senior <- paste(tfidf[grep("senior", tolower(tfidf$job_title)), 6], collapse = " ")
+intern <- paste(tfidf[grep("intern", tolower(tfidf$job_title)), 6], collapse = " ")
 jrsr.corpus <- VCorpus(VectorSource(c(senior, intern)))
 jrsr.tdm <- TermDocumentMatrix(jrsr.corpus, control = control_list)
 df_jrsr <- tidy(jrsr.tdm)
@@ -554,7 +557,7 @@ df_jrsr %>%
   coord_flip()
 
 # Machine Learning - 124 instances
-ml <- df_final[grep("machine learning", tolower(df_final$job_title)), 6]
+ml <- tfidf[grep("machine learning", tolower(tfidf$job_title)), 6]
 ml.corpus <- VCorpus(VectorSource(ml))
 ml.tdm <- TermDocumentMatrix(ml.corpus, control = control_list)
 
@@ -569,7 +572,7 @@ ggplot(tail(df_ml, 25), aes(reorder(words, count), count)) +
   coord_flip()
 
 # Research - 119 instances
-research <- df_final[grep("research", df_final$job_title), 6]
+research <- tfidf[grep("research", tfidf$job_title), 6]
 r.corpus <- VCorpus(VectorSource(research))
 r.tdm <- TermDocumentMatrix(r.corpus, control = control_list)
 
@@ -689,7 +692,7 @@ df.result <- inner_join(df,bestNworst[c("company_name","avg.sentiment")])
 
 colnames(df.result)
 
-tail(df.result[c("city","company_name","token","avg.sentiment")],5)
+tail(df.result[c("city","company_name","token","avg.sentiment")], 5)
 
 ```
 
