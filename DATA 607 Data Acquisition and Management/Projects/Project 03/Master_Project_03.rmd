@@ -647,13 +647,13 @@ df.sentByComp <- df.sentiment[,c("company_name","score")]
 
 #get the number of observations per co.
 df.compCount <- df.sentiment %>% 
-  group_by(company_name) %>% 
-  summarize(num_obs = length(company_name))
+  dplyr::group_by(company_name) %>% 
+  dplyr::summarize(num_obs = length(company_name))
 
 #aggregate the sentiment score by company
 df.sentByComp <-df.sentByComp %>%
-    group_by(company_name) %>%
-    summarize(sentiment = sum(score))
+   dplyr::group_by(company_name) %>%
+   dplyr::summarize(sentiment = sum(score))
 
 #get the average sentiment score per observation
 df.sentByComp$num_obs = df.compCount$num_obs
@@ -704,17 +704,17 @@ df.result$token <- gsub(",","",df.result$token)
 
 #count the terms for the top rated companies
 top.terms <- df.result %>%
-  filter(is.na(as.numeric(as.character(token)))) %>%   # removes numbers
-  filter(avg.sentiment > 0 ) %>%
-  count(token, sort = TRUE) 
+  dplyr::filter(is.na(as.numeric(as.character(token)))) %>%   # removes numbers
+  dplyr::filter(avg.sentiment > 0 ) %>%
+  dplyr::count(token, sort = TRUE) 
 
 head(top.terms,5)
 
 #count the terms for the bottom rated companies
 bottom.terms <- df.result %>%
-  filter(is.na(as.numeric(as.character(token)))) %>%  # removes numbers
-  filter(avg.sentiment < 0 ) %>%
-  count(token, sort = TRUE) 
+  dplyr::filter(is.na(as.numeric(as.character(token)))) %>%  # removes numbers
+  dplyr::filter(avg.sentiment < 0 ) %>%
+  dplyr::count(token, sort = TRUE) 
 
 head(bottom.terms,5)
 
