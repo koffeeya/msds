@@ -289,7 +289,9 @@ div.tocify {
 <span class="kw">library</span>(xtable)
 <span class="kw">library</span>(readr)
 <span class="kw">library</span>(plyr)
-<span class="kw">library</span>(tidytext)</code></pre></div>
+<span class="kw">library</span>(tidytext)
+<span class="kw">library</span>(knitr)
+<span class="kw">library</span>(kableExtra)</code></pre></div>
 <p><br></p>
 <hr>
 </div>
@@ -445,8 +447,240 @@ n &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot
 </div>
 <div id="data-cleaning" class="section level1">
 <h1><strong>4. Data Cleaning</strong></h1>
+<div id="a.-read-in-the-dataframe" class="section level3">
+<h3><strong>A. Read in the dataframe</strong></h3>
+<div id="read-in-raw-dataframe-set-separator-as-pipe" class="section level4">
+<h4>Read in raw dataframe, set separator as pipe</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">url &lt;-<span class="st"> &quot;https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Project%2003/indeed_jobs_large.csv&quot;</span>
+
+df &lt;-<span class="st"> </span><span class="kw">read.csv</span>(url, <span class="dt">sep=</span><span class="st">&quot;|&quot;</span>, <span class="dt">stringsAsFactors =</span> F)</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-location-and-salary-columns-to-reduce-redundancy." class="section level4">
+<h4>Remove “location” and “salary” columns, to reduce redundancy.</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span>df[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">5</span>,<span class="dv">7</span>)]</code></pre></div>
+<p><br></p>
+</div>
+</div>
+<div id="b.-test-cleaning-procedure" class="section level3">
+<h3><strong>B. Test cleaning procedure</strong></h3>
+<div id="take-100-row-sample-of-full-dataset" class="section level4">
+<h4>Take 100-row sample of full dataset</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample &lt;-<span class="st"> </span>df[<span class="kw">sample</span>(<span class="dv">1</span><span class="op">:</span><span class="kw">nrow</span>(df), <span class="dv">100</span>, <span class="dt">replace=</span>F),]</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-brackets-surrounding-summaries" class="section level4">
+<h4>Remove brackets surrounding summaries</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample1 &lt;-<span class="st"> </span>sample <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(summary_full, <span class="kw">c</span>(<span class="st">&quot;bracket&quot;</span>, <span class="st">&quot;new_summary&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;^[</span><span class="ch">\\</span><span class="st">[]&quot;</span>, <span class="dt">remove=</span>T, <span class="dt">convert=</span>F) <span class="op">%&gt;%</span>
+<span class="st">                      </span><span class="kw">separate</span>(new_summary, <span class="kw">c</span>(<span class="st">&quot;summary_full&quot;</span>, <span class="st">&quot;bracket&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;[</span><span class="ch">\\</span><span class="st">]]$&quot;</span>, <span class="dt">remove=</span>T, <span class="dt">convert=</span>F)
+
+sample1 &lt;-<span class="st"> </span>sample1[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">8</span>)]</code></pre></div>
+<p><br></p>
+</div>
+<div id="rename-column-headers" class="section level4">
+<h4>Rename column headers</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(sample1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;list_ID&quot;</span>, <span class="st">&quot;city&quot;</span>, <span class="st">&quot;job_title&quot;</span>, <span class="st">&quot;company_name&quot;</span>, <span class="st">&quot;link&quot;</span>, <span class="st">&quot;summary&quot;</span>)</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-state-and-plus-signs-from-city-column" class="section level4">
+<h4>Remove state and plus signs from City column</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Separate City column into City and State by pattern of two uppercase letters after a plus sign (i.e., &quot;+NY&quot;)</span>
+sample2 &lt;-<span class="st"> </span>sample1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(city, <span class="kw">c</span>(<span class="st">&quot;city&quot;</span>, <span class="st">&quot;state&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;[</span><span class="ch">\\</span><span class="st">+][[:upper:]][[:upper:]]$&quot;</span>, <span class="dt">convert=</span>T)
+
+<span class="co"># Remove empty State column</span>
+sample2 &lt;-<span class="st"> </span>sample2[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">3</span>)]
+
+<span class="co"># Replace plus signs with spaces</span>
+sample2<span class="op">$</span>city &lt;-<span class="st"> </span><span class="kw">str_replace_all</span>(sample2<span class="op">$</span>city, <span class="st">&quot;[</span><span class="ch">\\</span><span class="st">+]&quot;</span>, <span class="st">&quot; &quot;</span>)</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-rows-where-summary-is-blank" class="section level4">
+<h4>Remove rows where Summary is blank</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample3 &lt;-<span class="st"> </span><span class="kw">filter</span>(sample2, sample2<span class="op">$</span>summary<span class="op">!=</span><span class="st">&quot;&quot;</span>)
+
+<span class="kw">head</span>(sample3, <span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>(<span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;800px&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;200px&quot;</span>)</code></pre></div>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:800px; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+list_ID
+</th>
+<th style="text-align:left;">
+city
+</th>
+<th style="text-align:left;">
+job_title
+</th>
+<th style="text-align:left;">
+company_name
+</th>
+<th style="text-align:left;">
+link
+</th>
+<th style="text-align:left;">
+summary
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1075
+</td>
+<td style="text-align:left;">
+Austin
+</td>
+<td style="text-align:left;">
+Machine Learning Compiler Verification
+</td>
+<td style="text-align:left;">
+NVIDIA
+</td>
+<td style="text-align:left;">
+<a href="https://www.indeed.com//rc/clk?jk=3a2fb6db1de4976e&amp;fccid=c267f29f0f85e8b8&amp;vjs=3" class="uri">https://www.indeed.com//rc/clk?jk=3a2fb6db1de4976e&amp;fccid=c267f29f0f85e8b8&amp;vjs=3</a>
+</td>
+<td style="text-align:left;">
+The primary responsibility of this Machine Learning Compiler Verification Engineer position will be testing the NVIDIA software compiler teamâ€™s machine learning tool suite that applies supervised learning and reinforced learning to support compiler development and verification functions.In this role you will work closely with developers to test new machine learning related features including crafting and executing unit and functional tests. You will perform release testing and release administrative work supporting tool releases. Other responsibilities include developing and maintaining build infrastructure, and integrating to existing NVIDIA configuration management, continuous integration systems, and reporting systems. You will administer and maintain test lab systems as well as resolve necessary configurations. This role includes tracking failures, verifying bug fixes, and producing test reports.What you will be doing:Test Development. Author/review test plans, implement test cases, automate tests, integrate tests into test management, port 3rd party testing, and author test reports. May also included integrating already existing tests into the compiler test management framework.Test Automation: Automate compiler testing using NVIDIA test frameworks and by programming. Includes test execution, test reporting, and results analysis. May also includes automation of build environment.Process Improvement: As part of team identify potential or observed weaknesses in current process, offer ideas for actions that can improve quality, and participate in quality initiatives.What we need to see:You will be focused in machine learning and/or quality testing fields. Applicant should be able to design, craft, execute and maintain test cases, test automation, test methodologies and test plans. Applicant needs a general understanding of compilers, machine learning concepts, testing process and software development process. Ability to work in a team oriented environment.Bachelorâ€™s Degree or equivalent experience.8 years work experience in a development organization.Ways to stand out from the crowd:Proven strength in problem solving and implement solutions.Excellent written and verbal interpersonal skills.We need someone who is self-sufficient, learns quickly, and must have strong analytical skills with attention to detail.Candidate should be able to apply existing skills to new situation, you should enjoy testing, and be able to work with minimal supervision.Proficient skill in Python and bash.QA Methodology: On our team we require experience writing test plans, test development, test automation, test execution and reporting in a production environment.Applications: At minimum candidate should have some experience with a source control tool, the ideal candidate will use MS-Office.Programming: read/understand C, and ability to update existing scripts.NVIDIA is committed to fostering a diverse work environment and proud to be an equal opportunity employer. As we highly value diversity in our current and future employees, we do not discriminate (including in our hiring and promotion practices) on the basis of race, religion, color, national origin, gender, gender expression , sexual orientation, age, marital status, veteran status, disability status or any other characteristic protected by law.
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+1239
+</td>
+<td style="text-align:left;">
+Pittsburgh
+</td>
+<td style="text-align:left;">
+Data Scientist
+</td>
+<td style="text-align:left;">
+Lucas Systems, Inc.
+</td>
+<td style="text-align:left;">
+<a href="https://www.indeed.com//rc/clk?jk=a7517874638cd11d&amp;fccid=2fb270b34482755c&amp;vjs=3" class="uri">https://www.indeed.com//rc/clk?jk=a7517874638cd11d&amp;fccid=2fb270b34482755c&amp;vjs=3</a>
+</td>
+<td style="text-align:left;">
+Would you like to collaborate with some of the brightest, most talented software engineers in Pittsburgh AND make a recognizable impact in a profitable, established and growing software solutions company? As a member of Lucas’ Engineering Team, you could be doing just that!We are looking for Data Scientists that will help us discover the information hidden in vast amounts of data collected from Lucas products, and help our customers make smarter decisions. Your primary focus will be in applying data mining techniques, doing statistical analysis, and building high quality prediction systems integrated with our product.The Data Scientist will be responsible for:Using data science techniques and tools to explore and create solutions that can be incorporated into Lucas products.Working with domain experts and customers to understand the challenges in the Supply Chain problem space.Working with application engineering teams to bring solutions to production.Position RequirementsRequirements:MS or PhD in Computer Science, Data Science, or related field.2+ years of production level experience in developing deep learning algorithms and technologies.Experience with at least one major deep learning framework (TensorFlow, Caffe, Theano, Torch, CNTK, MxNet).Strong knowledge of deep learning theory (CNNs, RNNs, LSTMs, etc.).Hands on experience with statistical modeling and machine learning software (Python Statistical and ML libraries, R, Stan).Strong C++, Java, Python and Scala skills.Strong problem solving skills and ability to learn quickly.Being up-to-date on trends and developments in deep learning.Proven ability to work both independently and in team-based environment.Commitment to producing high quality, well-designed and flexible solutions.Solid troubleshooting, analytical, and organizational skills with attention to detail.Excellent verbal and written communication skills.Additional Valued Experience:Experience with Warehouse Management Systems (WMS) or other supply chain software solutions.Experience with database technologies (e.g. SQL, no-SQL, graph databases)EOE StatementLucas Systems is an equal opportunity employer that seeks to hire individuals who share our commitment to quality, diversity and performance. Lucas does not discriminate on the basis of age, race, citizenship, veteranâ€™s status, religion, color, sex, marital status, disability or any other characteristics protected by federal, state or local rule, law or regulation.BenefitsMedical, Dental, Vision, Life Insurance; 401(k) with Match; Holidays; Free Parking; Flexible Work Hours; Casual Attire; Foosball, Ping Pong, Chess; Catered Lunches; Cash Bonus for Employee-ReferralsThis position is currently accepting applications.
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><br></p>
+</div>
+</div>
+<div id="c.-apply-cleaning-procedure-to-full-dataset" class="section level3">
+<h3><strong>C. Apply cleaning procedure to full dataset</strong></h3>
+<div id="remove-brackets-surrounding-summaries-1" class="section level4">
+<h4>Remove brackets surrounding summaries</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df1 &lt;-<span class="st"> </span>df <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(summary_full, <span class="kw">c</span>(<span class="st">&quot;bracket&quot;</span>, <span class="st">&quot;new_summary&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;^[</span><span class="ch">\\</span><span class="st">[]&quot;</span>, <span class="dt">remove=</span>T, <span class="dt">convert=</span>F) <span class="op">%&gt;%</span>
+<span class="st">              </span><span class="kw">separate</span>(new_summary, <span class="kw">c</span>(<span class="st">&quot;summary_full&quot;</span>, <span class="st">&quot;bracket&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;[</span><span class="ch">\\</span><span class="st">]]$&quot;</span>, <span class="dt">remove=</span>T, <span class="dt">convert=</span>F)
+
+df1 &lt;-<span class="st"> </span>df1[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">8</span>)]</code></pre></div>
+<p><br></p>
+</div>
+<div id="rename-column-headers-1" class="section level4">
+<h4>Rename column headers</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(df1) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;list_ID&quot;</span>, <span class="st">&quot;city&quot;</span>, <span class="st">&quot;job_title&quot;</span>, <span class="st">&quot;company_name&quot;</span>, <span class="st">&quot;link&quot;</span>, <span class="st">&quot;summary&quot;</span>)</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-state-and-plus-signs-from-city-column-1" class="section level4">
+<h4>Remove state and plus signs from city column</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Separate city column into city and state by pattern of two uppercase letters after a plus sign (i.e., &quot;+NY&quot;)</span>
+df2 &lt;-<span class="st"> </span>df1 <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">separate</span>(city, <span class="kw">c</span>(<span class="st">&quot;city&quot;</span>, <span class="st">&quot;state&quot;</span>), <span class="dt">sep=</span><span class="st">&quot;[</span><span class="ch">\\</span><span class="st">+][[:upper:]][[:upper:]]$&quot;</span>, <span class="dt">convert=</span>T)
+
+<span class="co"># Remove empty State column</span>
+df2 &lt;-<span class="st"> </span>df2[, <span class="op">-</span><span class="kw">c</span>(<span class="dv">3</span>)]
+
+<span class="co"># Replace plus signs with spaces</span>
+df2<span class="op">$</span>city &lt;-<span class="st"> </span><span class="kw">str_replace_all</span>(df2<span class="op">$</span>city, <span class="st">&quot;[</span><span class="ch">\\</span><span class="st">+]&quot;</span>, <span class="st">&quot; &quot;</span>)</code></pre></div>
+<p><br></p>
+</div>
+<div id="remove-rows-where-summary-is-blank-1" class="section level4">
+<h4>Remove rows where Summary is blank</h4>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_final &lt;-<span class="st"> </span><span class="kw">filter</span>(df2, df2<span class="op">$</span>summary<span class="op">!=</span><span class="st">&quot;&quot;</span>)
+
+<span class="kw">head</span>(df_final, <span class="dv">2</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable</span>(<span class="st">&quot;html&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">kable_styling</span>(<span class="dt">bootstrap_options =</span> <span class="kw">c</span>(<span class="st">&quot;striped&quot;</span>, <span class="st">&quot;hover&quot;</span>, <span class="st">&quot;condensed&quot;</span>, <span class="st">&quot;responsive&quot;</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">scroll_box</span>(<span class="dt">width =</span> <span class="st">&quot;800px&quot;</span>, <span class="dt">height =</span> <span class="st">&quot;200px&quot;</span>)</code></pre></div>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:200px; overflow-x: scroll; width:800px; ">
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:right;">
+list_ID
+</th>
+<th style="text-align:left;">
+city
+</th>
+<th style="text-align:left;">
+job_title
+</th>
+<th style="text-align:left;">
+company_name
+</th>
+<th style="text-align:left;">
+link
+</th>
+<th style="text-align:left;">
+summary
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+New York
+</td>
+<td style="text-align:left;">
+Data Scientist
+</td>
+<td style="text-align:left;">
+AbleTo, Inc.
+</td>
+<td style="text-align:left;">
+<a href="https://www.indeed.com//pagead/clk?mo=r&amp;ad=-6NYlbfkN0DDxuA8Y4K3JnPiGV4kjt8LJAX0ZelysMhEJeNM_3_rWb_L4BVNF4KpDHXkayWIYw5H919b29Wv9kQgd-mQGWEY-QQXRpTL5rlsZ7_n6AWh5RptzR11B6ZJnyJplt7VTSzq1CsFIpNQMytVyIBVMSrguwd-ESHqspczWm_AdnUxSs1jiwfYm9e3e6AT-Hh20UGh0KJi238J21XagkNbN-QSCV_9RqzVw6HbR-OEHLPDucMHuaKN_gpW6UiDyjfm9he2EbTXP8Rgkx-e3GecFU2APK8l5g0ymwqGZL_hEDQEXV_KCaQj10Dyd4spfmQ6-j1RHkdoOudRJ0SRuoIRiPTchuCTcuQkwtd3m8kmIFcdVjsaT9wxfgYx0pWhP32vCKTfgUSE5Ze7ePGboPkMAkLMaOYkaRUqFtt4g34rxsAyjHfpUr8XszxgN6pyyvexN_0qEzEkIQ46oO30CzvOcnYXJPKhYtRhvtFcPiklsBqwWkbTMmDmRUE5TIw22dDZ2kAzGQubdRYnp6KnbgP0mfeHzCnDljLM8wcus3PTL101_j1VZ-Z0h897BHWzlKMcHYSNmT4-oxr4d5bxD_BuSQiLqRe5nQlujMoZ2IsWl8LOIZKiN556aul-NqrzquBk3sLy-nEegXA6fQ" class="uri">https://www.indeed.com//pagead/clk?mo=r&amp;ad=-6NYlbfkN0DDxuA8Y4K3JnPiGV4kjt8LJAX0ZelysMhEJeNM_3_rWb_L4BVNF4KpDHXkayWIYw5H919b29Wv9kQgd-mQGWEY-QQXRpTL5rlsZ7_n6AWh5RptzR11B6ZJnyJplt7VTSzq1CsFIpNQMytVyIBVMSrguwd-ESHqspczWm_AdnUxSs1jiwfYm9e3e6AT-Hh20UGh0KJi238J21XagkNbN-QSCV_9RqzVw6HbR-OEHLPDucMHuaKN_gpW6UiDyjfm9he2EbTXP8Rgkx-e3GecFU2APK8l5g0ymwqGZL_hEDQEXV_KCaQj10Dyd4spfmQ6-j1RHkdoOudRJ0SRuoIRiPTchuCTcuQkwtd3m8kmIFcdVjsaT9wxfgYx0pWhP32vCKTfgUSE5Ze7ePGboPkMAkLMaOYkaRUqFtt4g34rxsAyjHfpUr8XszxgN6pyyvexN_0qEzEkIQ46oO30CzvOcnYXJPKhYtRhvtFcPiklsBqwWkbTMmDmRUE5TIw22dDZ2kAzGQubdRYnp6KnbgP0mfeHzCnDljLM8wcus3PTL101_j1VZ-Z0h897BHWzlKMcHYSNmT4-oxr4d5bxD_BuSQiLqRe5nQlujMoZ2IsWl8LOIZKiN556aul-NqrzquBk3sLy-nEegXA6fQ</a>==&amp;vjs=3&amp;p=1&amp;sk=&amp;fvj=0
+</td>
+<td style="text-align:left;">
+OverviewAbleTo Inc. combines best-in-class patient engagement with behavior change treatment programs that allow health plans and plan sponsors to improve health outcomes, while lowering overall spending, for high-cost medical populations. Benefitting groups include heart patients and diabetics, as well as those suffering from depression/anxiety and chronic pain. All sixteen of our programs utilize best practice protocols and are delivered nationally by teams of licensed therapists and behavioral coaches. Program participants experience improved health, better recovery and in the case of heart patients, fewer hospitalizations.ResponsibilitiesData &amp; Analytics TeamThe Data &amp; Analytics team plays a key role at AbleTo. Data is part of nearly everything that we do. The Data &amp; Analytics team is responsible for storing data, making it useful and actionable for business managers, and using it to validate the impact of our programs and inform organizational improvements.As a Data Scientist at AbleTo, you will work in a uniquely cross-functional capacity, helping teams across the organization apply analytical rigor to their decision-making:With our Research team, you will build claims-based predictive models to identify patients who can benefit from our programs and drive value for our clientsWith our Engagement team, you will help optimize a coordinated, multi-channel patient outreach processWith our Account Management team, you will develop reporting that demonstrates how AbleTo is helping clients manage their patient populationsWith our Clinical team, you will ensure that our therapist network is operating efficiently and is structured appropriately to meet demandWith our Product team, you will use data-driven insights to design new product features for our platformWith our Engineering team, you will help manage our data stack and ETL processes that feed our data warehouseMembers of the Data &amp; Analytics team are:Both technically and strategically savvyAble to sift through large amounts of data and extract insightsAble to present recommendations to non-technical audiencesHighly organized and able to manage time across multiple competing prioritiesFocused on building flexible, durable, and well-designed solutionsFocused on preserving quality controlWilling to experiment with new tools / techniquesData &amp; Analytics team culture:Collaboration: You will work with teams across the organization to both design and build data-driven solutionsInnovation: Our team prioritizes innovation over precedent. Weâ€™re always looking for new, more efficient ways of doing thingsHigh-Impact Focus: Our team receives a lot of requests for new analyses, processes, reports, etc. It is our job to prioritize these requests with our stakeholders and invest time in projects with the highest potential value-add for the organization. You will be actively involved in making these decisionsQualificationsTechnical SkillsStrong proficiency in SQL and R/PythonExperience working on cloud-based platforms like AWS/GCSComfortable with variety of analytical techniques:Predictive modeling (e.g. regularized regressions, decision trees / random forests, association rules mining)Optimization (e.g. linear programming)Exploratory analysis (e.g. clustering, PCA)Some familiarity with BI tools such as Looker or TableauEducation / ExperienceBA in Operations Research, Computer Science, or other related discipline2-3 years work experience is strongly preferredAdditionally to the technical requirements for this specific position, AbleTo seeks candidates that will demonstrate:Personal ownership of assignments and responsibilitiesResilience and grit to ensure task completion even in the face of adversityDiscipline and organization to handle multiple tasks simultaneouslyGreat team playing skillsHigh levels of energy and positive ambitionA healthy balance of curiosity, humility and assertivenessExcellent written and verbal communication skillsProfessional attitude and demeanorAbleTo is committed to equal employment opportunities (EEO) and employs qualified persons without regard to race, color, religion, national origin, sex, age, handicap, or any other classification protected by federal, state, or local laws.AbleTo is an E-Verify Company
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+New York
+</td>
+<td style="text-align:left;">
+Data Scientist
+</td>
+<td style="text-align:left;">
+Shore Group Associates, LLC
+</td>
+<td style="text-align:left;">
+<a href="https://www.indeed.com//pagead/clk?mo=r&amp;ad=-6NYlbfkN0AmtW71uMJ-FMTnSgQAi6MO2hfu514W2To_ok1EkQDsLzCSnVx2dJJdWh_eVltX3NiKTJsOZ1PdrHmGwruy3Gwutw1Y3myrtnW-EAYSCQP1_EOIcyntJdxtj6FPF62TyGkihYDHIjTCVu_fBirizqhYKRHGco3FiaFPo1aadANl5b8sxxh_xfPnT7IgmCq1uhzhaBEqvJTIOxzME67gwkFDQMqxfRy5NeNlACthstIIJrrNKGb_4rHddOAIBkREr7GI5VMt-mMTREeanvd2N26PKfQEgntwy8IRwFCIBN2KLrb4LrABKQS4hpxFDEeLxkLy_brMWIhE5yVTBHezMc1KQdnpROfTZk9-mjnfIkcuCQ5m8avDk2OYqqcGBMs15Nw_jrnylFns0l3hlK9gyQa-a51XJpetjmCi6VJL-lVn1fC2_jm2_2cU&amp;vjs=3&amp;p=2&amp;sk" class="uri">https://www.indeed.com//pagead/clk?mo=r&amp;ad=-6NYlbfkN0AmtW71uMJ-FMTnSgQAi6MO2hfu514W2To_ok1EkQDsLzCSnVx2dJJdWh_eVltX3NiKTJsOZ1PdrHmGwruy3Gwutw1Y3myrtnW-EAYSCQP1_EOIcyntJdxtj6FPF62TyGkihYDHIjTCVu_fBirizqhYKRHGco3FiaFPo1aadANl5b8sxxh_xfPnT7IgmCq1uhzhaBEqvJTIOxzME67gwkFDQMqxfRy5NeNlACthstIIJrrNKGb_4rHddOAIBkREr7GI5VMt-mMTREeanvd2N26PKfQEgntwy8IRwFCIBN2KLrb4LrABKQS4hpxFDEeLxkLy_brMWIhE5yVTBHezMc1KQdnpROfTZk9-mjnfIkcuCQ5m8avDk2OYqqcGBMs15Nw_jrnylFns0l3hlK9gyQa-a51XJpetjmCi6VJL-lVn1fC2_jm2_2cU&amp;vjs=3&amp;p=2&amp;sk</a>=&amp;fvj=1
+</td>
+<td style="text-align:left;">
+Description -Our team is building machine learning tools to help determine predict information about donors to a given foundation. This includes the likelihood of donation, the size of the donation, when is best to reach out to a given possible donor, and how to reach out. We are looking for data scientists who are not only interested in plugging data into a model, but also understanding the data like the back of their hand.Requirements -Analyze requirements and formulate an appropriate technical solution that meets functional and non-functional requirements.Experience with large datasets in the 100’s of GBFundamental/broad understanding of data mining and predictive analytics techniques2+ years of Data Science Experience and a deep knowledge of various modeling techniques.Python (Pandas, SKLearn, NumPy, Matplotlib), SQL, GitStrong communication skills - both verbal and written â€“ is a must.Strong experience with predictive regression modelsStrong software engineering skillsJob Type: Full-timeExperience:Data Science: 3 years (Required)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>We are left with a dataset that has 1,303 job listings.</p>
 <p><br></p>
 <hr>
+</div>
+</div>
 </div>
 <div id="unsupervised-analysis" class="section level1">
 <h1><strong>5. Unsupervised Analysis</strong></h1>

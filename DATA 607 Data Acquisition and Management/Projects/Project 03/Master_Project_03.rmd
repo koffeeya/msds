@@ -74,6 +74,8 @@ library(xtable)
 library(readr)
 library(plyr)
 library(tidytext)
+library(knitr)
+library(kableExtra)
 ```
 
 
@@ -251,7 +253,142 @@ for (city in city.set_small){
 
 # **4. Data Cleaning**
 
+### **A. Read in the dataframe**
 
+#### Read in raw dataframe, set separator as pipe
+```{r}
+url <- "https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Project%2003/indeed_jobs_large.csv"
+
+df <- read.csv(url, sep="|", stringsAsFactors = F)
+
+```
+
+<br>
+
+#### Remove "location" and "salary" columns, to reduce redundancy.
+```{r}
+df <- df[, -c(5,7)]
+
+```
+
+<br>
+
+### **B. Test cleaning procedure**
+
+
+
+#### Take 100-row sample of full dataset
+```{r}
+sample <- df[sample(1:nrow(df), 100, replace=F),]
+
+```
+
+<br>
+
+#### Remove brackets surrounding summaries
+```{r}
+
+sample1 <- sample %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
+                      separate(new_summary, c("summary_full", "bracket"), sep="[\\]]$", remove=T, convert=F)
+
+sample1 <- sample1[, -c(5, 8)]
+
+```
+
+<br>
+
+#### Rename column headers
+```{r}
+
+names(sample1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
+
+
+```
+
+<br>
+
+#### Remove state and plus signs from City column
+```{r}
+# Separate City column into City and State by pattern of two uppercase letters after a plus sign (i.e., "+NY")
+sample2 <- sample1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
+
+# Remove empty State column
+sample2 <- sample2[, -c(3)]
+
+# Replace plus signs with spaces
+sample2$city <- str_replace_all(sample2$city, "[\\+]", " ")
+
+```
+
+<br>
+
+#### Remove rows where Summary is blank
+```{r warning=FALSE, message=FALSE}
+
+sample3 <- filter(sample2, sample2$summary!="")
+
+head(sample3, 2) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  scroll_box(width = "800px", height = "200px")
+
+```
+
+<br>
+
+### **C. Apply cleaning procedure to full dataset**
+
+#### Remove brackets surrounding summaries
+```{r}
+
+df1 <- df %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
+              separate(new_summary, c("summary_full", "bracket"), sep="[\\]]$", remove=T, convert=F)
+
+df1 <- df1[, -c(5, 8)]
+
+```
+
+<br>
+
+#### Rename column headers
+```{r}
+
+names(df1) <- c("list_ID", "city", "job_title", "company_name", "link", "summary")
+
+```
+
+<br>
+
+#### Remove state and plus signs from city column
+```{r}
+# Separate city column into city and state by pattern of two uppercase letters after a plus sign (i.e., "+NY")
+df2 <- df1 %>% separate(city, c("city", "state"), sep="[\\+][[:upper:]][[:upper:]]$", convert=T)
+
+# Remove empty State column
+df2 <- df2[, -c(3)]
+
+# Replace plus signs with spaces
+df2$city <- str_replace_all(df2$city, "[\\+]", " ")
+
+```
+
+<br>
+
+#### Remove rows where Summary is blank
+```{r warning=FALSE, message=FALSE}
+
+df_final <- filter(df2, df2$summary!="")
+
+head(df_final, 2) %>% 
+  kable("html") %>% 
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  scroll_box(width = "800px", height = "200px")
+
+```
+
+<br>
+
+#### We are left with a dataset called `df_final` that has **1,303 job listings**.
 
 <br>
 
@@ -259,11 +396,197 @@ for (city in city.set_small){
 
 # **5. Unsupervised Analysis**
 
-
+Once we had our dataset, we distributed it to the team for analysis. Both supervised and unsupervised analyses were performed simultaneously.
 
 <br>
 
 ### **A. TF-IDF**
+
+# Add description of TD-IDF?
+
+<br>
+
+#### **Create control List**
+
+```{r tfidf-setup, echo = FALSE}
+
+tfidf <- df_final
+
+# Make all job titles lower case for later
+tfidf$job_title <- tolower(df_final$job_title)
+
+# Control list to be used for all corpuses
+control_list <- list(removePunctuation = TRUE, stopwords = TRUE, tolower = TRUE,
+                     weighting = weightTfIdf)
+```
+
+<br>
+
+#### **TF-IDF on All Job Postings**
+
+```{r attempt-1, echo = FALSE, warning = FALSE}
+corpus.all <- VCorpus(VectorSource(df_final$summary))
+
+tdm.all <- TermDocumentMatrix(corpus.all, control = control_list)
+
+# Remove outliers consisting of very rare terms
+tdm.80 <- removeSparseTerms(tdm.all, sparse = 0.80)
+
+# Sum rows for total & make dataframe
+df_all <- tidy(sort(rowSums(as.matrix(tdm.80))))
+colnames(df_all) <- c("words", "count")
+
+# Graph
+ggplot(tail(df_all, 25), aes(reorder(words, count), count)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "TF-IDF of Indeed Job Postings",
+       x = "Words", y = "Frequency") +
+  coord_flip()
+
+```
+
+<br>
+
+#### **Sparsity**
+
+First, a note on sparsity: Sparsity roughly controls the rarity of the word frequency.  If we run `removeSparseTerms(tdm, sparse = 0.99)`, it will remove only the rarest words, that is the words that appear in only 1% of the corpus.  On the other hand, `removeSparseTerms(tdm, sparse = 0.01)` then only words that appear in nearly every document of the corpus will be kept.
+
+For most analysis, I found that a sparsity of 80% was most beneficial.  Sparsity > 80% often included words that were more important to job postings as a whole, and not to the specifics we wanted for the purpose of our question.
+
+When each job postings are treated as individual documents, skills like "machine learning", "analytics", "statistics/statistical", and "models/modeling" are very important for data scientists to have.
+
+<br>
+
+#### **TF-IDF on Job Postings by Cities**
+```{r attempt-2, fig.width = 10, fig.height = 11, echo = FALSE, warning = FALSE}
+# Trying to divide the corpus by cities
+nyc <- paste(df_final[df_final$city == "New York", 6], collapse = " ")
+sea <- paste(df_final[df_final$city == "Seattle", 6], collapse = " ")
+sf <- paste(df_final[df_final$city == "San Francisco", 6], collapse = " ")
+dc <- paste(df_final[df_final$city == "Washington", 6], collapse = " ")
+atl <- paste(df_final[df_final$city == "Atlanta", 6], collapse = " ")
+bos <- paste(df_final[df_final$city == "Boston", 6], collapse = " ")
+aus <- paste(df_final[df_final$city == "Austin", 6], collapse = " ")
+cin <- paste(df_final[df_final$city == "Cincinnati", 6], collapse = " ")
+pitt <- paste(df_final[df_final$city == "Pittsburgh", 6], collapse = " ")
+
+cities <- c(nyc, sea, sf, dc, atl, bos, aus, cin, pitt)
+
+corpus.city <- VCorpus(VectorSource(cities))
+
+tdm.city <- TermDocumentMatrix(corpus.city, control = control_list)
+
+# Make city dataframe
+df_city <- tidy(tdm.city)
+df_city$document <- mapvalues(df_city$document,
+                              from = 1:9,
+                              to = c("NYC", "SEA", "SF",
+                                     "DC", "ATL", "BOS",
+                                     "AUS", "CIN", "PITT"))
+
+df_city %>%
+  arrange(desc(count)) %>%
+  mutate(word = factor(term, levels = rev(unique(term))),
+           city = factor(document, levels = c("NYC", "SEA", "SF",
+                                              "DC", "ATL", "BOS",
+                                              "AUS", "CIN", "PITT"))) %>%
+  group_by(document) %>%
+  top_n(6, wt = count) %>%
+  ungroup() %>%
+  ggplot(aes(word, count, fill = document)) +
+  geom_bar(stat = "identity", alpha = .8, show.legend = FALSE) +
+  labs(title = "Highest TF-IDF Words in Job Listings by City",
+       x = "Words", y = "TF-IDF") +
+  facet_wrap(~city, ncol = 2, scales = "free") +
+  coord_flip()
+
+# write.csv(df_city, "city_tfidf.csv", row.names = FALSE)
+```
+
+<br>
+
+In this attempt, job postings were grouped by the cities they were listed in.  When broken down this way, the companies themselves became the most important words rather than skills.
+
+<br>
+
+#### **TF-IDF Based on Job Titles**
+```{r attempt-3, echo = FALSE, warning = FALSE}
+# Data Scientist - 739 instances
+ds <- df_final[grep("data scientist", tolower(df_final$job_title)), 6]
+ds.corpus <- VCorpus(VectorSource(ds))
+ds.tdm <- TermDocumentMatrix(ds.corpus, control = control_list)
+
+ds.80 <- removeSparseTerms(ds.tdm, sparse = 0.80)
+df_ds <- tidy(sort(rowSums(as.matrix(ds.80))))
+colnames(df_ds) <- c("words", "count")
+
+ggplot(tail(df_ds, 25), aes(reorder(words, count), count)) +
+  geom_bar(stat = "identity", fill = "red") +
+  labs(title = "TF-IDF of Data Scientist Job Titles",
+       x = "Words", y = "Frequency") +
+  coord_flip()
+
+
+# Senior / Sr. - 84 instances
+# Intern - 61 instance
+# Senior vs Intern
+# Not very illuminating
+senior <- paste(df_final[grep("senior", tolower(df_final$job_title)), 6], collapse = " ")
+intern <- paste(df_final[grep("intern", tolower(df_final$job_title)), 6], collapse = " ")
+jrsr.corpus <- VCorpus(VectorSource(c(senior, intern)))
+jrsr.tdm <- TermDocumentMatrix(jrsr.corpus, control = control_list)
+df_jrsr <- tidy(jrsr.tdm)
+df_jrsr$document <- mapvalues(df_jrsr$document, from = 1:2,
+                              to = c("senior", "intern"))
+
+df_jrsr %>%
+  arrange(desc(count)) %>%
+  mutate(word = factor(term, levels = rev(unique(term))),
+           type = factor(document, levels = c("senior", "intern"))) %>%
+  group_by(document) %>%
+  top_n(25, wt = count) %>%
+  ungroup() %>%
+  ggplot(aes(word, count, fill = document)) +
+  geom_bar(stat = "identity", alpha = .8, show.legend = FALSE) +
+  labs(title = "TF-IDF of Senior vs Junior Jobs",
+       x = "Words", y = "TF-IDF") +
+  facet_wrap(~type, ncol = 2, scales = "free") +
+  coord_flip()
+
+# Machine Learning - 124 instances
+ml <- df_final[grep("machine learning", tolower(df_final$job_title)), 6]
+ml.corpus <- VCorpus(VectorSource(ml))
+ml.tdm <- TermDocumentMatrix(ml.corpus, control = control_list)
+
+ml.70 <- removeSparseTerms(ml.tdm, sparse = 0.70)
+df_ml <- tidy(sort(rowSums(as.matrix(ml.70))))
+colnames(df_ml) <- c("words", "count")
+
+ggplot(tail(df_ml, 25), aes(reorder(words, count), count)) +
+  geom_bar(stat = "identity", fill = "green") +
+  labs(title = "TF-IDF for Machine Learning Jobs",
+       x = "Words", y = "Count") +
+  coord_flip()
+
+# Research - 119 instances
+research <- df_final[grep("research", df_final$job_title), 6]
+r.corpus <- VCorpus(VectorSource(research))
+r.tdm <- TermDocumentMatrix(r.corpus, control = control_list)
+
+r.80 <- removeSparseTerms(r.tdm, sparse = 0.80)
+df_r <- tidy(sort(rowSums(as.matrix(r.80))))
+colnames(df_r) <- c("words", "count")
+
+ggplot(tail(df_r, 25), aes(reorder(words, count), count)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  labs(title = "TF-IDF for Research Job Titles",
+       x = "Words", y = "Count") +
+  coord_flip()
+```
+
+<br>
+
+Though our primary search term was "Data Scientist", Indeed also returned other job titles.  These were some of the most common instances.  Unsurprisingly, "Data Scientist" itself matches with what we see in the analysis of all job postings.  We thought there might be an interesting shift between "senior" level jobs and internships, with perhaps a strong prevelance of "soft skills" for the higher level jobs, but did not see much evidence of that in the data.
 
 
 
@@ -271,7 +594,153 @@ for (city in city.set_small){
 
 ### **B. Sentiment Analysis**
 
+```{r}
 
+```
+
+
+The idea here is to take a look at the "sentiment" of the text within each job posting and use that information as a proxy for company quality.  The thinking is that higher sentiment ranking will be indicative of better company quality ( a leap, to be sure, but probably acceptable given the scope of this project).  We'll then use this data to take a look at which skills are more heavily refered to by the highest (and lowest) sentiment ranked companies.
+
+<br>
+
+#### **Prepare the data**
+
+The first thing that we that we're going to do is tokenize the "summary" column of the data which contains all the text which we are interested in.  The essentially amounts to parsing the column into individual words and reshaping the dataframe into a "tidy" format where all individual words (tokens) are found in their own column.
+
+We'll then remove all the "stop_words" from this newly created data - words like "if", "and", "the"... etc.
+
+<br>
+ 
+```{r}
+
+
+#tokenize the summary into individual words, drop stop words
+df.sent <- df_final %>%
+  unnest_tokens(token, summary) %>%
+  anti_join(stop_words, by=c("token" = "word")) 
+
+head(df.sent,5)
+
+```
+
+<br>
+
+Next we'll map a numeric sentiment score to the words in our token column.  We're going to use the [AFINN]("http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010") set for simplicity as it maps to a simple integer score between [-5, +5] with numbers below zero representing negative sentiments and numbers above zero representing positive sentiments.
+
+
+```{r}
+#map the words to a sentiment score
+df.sentiment <- df.sent %>%
+  inner_join(get_sentiments("afinn"),by=c("token" = "word")) #%>%
+
+head(df.sentiment[c("city","job_title","company_name","token","score")],5)
+
+```
+
+<br>
+
+Next we're going to compute an average sentiment score for each company by aggregating the total sentiment score per company, and dividing by the number of job postings found for that particular company.  We'll also order the data by average sentiment.
+
+```{r}
+#pare down the data
+df.sentByComp <- df.sentiment[,c("company_name","score")]
+
+#get the number of observations per co.
+df.compCount <- df.sentiment %>% 
+  group_by(company_name) %>% 
+  summarize(num_obs = length(company_name))
+
+#aggregate the sentiment score by company
+df.sentByComp <-df.sentByComp %>%
+    group_by(company_name) %>%
+    summarize(sentiment = sum(score))
+
+#get the average sentiment score per observation
+df.sentByComp$num_obs = df.compCount$num_obs
+df.sentByComp$avg.sentiment = df.sentByComp$sentiment / df.sentByComp$num_obs
+df.sentByComp <- df.sentByComp[order(-df.sentByComp$avg.sentiment),]
+
+head(df.sentByComp,5)
+
+```
+
+<br>
+
+Next we downsample the data to look at the top and bottom few companies, as per the sentiment rankings
+
+```{r}
+n <- 5 # number of companies to get
+
+#get the top and bottom "n" ranked companies
+bestNworst <- rbind(head(df.sentByComp,n),tail(df.sentByComp,n))
+
+bestNworst
+
+
+```
+
+<br>
+
+Next, we inner-join our bestNworst data back to the original df, preserving only entries that correspond to companies which fall in the top or bottom "n" in terms of sentiment rank.  This should dramatically reduce the row-count from about 400K to somewhere in the low 000's.
+
+```{r}
+
+df.result <- inner_join(df,bestNworst[c("company_name","avg.sentiment")])
+
+colnames(df.result)
+
+tail(df.result[c("city","company_name","token","avg.sentiment")],5)
+
+```
+
+<br>
+
+Now we'll rank the count the terms 
+
+```{r warning=FALSE}
+
+#remove any commas from the token column... makes it easier to remove #s 
+df.result$token <- gsub(",","",df.result$token)
+
+#count the terms for the top rated companies
+top.terms <- df.result %>%
+  filter(is.na(as.numeric(as.character(token)))) %>%   # removes numbers
+  filter(avg.sentiment > 0 ) %>%
+  count(token, sort = TRUE) 
+
+head(top.terms,5)
+
+#count the terms for the bottom rated companies
+bottom.terms <- df.result %>%
+  filter(is.na(as.numeric(as.character(token)))) %>%  # removes numbers
+  filter(avg.sentiment < 0 ) %>%
+  count(token, sort = TRUE) 
+
+head(bottom.terms,5)
+
+
+```
+
+<br>
+
+#### Plot Some Findings
+
+```{r}
+
+ggplot(head(top.terms,33), aes(reorder(token, n), n)) +
+  geom_bar(stat = "identity", fill = "Blue") +
+  labs(title = "Top Terms for Companies with Highest Sentiment",
+       x = "Term", y = "Frequency") +
+  coord_flip()
+
+
+ggplot(head(bottom.terms,33), aes(reorder(token, n), n)) +
+  geom_bar(stat = "identity", fill = "Red") +
+  labs(title = "Top Terms for Companies with Lowest Sentiment",
+       x = "Term", y = "Frequency") +
+  coord_flip()
+
+``` 
 
 <br>
 
@@ -280,17 +749,102 @@ for (city in city.set_small){
 # **6. Supervised Analysis**
 
 
-
 <br>
 
 ### **A. Frequency**
 
+#### **Tool Skills**
 
+```{r}
+
+toolskills <- df_final %>%
+    mutate(R = grepl("\\bR\\b,", summary)) %>%
+    mutate(python = grepl("Python", summary, ignore.case=TRUE)) %>%
+    mutate(SQL = grepl("SQL", summary, ignore.case=TRUE)) %>%
+    mutate(hadoop = grepl("hadoop", summary, ignore.case=TRUE)) %>%
+    mutate(perl = grepl("perl", summary, ignore.case=TRUE)) %>%
+    mutate(matplotlib = grepl("matplotlib", summary, ignore.case=TRUE)) %>%
+    mutate(Cplusplus = grepl("C++", summary, fixed=TRUE)) %>%
+    mutate(VB = grepl("VB", summary, ignore.case=TRUE)) %>%
+    mutate(java = grepl("java\\b", summary, ignore.case=TRUE)) %>%
+    mutate(scala = grepl("scala", summary, ignore.case=TRUE)) %>%
+    mutate(tensorflow = grepl("tensorflow", summary, ignore.case=TRUE)) %>%
+    mutate(javascript = grepl("javascript", summary, ignore.case=TRUE)) %>%
+    mutate(spark = grepl("spark", summary, ignore.case=TRUE)) %>%
+    select(job_title, company_name, R, python, SQL, hadoop, perl, matplotlib, Cplusplus, VB, java, scala, tensorflow, javascript, spark)
+
+
+toolskills2 <- toolskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+ggplot(toolskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Tool Skills') + coord_flip() + theme_minimal()
+```
+
+<br>
+
+#### Soft Skills
+
+```{r}
+
+softskills <- df_final %>%
+    mutate(workingremote = grepl("working remote", summary, ignore.case=TRUE)) %>%
+    mutate(communication = grepl("communicat", summary, ignore.case=TRUE)) %>%
+    mutate(collaborative = grepl("collaborat", summary, ignore.case=TRUE)) %>%
+    mutate(creative = grepl("creativ", summary, ignore.case=TRUE)) %>%
+    mutate(critical = grepl("critical", summary, ignore.case=TRUE)) %>%
+    mutate(problemsolving = grepl("problem solving", summary, ignore.case=TRUE)) %>%
+    mutate(activelearning = grepl("active learning", summary, ignore.case=TRUE)) %>%
+    mutate(hypothesis = grepl("hypothesis", summary, ignore.case=TRUE)) %>%
+    mutate(organized = grepl("organize", summary, ignore.case=TRUE)) %>%
+    mutate(judgement = grepl("judgement", summary, ignore.case=TRUE)) %>%
+    mutate(selfstarter = grepl("self Starter", summary, ignore.case=TRUE)) %>%
+    mutate(interpersonalskills = grepl("interpersonal skills", summary, ignore.case=TRUE)) %>%
+    mutate(atttodetail = grepl("attention to detail", summary, ignore.case=TRUE)) %>%
+    mutate(visualization = grepl("visualization", summary, ignore.case=TRUE)) %>%
+    mutate(leadership = grepl("leadership", summary, ignore.case=TRUE)) %>%
+    
+    
+select(job_title, company_name, workingremote, communication, collaborative, creative, critical, problemsolving, activelearning, hypothesis, organized, judgement, selfstarter, interpersonalskills, atttodetail, visualization, leadership)
+summary(softskills) 
+
+softskills2 <- softskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+ggplot(softskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Soft Skills') + coord_flip() + theme_minimal()
+```
+
+<br>
+
+#### Hard Skills
+
+```{r}
+
+hardskills <- df_final %>%
+    mutate(machinelearning = grepl("machine learning", summary, ignore.case=TRUE)) %>%
+    mutate(modeling = grepl("model", summary, ignore.case=TRUE)) %>%
+    mutate(statistics = grepl("statistics", summary, ignore.case=TRUE)) %>%
+    mutate(programming = grepl("programming", summary, ignore.case=TRUE)) %>%
+    mutate(quantitative = grepl("quantitative", summary, ignore.case=TRUE)) %>%
+    mutate(debugging = grepl("debugging", summary, ignore.case=TRUE)) %>%
+    mutate(statistics = grepl("statistics",  summary, ignore.case=TRUE)) %>%
+    
+
+select(job_title, company_name, machinelearning, modeling, statistics, programming, quantitative, debugging, statistics)
+summary(hardskills) 
+
+
+hardskills2 <- hardskills %>% select(-(1:2)) %>% summarise_all(sum) %>% gather(variable,value) %>% arrange(desc(value))
+ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) + geom_bar(stat='identity',fill="green") + xlab('') + ylab('Frequency') + labs(title='Hard Skills') + coord_flip() + theme_minimal()
+```
 
 <br>
 
 ### **B. Word Cloud**
 
+```{r}
+
+datacloud <- Corpus(VectorSource(df_final$summary))
+datacloud <- tm_map(datacloud, removePunctuation)
+datacloud <- tm_map(datacloud, tolower)
+datacloud <- tm_map(datacloud, removeWords, c("services", "data", "andor", "ability", "using", "new", "science", "scientist" , "you", "must", "will", "including", "can", stopwords('english')))
+wordcloud(datacloud, max.words = 80, random.order = FALSE, scale=c(3,.3),random.color = FALSE,colors=palette())
+```
 
 
 <br>

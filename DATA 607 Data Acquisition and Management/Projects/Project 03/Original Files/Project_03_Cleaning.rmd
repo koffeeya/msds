@@ -156,23 +156,11 @@ View(df_final)
 
 ```
 
+<br>
+
 We are left with a dataset that has 1,303 job listings.
 
 <br>
 
-
-## **D.** Test string extraction on sample dataset's summary column
-
-```{r}
-#Extract strings based on skill list
-
-#tool.skills <- ".py."
-
-#sapply(tool.skills, str_count, sample1$summary)
-
-# "SQL", "Hadoop", "TensorFlow")
-
-
-```
 
 
