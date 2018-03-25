@@ -707,17 +707,17 @@ df.result$token <- gsub(",","",df.result$token)
 
 #count the terms for the top rated companies
 top.terms <- df.result %>%
-  filter(is.na(as.numeric(as.character(token)))) %>%   # removes numbers
-  filter(avg.sentiment > 0 ) %>%
-  count(token, sort = TRUE) 
+  dplyr::filter(is.na(as.numeric(as.character(token)))) %>%   # removes numbers
+  dplyr::filter(avg.sentiment > 0 ) %>%
+  dplyr::count(token, sort = TRUE) 
 
 head(top.terms,5)
 
 #count the terms for the bottom rated companies
 bottom.terms <- df.result %>%
-  filter(is.na(as.numeric(as.character(token)))) %>%  # removes numbers
-  filter(avg.sentiment < 0 ) %>%
-  count(token, sort = TRUE) 
+  dplyr::filter(is.na(as.numeric(as.character(token)))) %>%  # removes numbers
+  dplyr::filter(avg.sentiment < 0 ) %>%
+  dplyr::count(token, sort = TRUE) 
 
 head(bottom.terms,5)
 
