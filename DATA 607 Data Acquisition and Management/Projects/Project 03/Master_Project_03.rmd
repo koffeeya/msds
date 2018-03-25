@@ -88,31 +88,15 @@ library(kableExtra)
 [Jeremy to edit more here]
 To motivate our approach to data collection and analysis, we began with the concepts of "skills" and of "value." 
 
-**Skills:** As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  We leveraged a list found here (Source: https://uptowork.com/blog/data-scientist-resume-example) as shorthand for those categories.
+**Skills:** As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), both "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  We leveraged a list (found here: https://uptowork.com/blog/data-scientist-resume-example) as shorthand for those categories.
 
-**Value:**
-To avoid wading into abstractions, we interpreted value in its economic sense - that is, what skills are sought after and/or rewarded in the marketplace.  That is not directly measurable, which means working with a sample.
-Given we are talking about social and economic trends, we can't direct measure 
-We can't directly measure the population, so we'll need to work with a sample
-Signals
+**Value:** To avoid wading into philosophical abstractions, we interpreted value in its economic sense - that is, what skills are sought after and/or rewarded in the marketplace.  As that's not directly measurable, we discussed different approaches to sourcing a sample.  
 
-Value is a subjective measure 
-Further, value changes over time - so the information we use will be time-bound
+* Mining custom research on data science practitioners (like that found here: https://www.kaggle.com/surveys/2017) is one approach, but we dismissed it as it didn't seem to accord with the intent of the project.  
+* Analyzing discussions and conversations on online discussion boards focused on data science (i.e. https://www.reddit.com/r/datascience/) is another approach we considered; while threads can provide a historical record (i.e. the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority).  We agreed to explore this as an alternative or follow-up to our principal approach.
+* Scraping online job postings for data science roles provides perspective on what skills employers emphasize and prioritize.  There are limitations to this approach: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace; and scraping time-delimited job postings captures a moment in time without any longitudinality.  Those constraints notwithstanding, we agreed that testing what signals (i.e. the fe we could detect in job postings would be a good approach to this project.
 
-
-One source would be custom research
-Another would be discussion threads
-A third would be job postings
-
-
-
-
-
-* How do we interpret the question?
-* Why is it important?
-Technical, soft, and hard skills.  Found a reliable source for them, SME.
-Make link between data we collect and how it demonstrates "value"
-Frequency of skills
+We dimissed custom research as it didn't seem to accord with the intent of the project; we thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed that, constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected in job postings would be a good approach to this project.
 
 We considered a number of questions when evaluating our collective approach:
 
