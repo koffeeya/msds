@@ -91,20 +91,20 @@ To motivate our approach to data collection and analysis, we began with the conc
 
 **Value:** To avoid wading into philosophical abstractions, we interpreted value in its economic sense - that is, what skills are sought after and/or rewarded in the marketplace.  As that's not directly measurable, we discussed different approaches to sourcing a sample.  
 
-* Mining custom research on data science practitioners (like that found here: https://www.kaggle.com/surveys/2017) is one approach.
-* Analyzing discussions and conversations on online discussion boards focused on data science (i.e. https://www.reddit.com/r/datascience/) is another approach we considered; while threads can provide a historical record (i.e. the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority) and their informational contents does not necessarily accord with economic / market value.
-* Scraping online job postings for data science roles provides perspective on what skills employers emphasize and prioritize.  There are limitations to this approach: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace; and scraping time-delimited job postings captures a moment in time without any longitudinality.
+* Mining custom research on data science practitioners (like that found here: https://www.kaggle.com/surveys/2017) is one approach we identified.
+* Analyzing discussions and conversations on online discussion boards focused on data science (i.e. https://www.reddit.com/r/datascience/) is another approach we considered.  While threads can provide a historical record (i.e. the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority) and informational contents does not necessarily accord with economic value.
+* Scraping online job postings for data science roles provides perspective on what skills employers emphasize and prioritize.  This third approach has its limitations: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace, and scraping time-delimited job postings captures a moment in time without any longitudinality.
 
-We dimissed custom research as it didn't seem to accord with the intent of the project.  We thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed to focus on job postings; constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected therein would be a good approach to this project, and one that allowed us to meet technical requirements and collaborate.
+We dimissed custom research as it didn't seem to accord with the intent of the project.  We thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed to focus on job postings.  Constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected job postings would be a good approach to this project, and one that allowed us to meet technical requirements and collaborate.
 
-After some exploration, we decided to focus on Indeed.com, which has a wealth of data science job postings that can be scraped.  We scraped job postings - first a test set for evaluation and troubleshooting, then a larger, more robust set to be cleaned and analyzed.  We initially used Python, and later replicated the scraper in R.  C
+After some exploration, we decided to focus on Indeed.com, which has a wealth of data science job postings that can be scraped.  We scraped them - first a test set for evaluation and troubleshooting, then a larger, more robust set to be cleaned and analyzed.  We initially used Python, and later replicated the scraper in R.
 
 We felt that the project could benefit from a two-pronged approach to analysis:  
 
-* A more prescriptive, supervised approach based on cross-referencing job summaries with categorized lists of terms and calculcating the frequency of recurring keywords.  To prove the concept, we used the "hard," "soft," and "tools" lists referenced above as is.
-* A more exploratory, unsupervised approach based on using term frequency-inverse document frequency that doesn't semantically impose preconveived keywords upon job postings (short of filtering out stop-words).
+* A more prescriptive, supervised approach based on cross-referencing job summaries with categorized lists of terms and calculcating the frequency of recurring keywords.  To prove the concept, we used the "hard," "soft," and "tools" lists referenced above as we found them.
+* A more exploratory, unsupervised approach based on using term frequency-inverse document frequency which doesn't semantically impose preconveived keywords upon job postings (short of filtering out stop-words).
 
-In the interest of time, we conducted the two analyses in parallel.  The data was cleaned to prepare it for both the supervised workstreams.  We iterated and collaborated on the scraper, cleaning, and analysis using Slack and Github.
+To streamline our process we conducted the two analyses in parallel, cleaning and preparing the data for both.  We iterated and collaborated on the scraper, cleaning, and analysis using Slack and Github.
 <br>
 
 <hr>
