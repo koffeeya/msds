@@ -1019,15 +1019,18 @@ wordcloud(datacloud,
 <br>
 
 <hr>
+
 # **8. Conclusions**
 
 We'll review separately what we learned about the motivating question and what we took away in terms of process.
 
 <br>
 
-### **A. About the question**
+### **A. Conclusions About The Question**
 
-Based on the supervised approach to analyzing our sampling of job postings, we can draw a few conclusions on which data science skills are most and least in-demand - and therefore, valuable:
+Based on the supervised approach to analyzing our sampling of job postings, we can draw a few conclusions on which data science skills are most and least in-demand -- and therefore, valuable:
+
+#### **Supervised Approach**
 
 **Most in-demand**
 
@@ -1045,7 +1048,9 @@ The list of most in-demand skills is consistent with the tenor and topics of con
 
 These findings can not only inform how job seekers position their experience and skills, but how learning programs and bootcamps structure their curricula.  Additionally, this information could help prospective employers of data scientists to understand how to communicate their own requirements, or how their requirements compare with others hiring in the marketplace, or even what their competitive set looks like.
 
-**Any takeaways from the unsupervised section?**
+<br>
+
+#### **TF-IDF Approach**
 
 TF-IDF Conclusions/Next Steps:
 
@@ -1053,9 +1058,13 @@ Hard skills had a higher score in most situations.  "Machine" and "learning", "s
 
 <br>
 
-### **B. About the process**
+#### **Sentiment Analysis Approach**
 
-By parallelizing our supervised and unsupervised workstreams, we were able to make comparisons between the output of each, which provided a neat and tangible learning opportunity for the team.  On the whole, we found the supervised results much more coherent than the   unsupervised.  For example, a layman could review the table of skills from the supervised analysis and make deductions on which matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity such tuning / pruning comes to approximate a supervised approach.  This seems less efficient than deliberately prescribing keywords and terms up front.
+<br>
+
+### **B. Conclusions About The Process**
+
+By running our supervised and unsupervised workstreams in parallel, we were able to make comparisons between both outputs, which provided a neat and tangible learning opportunity for the team.  On the whole, we found the supervised results much more coherent than the   unsupervised.  For example, a layman could review the table of skills from the supervised analysis and make deductions on which matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity such tuning / pruning comes to approximate a supervised approach.  This seems less efficient than deliberately prescribing keywords and terms up front.
 
 We learned a bit about working together as a team on a data science project.  For a group of six strangers who are (mostly) not co-located and must work virtually (across time zones), it's important to have regular check-ins to monitor progress and correct course, if necessary.  It's also key to align early on overall workflow and timeline, roles / responsibilities in the process, and how next steps evolve.  It's good to make project management and decision frameworks explicit, though not doing so did not present issues on this project (because this team is awesome).  While we stayed on track through well-attended meetings held every few days, 
 
