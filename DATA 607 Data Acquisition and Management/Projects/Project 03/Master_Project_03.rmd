@@ -34,11 +34,11 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 * Paul Britton, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Jeremy O'Brien, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Jeremy O'Brien, <a href="https://github.com/JeremyOBrien16", target="_blank">GitHub</a>
 
 * Rickidon Singh, <a href="https://github.com/rickidonsingh", target="_blank">GitHub</a>
 
-* Violeta Stoyanova, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Violeta Stoyanova, <a href="https://github.com/VioletaStoyanova", target="_blank">GitHub</a>
 
 * Iden Watanabe, <a href="https://github.com/EyeDen", target="_blank">GitHub</a>
 
@@ -179,7 +179,7 @@ max.results <- 50
 
 ### **C. Scrape the Details**
 
-Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary
+Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary.
 
 <br>
 
