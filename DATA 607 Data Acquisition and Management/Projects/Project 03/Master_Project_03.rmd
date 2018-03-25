@@ -157,7 +157,7 @@ The following chunk of code scrapes job postings from indeed.com and collects th
 
 ### **B. Set the variables**
 
-First we'll set a few variables that we'll use in our scraping activity.  I've used a smaller set of cities as we'll probably just use this to demonstrate how it works.
+First we'll set a few variables that we'll use in our scraping activity.  We've used a smaller set of cities just to demonstrate how it works.
 
 ```{r eval=FALSE}
 city.set_small <- c("New+York+NY", "Seattle+WA")
@@ -502,7 +502,7 @@ ggplot(tail(df_all, 25), aes(reorder(words, count), count)) +
 
 First, a note on sparsity: Sparsity roughly controls the rarity of the word frequency.  If we run `removeSparseTerms(tdm, sparse = 0.99)`, it will remove only the rarest words, that is the words that appear in only 1% of the corpus.  On the other hand, `removeSparseTerms(tdm, sparse = 0.01)` then only words that appear in nearly every document of the corpus will be kept.
 
-For most analysis, I found that a sparsity of 80% was most beneficial.  Sparsity > 80% often included words that were more important to job postings as a whole, and not to the specifics we wanted for the purpose of our question.
+For most analysis, we found that a sparsity of 80% was most beneficial.  Sparsity > 80% often included words that were more important to job postings as a whole, and not to the specifics we wanted for the purpose of our question.
 
 When each job postings are treated as individual documents, skills like "machine learning", "analytics", "statistics/statistical", and "models/modeling" are very important for data scientists to have.
 
@@ -722,7 +722,7 @@ head(df.sentByComp,5) %>%
 
 <br>
 
-Next we downsample the data to look at the top and bottom few companies, as per the sentiment rankings
+Next we downsample the data to look at the top and bottom few companies, as per the sentiment rankings.
 
 ```{r}
 n <- 5 # number of companies to get
@@ -1019,54 +1019,45 @@ wordcloud(datacloud,
 <br>
 
 <hr>
-
 # **8. Conclusions**
-[Jeremy to edit more here]
-About the question
-Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
-Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
-Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
-About the process
-Context matters
 
-[Jeremy to edit more here]
+We'll review separately what we learned about the motivating question and what we took away in terms of process.
 
 <br>
 
 ### **A. About the question**
 
->**What are the most valued data science skills?**
+Based on the supervised approach to analyzing our sampling of job postings, we can draw a few conclusions on which data science skills are most and least in-demand - and therefore, valuable:
 
-From our supervised analysis, we found that the most in-demand skills are:
+**Most in-demand**
 
-* **Hard Skills**: Modeling and Machine Learning
+* Hard skills: modeling and machine learning
+* Soft skills: communication, collaboration, and visualization
+* Tools skills: Python, SQL, R
 
-* **Soft Skills**: Communication, Collaboration, and Visualization
+**Least in-demand**
 
-* **Technical Skills**: Python, SQL, and R
+* Hard skills: debugging
+* Soft skills: self-starter, working remotely, and active learning
+* Tools skills: Perl and VB
 
+The list of most in-demand skills is consistent with the tenor and topics of conversation in the field.  While motivation, independence, and continuous learning do seem like important requisites to a success in data science, these are either relatively less so in our sample or potentially are conveyed in language opaque to our analysis.
 
+These findings can not only inform how job seekers position their experience and skills, but how learning programs and bootcamps structure their curricula.  Additionally, this information could help prospective employers of data scientists to understand how to communicate their own requirements, or how their requirements compare with others hiring in the marketplace, or even what their competitive set looks like.
 
-[Jeremy to edit more here]
-Recommendations for most valued data science skills
-Looking at visualizations for each of the skills, these are the most updated in-demand skills according to the job postings that we scraped. Recommendation: Programs should support these skills.
-Who can benefit from what we found? People who are trying to find jobs, update their resume. More definitive.
-Most in-demand skills
-Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
-Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
-Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
-The supervised results are so much more coherent than unsupervised. The unsupervised conclusion is not as concrete because of the process itself. Points to one of the most valued data science skills -- valuable information in the failure.
-It's unclear which are the most valued data science skills from the unsupervised approach.
-[Jeremy to edit more here]
+**Any takeaways from the unsupervised section?**
 
 <br>
 
 ### **B. About the process**
-[Jeremy to edit more here]
-Where TF-IDF is concerned, what does the weighted value mean?  What's significant / meaningful?  Should we regard this as more of a cleaning step rather than an analysis endpoint?
-TF-IDF needed more manipulation to make it more coherent - tuning required for salience
-Same with word cloud.
 
+By parallelizing our supervised and unsupervised workstreams, we were able to make comparisons between the output of each, which provided a neat and tangible learning opportunity for the team.  On the whole, we found the supervised results much more coherent than the   unsupervised.  For example, a layman could review the table of skills from the supervised analysis and make deductions on which matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity such tuning / pruning comes to approximate a supervised approach.  This seems less efficient than deliberately prescribing keywords and terms up front.
+
+We learned a bit about working together as a team on a data science project.  For a group of six strangers who are (mostly) not co-located and must work virtually (across time zones), it's important to have regular check-ins to monitor progress and correct course, if necessary.  It's also key to align early on overall workflow and timeline, roles / responsibilities in the process, and how next steps evolve.  It's good to make project management and decision frameworks explicit, though not doing so did not present issues on this project (because this team is awesome).  While we stayed on track through well-attended meetings held every few days, 
+
+<br>
+
+# **?. Assumptions**
 Overall assumptions
 “Skills” include hard skills, soft skills, and technical skills of the individual data scientist. Source?
 We can determine a skill’s value by looking at job postings. Specifically, job postings on Indeed for the search term “Data Scientist”. Employers list skills that they need and find more valuable.
@@ -1108,7 +1099,6 @@ Higher-sentiment companies are companies more people want to work for, therefore
 # **9. Next Steps**
 [Jeremy to edit more here]
 
-[Jeremy to edit more here]
 
 
 <br>
