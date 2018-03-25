@@ -688,7 +688,7 @@ Next, we inner-join our bestNworst data back to the original df, preserving only
 
 ```{r}
 
-df.result <- inner_join(df,bestNworst[c("company_name","avg.sentiment")])
+df.result <- inner_join(df.sent,bestNworst[c("company_name","avg.sentiment")])
 
 colnames(df.result)
 
