@@ -86,7 +86,27 @@ library(kableExtra)
 # **2. Approach**
 
 [Jeremy to edit more here]
-What motivated our approach:
+To motivate our approach to data collection and analysis, we began with the concepts of "skills" and of "value." 
+
+**Skills:** As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  We leveraged a list found here (Source: https://uptowork.com/blog/data-scientist-resume-example) as shorthand for those categories.
+
+**Value:**
+To avoid wading into abstractions, we interpreted value in its economic sense - that is, what skills are sought after and/or rewarded in the marketplace.  That is not directly measurable, which means working with a sample.
+Given we are talking about social and economic trends, we can't direct measure 
+We can't directly measure the population, so we'll need to work with a sample
+Signals
+
+Value is a subjective measure 
+Further, value changes over time - so the information we use will be time-bound
+
+
+One source would be custom research
+Another would be discussion threads
+A third would be job postings
+
+
+
+
 
 * How do we interpret the question?
 * Why is it important?
@@ -108,6 +128,9 @@ In terms of findings:
 * What kind of analysis do we need to answer the question?
 * How will we visualize the data?
 * What does the data tell us?
+
+Could benefit from a supervised, prescriptive approach and an unsupervised 
+
 [Jeremy to edit more here]
 
 
