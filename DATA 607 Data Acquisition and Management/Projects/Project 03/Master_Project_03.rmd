@@ -24,7 +24,7 @@ In this project, we used supervised and unsupervised data mining techniques to a
 
 >**What are the most valued data science skills?**
 
-We collaborated as a team to understand the question, get the data, clean it, analyze it, and draw conclusions. We used Slack, Google Docs, Google Hangouts, GitHub, and in-person meetings to work together.
+We collaborated as a team to understand the question, get the data, clean it, analyze it, and draw conclusions. We used Slack, Google Docs, Google Hangouts, GitHub, and in-person meetings to work together, and we gave pair programming - live and virtual - a shot, too.
 
 <br>
 
@@ -85,6 +85,30 @@ library(kableExtra)
 
 # **2. Approach**
 
+[Jeremy to edit more here]
+What motivated our approach:
+
+* How do we interpret the question?
+* Why is it important?
+Technical, soft, and hard skills.  Found a reliable source for them, SME.
+Make link between data we collect and how it demonstrates "value"
+Frequency of skills
+
+We considered a number of questions when evaluating our collective approach:
+
+* What data do we need to collect?
+* Where can we find it?
+* How can we access and load it?
+* How and where will we store it?
+* What format should it be in for analysis?
+
+In terms of findings:
+
+* How do we perform exploratory data analysis?
+* What kind of analysis do we need to answer the question?
+* How will we visualize the data?
+* What does the data tell us?
+[Jeremy to edit more here]
 
 
 <br>
@@ -852,27 +876,82 @@ wordcloud(datacloud, max.words = 80, random.order = FALSE, scale=c(3,.3),random.
 <hr>
 
 # **7. Conclusions**
+[Jeremy to edit more here]
+About the question
+Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
+Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
+Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
+About the process
+Context matters
 
-
+[Jeremy to edit more here]
 
 <br>
 
 ### **A. About the question**
 
-
+[Jeremy to edit more here]
+Recommendations for most valued data science skills
+Looking at visualizations for each of the skills, these are the most updated in-demand skills according to the job postings that we scraped. Recommendation: Programs should support these skills.
+Who can benefit from what we found? People who are trying to find jobs, update their resume. More definitive.
+Most in-demand skills
+Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
+Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
+Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
+The supervised results are so much more coherent than unsupervised. The unsupervised conclusion is not as concrete because of the process itself. Points to one of the most valued data science skills -- valuable information in the failure.
+It’s unclear which are the most valued data science skills from the unsupervised approach.
+[Jeremy to edit more here]
 
 <br>
 
 ### **B. About the process**
+[Jeremy to edit more here]
+Where TF-IDF is concerned, what does the weighted value mean?  What’s significant / meaningful?  Should we regard this as more of a cleaning step rather than an analysis endpoint?
+TF-IDF needed more manipulation to make it more coherent - tuning required for salience
+Same with word cloud.
 
+Overall assumptions
+“Skills” include hard skills, soft skills, and technical skills of the individual data scientist. Source?
+We can determine a skill’s value by looking at job postings. Specifically, job postings on Indeed for the search term “Data Scientist”. Employers list skills that they need and find more valuable.
+Job postings have the most up-to-date information on real employer needs, compared to other data sources such as data science course curricula, surveys of data scientists, and the Reddit page for data science.
 
+Scraping assumptions
+What we scraped is representative of all jobs. Indeed data is comparable to other job posting websites.
+The moment we scraped data can be longitudinally extrapolated -- it isn’t an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
+To make our approach more robust, we would sample different moments in time and get longitudinal data.
+
+Cleaning assumptions
+All of the sections listed in a job post -- and not just ones related to the potential employee -- are useful in identifying the skills that employers most value.  We arrived at this conclusion after reviewing a random sample of postings and concluding that there was valuable information throughout the summary.
+We kept observations discrete -- as a corpus -- rather than as a single string. We also kept special characters and stopwords. Allowed downstream user to decide what was important.
+
+Analysis assumptions
+Overall
+We assumed that we would be able to compare the results of the two approaches.
+Supervised approach
+We assumed certain terms fell into certain categories and searched for them. 
+We arrived at these categories / lists based on SMEs (Violeta sourcing)
+Assumed that the tools would lead to conclusions without human intervention.
+Word Cloud
+Removed some stopwords, and in addition other words like “data” that wouldn’t add context
+Frequency Distribution (Supervised)
+Unsupervised approach
+We assumed that if we applied the appropriate tools to the raw data would tell us what is important.
+We found that the results of the unsupervised analysis were necessarily be salient on their own.
+Next step: find employment-related stopwords? Custom stopwords?
+TF-IDF
+Expected output to be like supervised, but needed more manipulation to be coherent.
+Sentiment analysis
+Higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable
+[Jeremy to edit more here]
 
 <br>
 
 <hr>
 
 # **8. Next Steps**
+[Jeremy to edit more here]
 
+[Jeremy to edit more here]
 
 
 <br>
