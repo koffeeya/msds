@@ -30,17 +30,17 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 #### **Team Rouge**
 
-* Kavya Beheraj, GitHub
+* Kavya Beheraj, <a href="https://github.com/koffeeya", target="_blank">GitHub</a>
 
-* Paul Britton, GitHub
+* Paul Britton, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Jeremy O'Brien, GitHub
+* Jeremy O'Brien, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Rickidon Singh, GitHub
+* Rickidon Singh, <a href="https://github.com/rickidonsingh", target="_blank">GitHub</a>
 
-* Violeta Stoyanova, GitHub
+* Violeta Stoyanova, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Iden Watanabe, GitHub
+* Iden Watanabe, <a href="https://github.com/EyeDen", target="_blank">GitHub</a>
 
 <br>
 
@@ -126,7 +126,7 @@ After some exploration, we decided to focus on <a href="https://www.indeed.com/"
 
 <br>
 
-### **C. Approach to Analysis**
+### **C. Analysis**
 
 We felt that the project could benefit from a two-pronged approach to analysis:  
 
