@@ -24,7 +24,7 @@ In this project, we used supervised and unsupervised data mining techniques to a
 
 >**What are the most valued data science skills?**
 
-We collaborated as a team to understand the question, get the data, clean it, analyze it, and draw conclusions. We used Slack, Google Docs, Google Hangouts, GitHub, and in-person meetings to work together.
+We collaborated as a team to understand the question, get the data, clean it, analyze it, and draw conclusions. We used Slack, Google Docs, Google Hangouts, GitHub, and in-person meetings to work together, and we gave pair programming - live and virtual - a shot, too.
 
 <br>
 
@@ -85,8 +85,26 @@ library(kableExtra)
 
 # **2. Approach**
 
+To motivate our approach to data collection and analysis, we began with the concepts of "skills" and of "value." 
 
+**Skills:** As discussed in our class, data science requires not only multiple skills but multiple *categories* of skills.  The many fields and industries where data science is applied likely group these skills into different categories, but after some desk research and discussion we felt that in addition to toolsets (software and platforms), both "hard" (analytical and technical) and "soft" (communcative and collaborative) skills are also important.  We leveraged lists (found here: https://uptowork.com/blog/data-scientist-resume-example) as shorthand for those categories.
 
+**Value:** To avoid wading into philosophical abstractions, we interpreted value in its economic sense - that is, what skills are sought after and/or rewarded in the marketplace.  As that's not directly measurable, we discussed different approaches to sourcing a sample.  
+
+* Mining custom research on data science practitioners (like that found here: https://www.kaggle.com/surveys/2017) is one approach we identified.
+* Analyzing discussions and conversations on online discussion boards focused on data science (i.e. https://www.reddit.com/r/datascience/) is another approach we considered.  While threads can provide a historical record (i.e. the evolution of value), there are potentially compromises in data quality and bias (whether due to fanboys, trolls, or a silent majority) and informational contents does not necessarily accord with economic value.
+* Scraping online job postings for data science roles provides perspective on what skills employers emphasize and prioritize.  This third approach has its limitations: there are multiple platforms (Glassdoor, Linkedin, Monster, Careerbuilder, etc.) none of which can have a complete view of the marketplace, and scraping time-delimited job postings captures a moment in time without any longitudinality.
+
+We dimissed custom research as it didn't seem to accord with the intent of the project.  We thought that exploring online discussion boards could be valuable an alternative, fallback, or follow-up analysis.  We agreed to focus on job postings.  Constraints of the data source notwithsanding, testing what signals of "skill value" (i.e. frequency of terms related to data science skills) could be detected job postings would be a good approach to this project, and one that allowed us to meet technical requirements and collaborate.
+
+After some exploration, we decided to focus on Indeed.com, which has a wealth of data science job postings that can be scraped.  We scraped them - first a test set for evaluation and troubleshooting, then a larger, more robust set to be cleaned and analyzed.  We initially used Python, and later replicated the scraper in R.
+
+We felt that the project could benefit from a two-pronged approach to analysis:  
+
+* A more prescriptive, supervised approach based on cross-referencing job summaries with categorized lists of terms and calculcating the frequency of recurring keywords.  To prove the concept, we used the "hard," "soft," and "tools" lists referenced above as we found them.
+* A more exploratory, unsupervised approach based on using term frequency-inverse document frequency which doesn't semantically impose preconveived keywords upon job postings (short of filtering out stop-words).
+
+To streamline our process we conducted the two analyses in parallel, cleaning and preparing the data for both.  We iterated and collaborated on the scraper, cleaning, and analysis using Slack and Github.
 <br>
 
 <hr>
@@ -855,27 +873,82 @@ wordcloud(datacloud, max.words = 80, random.order = FALSE, scale=c(3,.3),random.
 <hr>
 
 # **7. Conclusions**
+[Jeremy to edit more here]
+About the question
+Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
+Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
+Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
+About the process
+Context matters
 
-
+[Jeremy to edit more here]
 
 <br>
 
 ### **A. About the question**
 
-
+[Jeremy to edit more here]
+Recommendations for most valued data science skills
+Looking at visualizations for each of the skills, these are the most updated in-demand skills according to the job postings that we scraped. Recommendation: Programs should support these skills.
+Who can benefit from what we found? People who are trying to find jobs, update their resume. More definitive.
+Most in-demand skills
+Hard skills- Modeling and Machine Learning are the top skills currently in demand, and the least being active learning. 
+Soft skills- Communication, Collaboration, Visualization are the top skills currently in demand and the least being active learning.
+Technical skills- Python, SQL, R are the top skills currently in demand and the least being VB.
+The supervised results are so much more coherent than unsupervised. The unsupervised conclusion is not as concrete because of the process itself. Points to one of the most valued data science skills -- valuable information in the failure.
+It’s unclear which are the most valued data science skills from the unsupervised approach.
+[Jeremy to edit more here]
 
 <br>
 
 ### **B. About the process**
+[Jeremy to edit more here]
+Where TF-IDF is concerned, what does the weighted value mean?  What’s significant / meaningful?  Should we regard this as more of a cleaning step rather than an analysis endpoint?
+TF-IDF needed more manipulation to make it more coherent - tuning required for salience
+Same with word cloud.
 
+Overall assumptions
+“Skills” include hard skills, soft skills, and technical skills of the individual data scientist. Source?
+We can determine a skill’s value by looking at job postings. Specifically, job postings on Indeed for the search term “Data Scientist”. Employers list skills that they need and find more valuable.
+Job postings have the most up-to-date information on real employer needs, compared to other data sources such as data science course curricula, surveys of data scientists, and the Reddit page for data science.
 
+Scraping assumptions
+What we scraped is representative of all jobs. Indeed data is comparable to other job posting websites.
+The moment we scraped data can be longitudinally extrapolated -- it isn’t an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
+To make our approach more robust, we would sample different moments in time and get longitudinal data.
+
+Cleaning assumptions
+All of the sections listed in a job post -- and not just ones related to the potential employee -- are useful in identifying the skills that employers most value.  We arrived at this conclusion after reviewing a random sample of postings and concluding that there was valuable information throughout the summary.
+We kept observations discrete -- as a corpus -- rather than as a single string. We also kept special characters and stopwords. Allowed downstream user to decide what was important.
+
+Analysis assumptions
+Overall
+We assumed that we would be able to compare the results of the two approaches.
+Supervised approach
+We assumed certain terms fell into certain categories and searched for them. 
+We arrived at these categories / lists based on SMEs (Violeta sourcing)
+Assumed that the tools would lead to conclusions without human intervention.
+Word Cloud
+Removed some stopwords, and in addition other words like “data” that wouldn’t add context
+Frequency Distribution (Supervised)
+Unsupervised approach
+We assumed that if we applied the appropriate tools to the raw data would tell us what is important.
+We found that the results of the unsupervised analysis were necessarily be salient on their own.
+Next step: find employment-related stopwords? Custom stopwords?
+TF-IDF
+Expected output to be like supervised, but needed more manipulation to be coherent.
+Sentiment analysis
+Higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable
+[Jeremy to edit more here]
 
 <br>
 
 <hr>
 
 # **8. Next Steps**
+[Jeremy to edit more here]
 
+[Jeremy to edit more here]
 
 
 <br>
