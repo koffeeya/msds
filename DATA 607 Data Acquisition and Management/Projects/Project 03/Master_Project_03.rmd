@@ -34,11 +34,11 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 * Paul Britton, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Jeremy O'Brien, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Jeremy O'Brien, <a href="https://github.com/JeremyOBrien16", target="_blank">GitHub</a>
 
 * Rickidon Singh, <a href="https://github.com/rickidonsingh", target="_blank">GitHub</a>
 
-* Violeta Stoyanova, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Violeta Stoyanova, <a href="https://github.com/VioletaStoyanova", target="_blank">GitHub</a>
 
 * Iden Watanabe, <a href="https://github.com/EyeDen", target="_blank">GitHub</a>
 
@@ -179,7 +179,7 @@ max.results <- 50
 
 ### **C. Scrape the Details**
 
-Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary
+Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary.
 
 <br>
 
@@ -1051,6 +1051,8 @@ TF-IDF Conclusions/Next Steps:
 
 Hard skills had a higher score in most situations.  "Machine" and "learning", "statistics" and "analysis" appeared high in most of our graphs.  Soft and technical skills didn't appear at all.  However, the results should not be considered conclusive as the TF-IDF approach lacked any proper context.  When the corpus was broken down by cities, the name of companies became the highest scoring terms.  We attempted to make it more coherent by lowering the sparsity, but this method was arbitrary in nature.  This makes sense as TF-IDF is often used in conjunction with other algorithms.  For example, we might have been able to get our much needed context by feeding our TF-IDF matrices into a k-means algorithm.  Then we could see how certain words grouped together.  In this way, we could prune our corpuses to focus solely on what words are important to data scientist jobs, as opposed to what words are important to job posts in general.
 
+<br>
+
 Sentiment Conclusions/Next Steps:
 
 The sentiment did not seem to be biased towards either soft or hard skills with terms such as "data", "experience" ,"technical", "modeling" , "development", "python" and "team" coming in near the top.  It did, however, seem to be confused by terms that the supervised approach would never include as "relevant".  For example, terms like "including" and "national" were found near the top of the list - these terms are likely artifacts of the process rather than important data science terms.
@@ -1105,8 +1107,8 @@ TF-IDF Analysis Assumptions:
 
 We assumed that TF-IDF would simply be a "smarter" version of calculating term-frequency.  After running the algorithm on our corpus of job postings, we thought the key words would be roughly the same as the supervised, but with the added bonus of not having to find a list ahead of time.  This proved not to be the case, as the more valuable words were sometimes generic in nature.  It appeared that the analysis would prove more useful to the business side, helping HR write a better data scientist job posting, rather than the employee trying to figure out what data science skills might be in demand.
 
-Sentiment Analysis Assumptions:
-Higher-sentiment companies, as gauged by the content of their job postings, are companies more people want to work for and therefore the skills they look for are more valuable.  
+Sentiment analysis
+Higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable
 [Jeremy to edit more here]
 
 <br>
@@ -1121,6 +1123,3 @@ Higher-sentiment companies, as gauged by the content of their job postings, are 
 <br>
 
 <hr>
-
-
-
