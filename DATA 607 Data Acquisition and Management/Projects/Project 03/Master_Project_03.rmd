@@ -99,13 +99,13 @@ As discussed in our class, data science requires not only multiple skills but mu
 
 We used the following list of categories -- found in an <a href="https://uptowork.com/blog/data-scientist-resume-example", target="_blank">article on Data Scientist Resume Skills</a> -- as a basis for our supervised analyses. 
 
-![](C:/Users/Kavya/Desktop/Education/MS Data Science/msds/DATA 607 Data Acquisition and Management/Projects/Project 03/data_science_skills.PNG)
+![](https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Project%2003/data_science_skills.PNG)
 
 <br>
 
 **Value**
 
-To avoid wading into philosophical abstractions, we interpreted value in its economic sense -- that is, what skills are sought after and/or rewarded in the marketplace.  
+To avoid wading into philosophical abstractions, we interpreted value in its economic sense -- that is, what skills are sought after and / or rewarded in the marketplace.  
 
 <br>
 
@@ -1138,15 +1138,6 @@ While touched on above, we want to make clear the assumptions we held at each st
 
 * **Sentiment Analysis**
     + We assumed that higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable.
-
-<br>
-
-<hr>
-
-# **10. Next Steps**
-[Jeremy to edit more here]
-
-
 
 <br>
 
