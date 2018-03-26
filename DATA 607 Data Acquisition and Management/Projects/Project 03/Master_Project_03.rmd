@@ -28,17 +28,17 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 <br>
 
-#### **Team Rouge**
+#### **Team Rouge (Group 4)**
 
 * Kavya Beheraj, <a href="https://github.com/koffeeya", target="_blank">GitHub</a>
 
 * Paul Britton, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
 
-* Jeremy O'Brien, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Jeremy O'Brien, <a href="https://github.com/JeremyOBrien16", target="_blank">GitHub</a>
 
 * Rickidon Singh, <a href="https://github.com/rickidonsingh", target="_blank">GitHub</a>
 
-* Violeta Stoyanova, <a href="https://github.com/plb2018", target="_blank">GitHub</a>
+* Violeta Stoyanova, <a href="https://github.com/VioletaStoyanova", target="_blank">GitHub</a>
 
 * Iden Watanabe, <a href="https://github.com/EyeDen", target="_blank">GitHub</a>
 
@@ -55,8 +55,6 @@ We collaborated as a team to understand the question, get the data, clean it, an
 * Supervised Analysis --- *Rickidon and Violeta*
 
 * Conclusions --- *Whole Team*
-
-* Next Steps --- *Whole Team*
 
 <br>
 
@@ -99,13 +97,13 @@ As discussed in our class, data science requires not only multiple skills but mu
 
 We used the following list of categories -- found in an <a href="https://uptowork.com/blog/data-scientist-resume-example", target="_blank">article on Data Scientist Resume Skills</a> -- as a basis for our supervised analyses. 
 
-![](C:/Users/Kavya/Desktop/Education/MS Data Science/msds/DATA 607 Data Acquisition and Management/Projects/Project 03/data_science_skills.PNG)
+![](https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Project%2003/data_science_skills.PNG)
 
 <br>
 
 **Value**
 
-To avoid wading into philosophical abstractions, we interpreted value in its economic sense -- that is, what skills are sought after and/or rewarded in the marketplace.  
+To avoid wading into philosophical abstractions, we interpreted value in its economic sense -- that is, what skills are sought after and / or rewarded in the marketplace.  
 
 <br>
 
@@ -135,11 +133,6 @@ We felt that the project could benefit from a two-pronged approach to analysis:
 2. **A more exploratory, unsupervised approach** based on TF-IDF (term frequency-inverse document frequency) and sentiment analysis, which don't semantically impose preconveived keywords upon job postings (short of filtering out stop-words).
 
 To streamline our process, we conducted the two analyses in parallel, cleaning and preparing the data for both. We iterated and collaborated on the scraper, cleaning, and analysis using Slack and GitHub.
-
-<br>
-
-### **D. Assumptions**
-
 
 <br>
 
@@ -179,7 +172,7 @@ max.results <- 50
 
 ### **C. Scrape the Details**
 
-Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary
+Indeed.com appears to use the "GET" request method, so we can directly mess around with the URL to get the data that we want.  We're going to iterate over our target cities and scrape the particulars for each job - this includes getting the links to each individual job-page so that we can also pull the full summary.
 
 <br>
 
@@ -307,6 +300,8 @@ for (city in city.set_small){
 
 # **4. Data Cleaning**
 
+The previous step resulted in raw CSV file with over 1300 rows. To clean the data, we first read in the CSV file, tested a cleaning procedure on a 100-row sample, and applied the procedure to the full dataset.
+
 ### **A. Read in the dataframe**
 
 Read in raw dataframe, set separator as pipe
@@ -339,7 +334,7 @@ sample <- df[sample(1:nrow(df), 100, replace=F),]
 
 <br>
 
-Removed brackets surrounding summaries
+Removed brackets surrounding summaries.
 ```{r}
 
 sample1 <- sample %>% separate(summary_full, c("bracket", "new_summary"), sep="^[\\[]", remove=T, convert=F) %>%
@@ -453,7 +448,9 @@ head(df_final, 2) %>%
 
 ### **A. About TF-IDF**
 
-TF-IDF stands for "term frequency-inverse document frequency".  It is calculated by first calculated the term frequency of a word, $tf(t,d)$, and multiplying it by its inverse document frequency $idf(t,D)$, so that how frequent a word appears in a document is offset by its frequency in the corpus.  For example, a word might appear frequently in one chapter of a book, so much so that its frequency might put it in the top 10 words, but TF-IDF weighs the value of this word by the fact that it only appears in one chapter of, say, a hundred chapter textbook.
+TF-IDF stands for "term frequency-inverse document frequency".  It is calculated by first calculating the term frequency of a word, $tf(t,d)$, and multiplying it by its inverse document frequency $idf(t,D)$, so that how frequent a word appears in a document is offset by its frequency in the corpus.  
+
+For example, a word might appear frequently in one chapter of a book, so much so that its frequency might put it in the top 10 words, but TF-IDF weighs the value of this word by the fact that it only appears in one chapter of, say, a hundred chapter textbook.
 
 <br>
 
@@ -989,7 +986,7 @@ ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) +
 
 ### **B. Word Cloud**
 
-We used the `summary` column to create a word clou of data science skills. To begin, we specified the removal of irrelevant words and stopwords that don't add context. 
+We used the `summary` column to create a word cloud of data science skills. To begin, we specified the removal of irrelevant words and stopwords that don't add context. 
 
 ```{r}
 
@@ -1021,13 +1018,13 @@ wordcloud(datacloud,
 <hr>
 # **8. Conclusions**
 
-We'll review separately what we learned about the motivating question and what we took away in terms of process.
-
 <br>
 
-### **A. About the question**
+### **A. What are the most valued data science skills?**
 
-Based on the supervised approach to analyzing our sampling of job postings, we can draw a few conclusions on which data science skills are most and least in-demand - and therefore, valuable:
+#### **Supervised Approach**
+
+The supervised approach showed us which of the data science skills that we looked up were the most and least in-demand -- and therefore, we assume, the most valuable:
 
 **Most in-demand**
 
@@ -1045,65 +1042,101 @@ The list of most in-demand skills is consistent with the tenor and topics of con
 
 These findings can not only inform how job seekers position their experience and skills, but how learning programs and bootcamps structure their curricula.  Additionally, this information could help prospective employers of data scientists to understand how to communicate their own requirements, or how their requirements compare with others hiring in the marketplace, or even what their competitive set looks like.
 
-**Any takeaways from the unsupervised section?**
+<br>
+
+#### **TF-IDF Approach**
+
+Hard skills had a higher score in most situations.  "Machine" and "learning", "statistics" and "analysis" appeared high in most of our graphs.  Soft and technical skills didn't appear at all.  However, the results should not be considered conclusive as the TF-IDF approach lacked any proper context.  When the corpus was broken down by cities, the name of companies became the highest scoring terms.  
+
+We attempted to make the results more coherent by lowering the sparsity, but this method was arbitrary in nature.  This makes sense as TF-IDF is often used in conjunction with other algorithms.  For example, we might have been able to get our much-needed context by feeding our TF-IDF matrices into a k-means algorithm. Then we could see how certain words grouped together.  In this way, we could prune our corpuses to focus solely on what words are important to data scientist jobs, as opposed to what words are important to job posts in general.
 
 <br>
 
-### **B. About the process**
+#### **Sentiment Approach**
 
-By parallelizing our supervised and unsupervised workstreams, we were able to make comparisons between the output of each, which provided a neat and tangible learning opportunity for the team.  On the whole, we found the supervised results much more coherent than the   unsupervised.  For example, a layman could review the table of skills from the supervised analysis and make deductions on which matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity such tuning / pruning comes to approximate a supervised approach.  This seems less efficient than deliberately prescribing keywords and terms up front.
+The sentiment analysis did not seem to be biased towards either soft or hard skills with terms such as "data", "experience" ,"technical", "modeling" , "development", "python" and "team" coming in near the top.  It did, however, seem to be confused by terms that the supervised approach would never include as "relevant".  For example, terms like "including" and "national" were found near the top of the list -- these terms are likely artifacts of the process rather than important data science terms.
 
-We learned a bit about working together as a team on a data science project.  For a group of six strangers who are (mostly) not co-located and must work virtually (across time zones), it's important to have regular check-ins to monitor progress and correct course, if necessary.  It's also key to align early on overall workflow and timeline, roles / responsibilities in the process, and how next steps evolve.  It's good to make project management and decision frameworks explicit, though not doing so did not present issues on this project (because this team is awesome).  While we stayed on track through well-attended meetings held every few days, a project plan would be a good idea for our next collaboration.
+There did not appear to be any coherent difference between top- and bottom-rated companies, which made drawing a meaningful conclusion from any comparison between the two sets difficult.  One thing of note was that the distribution for "positive sentiment" companies had significantly more right-skew in the frequency of terms being reported as relevant. More analysis would likely be required to uncover the meaning behing this observation.
 
-<br>
+At a high level, the sentiment testing was likely a bit mis-specified in the sense that a generic sentiment mapping was used and it was applied to individual words (i.e., ignoring the context of the word within the sentence) which may be less than optimal given the specific task here.
 
-# **?. Assumptions**
-Overall assumptions
-“Skills” include hard skills, soft skills, and technical skills of the individual data scientist. Source?
-We can determine a skill’s value by looking at job postings. Specifically, job postings on Indeed for the search term “Data Scientist”. Employers list skills that they need and find more valuable.
-Job postings have the most up-to-date information on real employer needs, compared to other data sources such as data science course curricula, surveys of data scientists, and the Reddit page for data science.
-
-Scraping assumptions
-What we scraped is representative of all jobs. Indeed data is comparable to other job posting websites.
-The moment we scraped data can be longitudinally extrapolated -- it isn’t an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
-To make our approach more robust, we would sample different moments in time and get longitudinal data.
-
-Cleaning assumptions
-All of the sections listed in a job post -- and not just ones related to the potential employee -- are useful in identifying the skills that employers most value.  We arrived at this conclusion after reviewing a random sample of postings and concluding that there was valuable information throughout the summary.
-We kept observations discrete -- as a corpus -- rather than as a single string. We also kept special characters and stopwords. Allowed downstream user to decide what was important.
-
-Analysis assumptions
-Overall
-We assumed that we would be able to compare the results of the two approaches.
-Supervised approach
-We assumed certain terms fell into certain categories and searched for them. 
-We arrived at these categories / lists based on SMEs (Violeta sourcing)
-Assumed that the tools would lead to conclusions without human intervention.
-Word Cloud
-Removed some stopwords, and in addition other words like “data” that wouldn’t add context
-Frequency Distribution (Supervised)
-Unsupervised approach
-We assumed that if we applied the appropriate tools to the raw data would tell us what is important.
-We found that the results of the unsupervised analysis were necessarily be salient on their own.
-Next step: find employment-related stopwords? Custom stopwords?
-TF-IDF
-Expected output to be like supervised, but needed more manipulation to be coherent.
-Sentiment analysis
-Higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable
-[Jeremy to edit more here]
+Future sentiment-related work here should include an examination of n-grams, sentences, paragraphs, or even entire summaries so as to capture the entire context of what is being said.  A custom list of stop-words would also be beneficial here as there are we found many words that are not traditionally considered stop words, but which recurr in almost every job posting and thus provide little value.
 
 <br>
 
-<hr>
+### **B. Conclusions about the process**
 
-# **9. Next Steps**
-[Jeremy to edit more here]
+* **Running parallel workstreams added depth to our analysis.** It allowed us to compare and contrast the outputs of the supervised and unsupervised methods -- a neat and tangible learning opportunity for the team.  
 
+* **Context matters.** All data science methods -- supervised or unsupervised -- require that the user has background knowledge and context to determine whether the ouput is valuable. We can't assume that the results of any method will be salient on their own, especially if the method is unsupervised.
+
+    + On the whole, we found the supervised results much more coherent than the unsupervised. For example, a layman could review the table of skills from the supervised analysis and theorize which ones matter, but the same is not true for tables resulting from the unsupervised analysis, which contain a lot of syntactical noise and don't feel terribly salient.  While we recognize this as a product of the unsupervised methodology that could be "tuned" or "pruned," for analysis of low complexity, such tuning and pruning comes to approximate a supervised approach. This seems less efficient than deliberately prescribing keywords and terms up front.
+
+
+* **Collaboration is key in a data science project.** For a group of six strangers who are (mostly) not co-located and must work virtually (across time zones), it's important to have regular check-ins to monitor progress and correct course, if necessary.  It's also key to align early on overall workflow and timeline, roles / responsibilities in the process, and how next steps evolve.  It's good to make project management and decision frameworks explicit, though not doing so did not present issues on this project (because this team is awesome).  While we stayed on track through well-attended meetings held every few days, a project plan would be a good idea for our next collaboration.
 
 
 <br>
 
 <hr>
 
+# **9. Assumptions**
+
+While touched on above, we want to make clear the assumptions we held at each step of the process. These assumptions ultimately informed the direction of our approach, the content of our analysis, and the conclusions we could draw.
 
 
+### **A. Overall Assumptions**
+
+* "Skills" refer to hard skills, soft skills, and technical skills of the individual data scientist.
+
+* We can determine a skill's value by looking at job postings. Specifically, job postings on Indeed for the search term "Data Scientist". Employers list skills that they need and find more valuable.
+
+* Job postings have the most up-to-date information on real employer needs, compared to other data sources such as data science course curricula, surveys of data scientists, and the Reddit page for data science.
+
+<br>
+
+### **B. Scraping Assumptions**
+
+* The data we scraped is representative of all jobs. Indeed data is comparable to other job posting websites.
+
+* The moment we scraped data can be longitudinally extrapolated -- it isn't an outlier. What we scrape is expected to be valid right now, but not necessarily into the future.
+
+<br>
+
+### **C. Cleaning Assumptions**
+
+* All of the sections listed in a job post -- and not just ones related to the potential employee -- are useful in identifying the skills that employers most value. We arrived at this conclusion after reviewing a random sample of postings and concluding that there was valuable information throughout the summary.
+
+* We kept observations discrete -- as a corpus -- rather than as a single string. We also kept special characters and stopwords. This allowed the downstream user to decide what was important.
+
+<br>
+
+### **D. Analysis Assumptions**
+
+* **Overall**
+
+    + We assumed that we would be able to compare the results of the two approaches.
+    + We assumed that if we applied the appropriate data mining methods to the raw data, the methods -- on their own -- would tell us what was important.
+
+<br>
+
+* **Supervised Approach**
+
+    + We assumed certain terms fell into certain categories and searched for them.
+    + We arrived at these categories based on online subject-matter experts.
+    + We removed some stopwords, and words like "data", that we assumed would not add context.
+
+<br>
+
+* **TF-IDF Approach**
+    + We assumed that TF-IDF would simply be a "smarter" version of calculating term-frequency. After running the algorithm on our corpus of job postings, we thought the key words would be roughly the same as the supervised, but with the added bonus of not having to find a list ahead of time.  This proved not to be the case, as the more valuable words were sometimes generic in nature.  
+    + It appeared that the analysis would prove more useful to the business side, helping HR write a better data scientist job posting, rather than the employee trying to figure out what data science skills might be in demand.
+
+<br>
+
+* **Sentiment Analysis**
+    + We assumed that higher-sentiment companies are companies more people want to work for, therefore the skills they look for are more valuable.
+
+<br>
+
+<hr>
