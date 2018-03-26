@@ -986,7 +986,7 @@ ggplot(hardskills2,aes(x=reorder(variable, value), y=value)) +
 
 ### **B. Word Cloud**
 
-We used the `summary` column to create a word clou of data science skills. To begin, we specified the removal of irrelevant words and stopwords that don't add context. 
+We used the `summary` column to create a word cloud of data science skills. To begin, we specified the removal of irrelevant words and stopwords that don't add context. 
 
 ```{r}
 
