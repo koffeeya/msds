@@ -28,7 +28,7 @@ We collaborated as a team to understand the question, get the data, clean it, an
 
 <br>
 
-#### **Team Rouge**
+#### **Team Rouge (Group 4)**
 
 * Kavya Beheraj, <a href="https://github.com/koffeeya", target="_blank">GitHub</a>
 
@@ -55,8 +55,6 @@ We collaborated as a team to understand the question, get the data, clean it, an
 * Supervised Analysis --- *Rickidon and Violeta*
 
 * Conclusions --- *Whole Team*
-
-* Next Steps --- *Whole Team*
 
 <br>
 
