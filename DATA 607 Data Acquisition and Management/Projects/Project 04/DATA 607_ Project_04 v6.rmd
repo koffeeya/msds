@@ -14,8 +14,6 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-install.packages("tm")
-install.packages("RTextTools")
 ```
 
 <hr>
@@ -70,98 +68,203 @@ The goal is to prepare document data for classification algorithms.  We'll use t
 
 <br>
 
-### KAVYA:
+# KAVYA:
 
-1. Prepare the data for analysis.
-   - Put together a corpus.
+1. Read in the data and create a single corpus.
+   
+2. Clean the data for analysis.
 
-2. Create a document-term matrix.
+3. Create a document-term matrix.
    - Remove sparse terms.
    - Assemble a vector of labels.
 
-3. Create a container with relevant information for use in estimation procedures.
+4. Create a container with relevant information for use in estimation procedures.
    - Specify training matrix vs. classification matrix
 
-4. Apply the estimation procedure.
+5. Apply the estimation procedure.
    - Train the model
    - Classify the model
 
-5. Evaluate the results.
+6. Evaluate the results.
    - Construct a dataframe containing the correct and predicted labels
    - Investigate the number of misclassifications
 
 ****
 
-# 1. Prepare the data for analysis
+# 1. Read in the data and create a single corpus.
 
-### KAVYA:
+> Set the working directory to be the location of the extracted ham and spam folders.
+
 ```{r}
 
-# Set the local location of spam and ham directories
-
-ham.dir <- "C:/Users/Kavya/Desktop/Kavya/msds/DATA 607 Data Acquisition and Management/Projects/Project 04/ham"
-
-spam.dir <- "C:/Users/Kavya/Desktop/Kavya/msds/DATA 607 Data Acquisition and Management/Projects/Project 04/spam"
-
-
-# Get the list of files within each directory
-
-ham.list <- list.files(ham.dir)
-
-spam.list <- list.files(spam.dir)
-
-
-# Create corpora from the files in each directory
-
-ham.corpus <- Corpus(DirSource(ham.dir), readerControl = list(language="lat"))
-
-spam.corpus <- Corpus(DirSource(spam.dir), readerControl = list(language="lat"))
-
+setwd <- "C:/Users/Kavya/Desktop/Education/msds/DATA 607 Data Acquisition and Management/Projects/Project 04"
 
 ```
 
 <br>
 
-Check 1 document in each corpus
+> Create separate lists of spam and ham filepaths.
+
+The name of the folders in your working directory -- in this case, "spam" and "ham" -- become the `path` argument below.
 
 ```{r}
-inspect(ham.corpus[[1]])
-inspect(spam.corpus[[1]])
 
+ham.list <- list.files(path = "spam/", full.names = T, recursive = F)
+
+spam.list <- list.files(path = "ham/", full.names = T, recursive = F)
 
 ```
 
 <br>
 
-Add the metatag "spamham" to classify each document in the corpora as "ham" or "spam".
+> Apply the `readLines` function to every filepath to get the contents of the file (i.e., the email itself).
 
 ```{r}
-# Add classification metatag to each document in corpus
-meta(ham.corpus, tag = "type", type = "indexed") <- "ham"
+ham.sapply <- sapply(ham.list, readLines)
+
+spam.sapply <- sapply(spam.list, readLines)
+
+```
+
+<br>
+
+> Use the `as.VCorpus` function to convert the list of email contents to a volatile corpus.
+
+<a href="https://www.rdocumentation.org/packages/tm/versions/0.7-3/topics/VCorpus", target="_blank">"Volatile"</a> means that the corpus will be stored in your system's memory, as opposed to a `PCorpus` (permanent corpus) which could be stored in an outside database.
+
+```{r}
+ham.corpus <- as.VCorpus(ham.sapply)
+
+spam.corpus <- as.VCorpus(spam.sapply)
+```
+
+<br>
+
+> Add metadata to each corpus to identify it as "spam" or "ham."
+
+The "type" argument `indexed` means the tag is applied to each individual document, and stored in the corpus as a data frame.
+
+```{r}
 meta(spam.corpus, tag = "type", type = "indexed") <- "spam"
 
-# Check that metatag was applied
-head(meta(ham.corpus), 3)
-head(meta(spam.corpus), 3)
+meta(ham.corpus, tag = "type", type = "indexed") <- "ham"
 ```
 
 <br>
 
-1400 ham
-1397 spam
+> Combine the two corpora into one corpus.
+
+At this point, the corpus is still in order -- the first ~1400 documents are spam, and the latter ~1400 documents are ham. We need to randomize the order.
+
+```{r}
+combined.corpus <- as.VCorpus(c(spam.corpus, ham.corpus))
+
+head(meta(combined.corpus))
+
+```
+
+<br>
+
+> Use the `sample` function to randomize the order of documents.
 
 ```{r}
 
-full.corpus <- c(ham.corpus,spam.corpus, recursive=TRUE)
+# "R" means randomized
+combined.corpusR <- as.VCorpus(sample(combined.corpus))
 
-full.corpusR <- sample(full.corpus)
+head(meta(combined.corpusR))
+```
 
-full.corpusR
+<br>
+
+Now we are ready to move on to cleaning the corpus.
+
+****
+
+<br>
+
+# 2. Clean the data for analysis.
+
+> Use `tm_map` to apply transformations to the corpus.
+
+```{r}
+
+clean.corpus <- tm_map(combined.corpusR, stripWhitespace) %>%   # Remove whitespace
+                tm_map(removeWords, stopwords("english")) %>%  # Remove common stopwords
+                tm_map(removePunctuation) %>%                  # Remove punctuation
+                tm_map(stemDocument)
 
 ```
 
+****
 
 <br>
+
+# 3. ! ! Create a document-term matrix. ! !
+
+The `dtm` function gives me an error if the corpus has letters with diacritics (like accent marks or tildes). It appears to only accept alphanumeric characters. However, I'm stumped as to how to remove the diacritic special characters from the corpus. I believe it is an encoding issue -- making sure that the data is encoded to UTF-8. 
+
+* This StackOverflow page describes the error: https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
+
+One solution on the page suggested that reading in the corpus as a VectorSource could help, but when I do that (see below), the number of documents goes down to 3, and I get an error in Step 5 (Train the Data) on line 256 below.
+
+```{r}
+
+# The dtm function requires that letters with diacritics -- essentially, letters t
+
+clean.corpus <- Corpus(VectorSource(clean.corpus))
+
+corpus.dtm <- DocumentTermMatrix(clean.corpus)
+
+corpus.dtm
+
+```
+
+****
+
+<br>
+
+# 4. Create a container.
+
+```{r}
+
+# Specify the location of the "spam" and "ham" labels
+labels.corpus <- meta(combined.corpusR)
+
+# The number of documents
+N <- length(clean.corpus)
+
+# The percentage of the data to partition
+P <- 0.8 
+
+container <- create_container(corpus.dtm, 
+                              labels = labels.corpus$type, 
+                              trainSize = 1:(P*N), 
+                              testSize = (P*N+1):N,
+                              virgin = F)
+
+slotNames(container)
+
+```
+****
+
+<br>
+
+# 5. Train the data.
+
+```{r}
+svm_model <- train_model(container, "SVM")
+
+svm_out <- classify_model(container, svm_model)
+```
+
+
+
+
+
+
+
+
 
 ****
 
@@ -172,21 +275,21 @@ full.corpusR
 # !!! Could attempt to implement and automate this in R if time permits) !!!
 
 # 
-spam.directory <- file.path(getwd(), "spamundham", "spam")
-spam.list <- list.files(spam.directory)
-spam <- readLines(spam.directory, spam.list)
-str_c(collapse = "") %>% 
-Corpus(VectorSource())
+#spam.directory <- file.path(getwd(), "spamundham", "spam")
+#spam.list <- list.files(spam.directory)
+#spam <- readLines(spam.directory, spam.list)
+#str_c(collapse = "") %>% 
+#Corpus(VectorSource())
 
 # ham.directory <- file.path(getwd(), "spamundham", "easy_ham")
 # ham.list <- list.files(ham.directory)
 
 # Create spam, ham, and combined (full) corpuses
-spam.corpus <- Corpus(DirSource(spam.directory))
-ham.corpus <- Corpus(DirSource(ham.directory))
+#spam.corpus <- Corpus(DirSource(spam.directory))
+#ham.corpus <- Corpus(DirSource(ham.directory))
 
 # !!! tm_combine function not found. This step isn't working and I think we'll a need a combined corpus for the classifiers.  TBD !!! #
-full.corpus <- tm_combine(cv(spam.corpus, ham.corpus)
+#full.corpus <- tm_combine(cv(spam.corpus, ham.corpus)
 ```
 
 
