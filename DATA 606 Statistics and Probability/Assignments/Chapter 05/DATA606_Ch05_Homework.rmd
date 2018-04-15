@@ -1,0 +1,199 @@
+---
+title: "DATA 606, Ch. 5: Inference for Numerical Data"
+author: "Kavya Beheraj"
+date: "April 10, 2018"
+output:
+  html_document:
+    theme: journal
+    highlight: haddock
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DATA606)
+```
+
+5.6, 5.14, 5.20, 5.32, 5.48
+
+****
+
+# **5.6** Working Backwards, Part II
+
+A 90% confidence interval for a population mean is (65, 77). The population distribution is approximately normal and the population standard deviationis unknown.  This confidence interval is based on a simple random sample of 25 observations. Calculate the sample mean, the margin of error, and the sample standard deviation.
+
+#### Margin of Error = **12**
+
+* $77-65 = 12$
+
+
+#### Sample Mean = **71**
+
+* $65 + (12/2) = 71$
+
+
+#### Sample Standard Deviation = **36.5**
+
+* $ME = \frac{s}{\sqrt(n)} * 1.645$
+
+* $12 = \frac{s}{\sqrt(25)} * 1.645$
+
+* $s \approx 36.5$
+
+
+<br>
+
+****
+
+# **5.14** SAT Scores
+
+SAT scores of students at an Ivy League college are distributed with a standard deviation of 250 points. Two statistics students, Raina and Luke, want to estimate the average SAT score of students at this college as part of a class project. They want their margin of error to be no more than 25 points.
+
+<br>
+
+#### **(a)** Raina's sample size $n$ should be at least **270.6025** to get a margin of error of 25 points or below at a 90% confidence level.
+
+* $25 = \frac{250}{\sqrt(n)} * 1.645$
+
+<br>
+
+#### **(b)** Luke's sample size should be much larger than Raina's, since he is looking for a much higher confidence level, and so the $z^*$ multiplier will also be higher.
+
+<br>
+
+#### **(c)** Luke's sample size $n$ should be at least **663.5776** to get a margin of error of 25 points or below at a 99% confidence level.
+
+* $25 = \frac{250}{\sqrt(n)} * 2.576$
+ 
+<br>
+
+****
+
+# **5.20** High School and Beyond, Part I
+
+The National Center of Education Statistics conducted a survey of high school seniors, collecting test data on reading, writing, and several other subjects. Here we examine a simple random sample of 200 students from this survey. Side-by-side box plots of reading and writing scores as well as a histogram of the differences in scores are shown below.
+
+<br>
+
+#### **(a)** Yes, it appears that there is a clear difference between the two averages. 
+
+<br>
+
+#### **(b)** Since the sample was collected randomly, we can assume that the scores are independent, but we don't know if they are independent of each other.
+
+<br>
+
+#### **(c)** $H_0: \bar{x}_{read-write} = 0$, and $H_A: \bar{x}_{read-write} \neq 0$
+
+<br>
+
+#### **(d)** There are 200 students in this sample, which was collected randomly, and at least 10 success and failure cases. The sampling distribution is nearly normal. The conditions for inference are met.
+
+<br>
+
+#### **(e)** A 95% confidence interval for this sample would be **( -1.775, 0.685 )**. Since this interval contains 0, it does not provide convincing evidence of a true difference between the average scores.
+
+* $ME = \frac{8.887}{\sqrt(200)} * 1.96$
+
+* $ME \approx 1.23$
+
+<br>
+
+#### **(f)** This would be a **Type 1 error**, a false positive. We falsely assumed that we could reject the null hypothesis of no difference in averages, and accept the alternate hypothesis -- a difference in averages -- as true.
+
+<br>
+
+#### **(f)** Yes, since the null hypothesis assumes a 0 difference between the means. A confidence interval including 0 shows that 0 is a highly likely outcome.
+
+<br>
+
+****
+
+# **5.32** Fuel Efficiency of Manual and Automatic Cars, Part I
+
+Each year the US Environmental Protection Agency (EPA) releases fuel economy data on cars manufactured in that year. Below are summary statistics on fuel efficiency (in miles/gallon) from random samples of cars with manual and automatic transmissions manufactured in 2012. Do these data provide strong evidence of a difference between the average fuel eciency of cars with manual and automatic transmissions in terms of their average city mileage? Assume that conditions for inference are satisfied.
+
+<br>
+
+#### **No.** The 95% confidence interval for the difference between the two means, when calculated, was ( -1.4022, 6.0578 ). This interval includes 0, which means that a true difference in means is unlikely.
+
+<br>
+
+* $CI = (M_1 - M_2) \pm t^*_{df} \times \sqrt{\frac{s^2_1}{n_1} + \frac{s^2_2}{n_2}}$
+
+* $SE = \sqrt{\frac{4.51^2}{26} + \frac{3.58^2}{26}} \approx 1.13$
+
+* $t^*_{25} = 2.060$ at a 95% confidence level
+
+* $CI = 3.73 \pm 2.060 \times 1.13 = ( -1.4022, 6.0578 )$
+
+#### 
+
+<br>
+
+****
+
+<br>
+
+# **5.48** Work Hours and Education
+
+The General Social Survey collects data on demographics, education, and work, among many other characteristics of US residents. Using ANOVA, we can consider educational attainment levels for all 1,172 respondents at once. Below are the distributions of hours worked by educational attainment and relevant summary statistics that will be helpful in carrying out this analysis.
+
+<br>
+
+#### **(a)** $H_0: \mu_1 = \mu_2 = \mu_3 = \mu_4 = \mu_5$, and $H_A:$ The average hours per week varies by educational attainment.
+
+<br>
+
+#### **(b)** We can assume that the observations are independent within and across groups. We assume that the data within each group is nearly normal, and the variability across the groups is about equal.
+
+<br>
+
+#### **(c)** Going down each column of the table:
+
+* **Df** = 4 + 1167 = 1171 total
+* **Sum Sq** = 267374 + 267382 = 534756 total
+* **Mean Sq** = 501.52 + 501.03 = 1002.55 total
+* **F value** = 2.186814
+
+```{r}
+# SSG: Sum of squares between groups
+ssg <- (121*(38.67-40.45)^2) + (546*(39.6-40.45)^2) + (97*(41.39-40.45)^2) + (253*(42.55-40.45)^2) + (155*(40.85-40.45)^2)
+
+# Sum of square errors
+sse <- ((121-1)*15.81^2) + ((546-1)*14.97^2) + ((97-1)*18.1^2) + ((253-1)*13.62^2) + ((155-1)*15.51^2)
+
+# Degrees of freedom between groups
+df1 <- 5-1
+
+# Degrees of freedom
+df2 <- 1172-5
+
+# MSG = mean square between groups (between-group variability)
+msg <- (1/df1)*ssg
+
+# MSE = mean square error (within-group variability)
+mse <- (1/df2)*sse
+
+# F statistic 
+f <- msg/mse
+
+ssg
+
+sse
+
+msg
+
+mse
+
+f
+
+```
+
+<br>
+
+#### **(d)** The p-value is 0.0682, which is greater than 0.05. This provides evidence that the average number of hours worked per week varies between groups of educational attainment. We can reject the null hypothesis.

@@ -1,0 +1,257 @@
+---
+title: 'Data 606, Ch. 6: Inference for Categorical Data'
+author: "Kavya Beheraj"
+date: "April 11, 2018"
+output:
+  html_document:
+    theme: journal
+    highlight: haddock
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set
+library(DATA606)
+```
+
+<br>
+
+# **6.6** |  2010 Healthcare Law
+
+On June 28, 2012 the U.S. Supreme Court upheld the much debated 2010 healthcare law, declaring it constitutional. A Gallup poll released the day after this decision indicates that 46% of 1,012 Americans agree with this decision. At a 95% confidence level, this sample has a 3% margin of error. Based on this information, determine if the following statementsare true or false, and explain your reasoning.
+
+<br>
+
+#### **(a)** FALSE
+
+*We are 95% confident that between 43% and 49% of Americans in this sample support the decision of the U.S. Supreme Court on the 2010 healthcare law.*
+
+This is false because the confidence interval does not estimate the sample proportion -- it is an estimate of the entire population.
+
+<br>
+
+#### **(b)** TRUE
+
+*We are 95% confident that between 43% and 49% of Americans support the decision of the U.S. Supreme Court on the 2010 healthcare law.*
+
+This is true. The confidence interval is meant to estimate a population proportion. With a 3% margin of error around the sample proportion of 46%, we get an interval of 43---49%.
+
+<br>
+
+#### **(c)** TRUE
+
+*If we considered many random samples of 1,012 Americans, and we calculated the sample proportions of those who support the decision of the U.S. Supreme Court, 95% of those sample proportions will be between 43% and 49%.*
+
+Yes, this is what the confidence interval signifies.
+
+<br>
+
+#### **(d)** TRUE
+
+*The margin of error at a 90% confidence level would be higher than 3%.*
+
+Yes. At a lower confidence error, the margin of error increases.
+
+<br>
+
+****
+
+# **6.12** | Legalization of marijuana, Part I
+
+The 2010 General Social Survey asked 1,259 US residents: "Do you think the use of marijuana should be made legal, or not?" 48% of the respondents said it should be made legal.
+
+<br>
+
+*Is 48% a sample statistic or a population parameter? Explain.*
+
+#### **(a)** 48% is a sample statistic. It represents the sample, not the population.
+
+<br>
+
+*Construct a 95% confidence interval for the proportion of US residents who think marijuana should be made legal, and interpret it in the context of the data.*
+
+#### **(b)** The 95% confidence interval for this sample is (0.45, 0.51). This means that between 45% and 51% of the U.S. population thinks that marijuana should be made legal.
+
+95% Confidence Interval: 
+
+$0.48 \pm 1.96 \times 0.014 \approx (-0.45, 0.51)$
+
+* SE = $\sqrt{\frac{0.48(1-0.48)}{1259}} \approx 0.014$
+
+```{r}
+
+sqrt((0.48*(1-0.48))/1259)
+
+```
+
+<br>
+
+*A critic points out that this 95% confidence interval is only accurate if the statistic follows a normal distribution, or if the normal model is a good approximation. Is this true for these data? Explain.*
+
+#### **(c)** Yes. The conditions for inference are met, which means that the sampling distribution should be nearly normal.
+
+The sample size is larger than 30 samples.
+
+We can assume that the observations are independent.
+
+There are at least 10 successes and failures.
+
+* Number of successes = 604.32
+
+* Number of failures = 654.68
+
+<br>
+
+*A news piece on this survey's findings states, "Majority of Americans think marijuana should be legalized." Based on your confidence interval, is this news piece's statement justified?*
+
+#### **(d)** No. The confidence interval lies mostly below 50%, so we cannot say that the majority of Americans likely support legalization.
+
+<br>
+
+****
+
+# **6.20** | Legalization of marijuana, Part II
+
+As discussed in Exercise 6.12, the 2010 General Social Survey reported a sample where about 48% of US residents thought marijuana should be made legal. If we wanted to limit the margin of error of a 95% confidence interval to 2%, about how many Americans would we need to survey?
+
+<br>
+
+#### We would need to survey at least 2,398 Americans to get a 2% margin of error at a 95% confidence level.
+
+* $ME = z^* \times \sqrt{ \frac{p(1-p)}{n} }$
+
+* $0.02 = 1.96 \times \sqrt{ \frac{0.48(1-0.48)}{n} }$
+
+* $n = 2397.1584$
+
+<br>
+
+****
+
+# **6.28** | Sleep deprivation, CA vs. OR, Part I
+
+According to a report on sleep deprivation by the Centers for Disease Control and Prevention, the proportion of California residents who reported insufficient rest or sleep during each of the preceding 30 days is 8.0%, while this proportion is 8.8% for Oregon residents. These data are based on simple random samples of 11,545 California and 4,691 Oregon residents. Calculate a 95% confidence interval for the difference between the proportions of Californians and Oregonians who are sleep deprived and interpret it in context of the data.
+
+#### The 95% confidence interval for the difference between the proportions is (-0.13%, 1.73%). This interval contains zero, so we cannot be sure that there is a true difference between the population proportions of sleep-deprived residents in CA and OR.
+
+```{r}
+
+# Samples
+n.CA <- 11545
+n.OR <- 4961
+
+# Proportions
+p.CA <- 0.08
+p.OR <- 0.088
+
+# Point Estimate
+pe.28 <- p.OR-p.CA
+
+# Standard Error
+SE.28 <- sqrt(((p.CA * (1-p.CA))/n.CA) + ((p.OR * (1-p.OR))/n.OR))
+
+# 95% Confidence Interval
+CI.lower28 <- pe.28 - (1.96 * SE.28)
+CI.upper28 <- pe.28 + (1.96 * SE.28)
+
+CI.lower28
+
+CI.upper28
+
+```
+
+<br>
+
+****
+
+# **6.44** | Barking deer
+
+Microhabitat factors associated with forage and bed sites of barking deer in Hainan Island, China were examined from 2001 to 2002. In this region, woods make up 4.8% of the land, cultivated grass plot makes up 14.7%, and deciduous forests makes up 39.6%. Of the 426 sites where the deer forage, 4 were categorized as woods, 16 as cultivated grass plot, and 61 as deciduous forests. The table below summarizes these data.
+
+<br>
+
+#### **(a)** Hypotheses:
+* $H_0:$ Deer are equally likely to forage in all habitats in a region. 
+* $H_A:$ Deer prefer some habitats in a region over others.
+
+<br>
+
+#### **(b)** We can use a chi-square goodness of fit test to answer this research question.
+
+<br>
+
+#### **(c)** Each case is independent. The expected counts for each option is 109, which falls above 5. The conditions are met for the chi-square test.
+
+<br>
+
+#### **(d)** The chi-square value is 0.678, which leads to a p-value between 0.05 and 0.1. This is greater than 5%, so we fail to reject $H_0$. The data provide convincing evidence that deer are equally likely to forage in all habitats within this region.
+
+```{r}
+
+d.total <- 426
+
+d1 <- 4/d.total
+d2 <- 16/d.total
+d3 <- 61/d.total
+d4 <- 345/d.total
+
+d.x <- (1/4)*d.total
+
+chi.44 <- ((d1-0.048)^2/0.048) + ((d2-0.147)^2/0.147) + ((d3-0.396)^2/0.396) + ((d4-0.409)^2/0.40)
+
+chi.44
+
+```
+
+<br>
+
+****
+
+# **6.48** | Coffee and depression
+
+Researchers conducted a study investigating the relationship between caffeinated coffee consumption and risk of depression in women. They collected data on 50,739 women free of depression symptoms at the start of the study in the year 1996, and these women were followed through 2006. The researchers used questionnaires to collect data on caffeinated coffee consumption, asked each individual about physician-diagnosed depression, and also asked about the use of antidepressants. The table below shows the distribution of incidences of depression by amount of caffeinated coffee consumption.
+
+<br>
+
+#### **(a)** We can use the chi-square test for two-way tables.
+
+<br>
+
+#### **(b)** Hypotheses:
+
+* $H_0:$ The coffee consumption of women with clinical depression is not different from the coffee consumption of women without clinical depression.
+
+* $H_A:$ The coffee consumption of women with clinical depression is different from the coffee consumption of women without clinical depression.
+
+<br>
+
+#### **(c)** Proportion of women who:
+
+* Suffer from depression $\approx 0.051$
+
+* Do not suffer from depression $\approx 0.949$
+
+<br>
+
+#### **(d)** Expected count and contribution:
+
+* Expected count = $(1/5) \times 2607 = 521.4$
+
+* Contribution = $\frac{(373-521.4)^2}{521.4} \approx 41.24$
+
+<br>
+
+#### **(e)** If $\chi^2 = 20.93$ for 4 degrees of freedom, then the p-value is below 0.001.
+
+<br>
+
+#### **(f)** The p-value is much smaller than 5%, so we reject $H_0$. The data provide convincing evidence that the coffee consumption of women with clinical depression *is* different from the coffee consumption of women without clinical depression.
+
+<br>
+
+#### **(g)** Yes. The hypothesis I proved was just that coffee consumption differed, not whether it was higher or lower based on the presence of clinical depression.

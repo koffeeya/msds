@@ -1,0 +1,106 @@
+---
+title: "DATA 606 -- Project Proposal"
+author: "Kavya Beheraj"
+date: "April 12, 2018"
+output:
+  html_document:
+    theme: journal
+    highlight: haddock
+    toc: true
+    toc_depth: 4
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+****
+
+# 1 | Background
+
+#### A | Libraries
+
+```{r warning=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(psych)
+```
+
+
+<br>
+
+# 2 | **Research Question**
+
+### Is a character's sex predictive of their alignment in DC comics?
+
+
+<br>
+
+# 3 | Prepare the Dataset
+
+#### A | Read in the data
+
+```{r}
+dc <- read.csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/comic-characters/dc-wikia-data.csv", header = TRUE, sep = ",")
+```
+
+```{r}
+head(dc, 3)
+```
+
+#### B | Pull out relevant variables
+
+
+<br>
+
+# 4 | About the Data
+
+#### A | What are the cases, and how many are there?
+
+Each case represents a character in the DC comics universe. There are 6,896 observations.
+
+****
+
+#### B | Describe the method of data collection.
+
+The data was web-scraped by FiveThirtyEight. It was scraped from August 24 --- October 6, 2014. 
+
+****
+
+#### C | What type of study is this?
+
+This is an observational study.
+
+****
+
+#### D | Data Source
+
+
+<br>
+
+# 5 | About the Variables
+
+#### A | Response
+
+The response variable is character alignment. It is categorical with the following levels: Good, Bad, Neutral, and Reformed Criminals.
+
+****
+
+#### B | Explanatory
+
+The explanatory variable is character sex. It is a categorical variable with four levels: Female, Genderless, Male, and Transgender.
+
+
+<br>
+
+# 5 | Summary statistics
+
+```{r}
+summary(dc$ALIGN)
+summary(dc$SEX)
+```
+
