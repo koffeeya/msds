@@ -400,7 +400,7 @@ prop.table(table(labels.out.90[,1] == labels.out.90[,3]))
 
 # 7. Evaluation
 
-Results from the SVM classifier are puzzlingly accurate -- 100%.  This does not vary based on the size of the training and test sets.  We are skeptical, and feel this would benefit from further debugging.
+Results from the SVM classifier are puzzlingly inaccurate -- 100%.  This does not vary based on the size of the training and test sets.  We feel this would benefit from further debugging.
 
 Results from the Maximum Entropy Model were also puzzling, but for a different reason.  Accuracy seemed to decline as the training set grew in size, which runs counter to our intuitions.
 
