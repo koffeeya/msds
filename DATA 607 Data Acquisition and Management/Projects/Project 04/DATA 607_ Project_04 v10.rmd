@@ -20,13 +20,22 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Background
 
-### A. Purpose
+### **A. Purpose**
 
-In this assignment, we read in two directories of spam and ham (non-spam) emails, combined and labeled them in a single corpora, and trained models to predict the classification of a holdout set of the emails. 
+The purpose of this project is to prepare document data for classification algorithms.  We used the spam and ham email sets suggested in the brief, and primarily applied the `tm` and `RTextTools` packages along with a little bit of `tidyr` for cleaning.  
+Once the email text was containerized, we ran Support Vector Machine and Maximum Entropy classifiers on the data to evaluate and compare their predictive power; and we did this at different proportions of training set to test set (70:30, 80:20, and 90:10).  Attempts to run Random Forest led to crashes, so unfortunately we cannot include that classifier in the comparison set.
 
 <br>
 
-### B. Approach
+### B. Team
+
+* Kavya Beheraj, <a href="https://github.com/koffeeya", target="_blank">GitHub</a>
+
+* Jeremy O'Brien, <a href="https://github.com/JeremyOBrien16", target="_blank">GitHub</a>
+
+<br>
+
+### C. Approach
 
 1. Read in the data.
 
@@ -44,7 +53,16 @@ In this assignment, we read in two directories of spam and ham (non-spam) emails
 
 <br>
 
-### B. Libraries and Setup
+### D. Libraries and Setup
+
+```{r message=FALSE, warning=FALSE}
+library(tm)
+library(RTextTools)
+library(dplyr)
+library(stringr)
+library(tidyr)
+library(SnowballC)
+```
 
 ```{r, echo = F}
 
@@ -56,23 +74,11 @@ rm(list = ls())
 wd.path2 <- "G:/OneDrive/Learning/_CUNY_SPS_MSDS/2018_Spring/DATA 607/"
 ```
 
-
-```{r message=FALSE, warning=FALSE}
-library(tm)
-library(RTextTools)
-library(dplyr)
-library(ggplot2)
-library(magrittr)
-library(stringr)
-library(tidyr)
-library(SnowballC)
-```
-
 <br>
 
 ****
 
-# 1. Read in the data.
+# **1. Read in the data.**
 
 ### A. Set the working directory to be the location of the extracted ham and spam folders.
 
@@ -117,7 +123,7 @@ spam.sapply <- sapply(spam.list, readLines, warn = F)
 
 ****
 
-# 2. Create a corpus
+# **2. Create a corpus**
 
 ### A. Combine the two lists of files and create a dataframe.
 
@@ -197,7 +203,7 @@ print(combined.corpus)
 
 <br>
 
-# 3. Create a document-term matrix.
+# **3. Create a document-term matrix.**
 
 ```{r}
 
@@ -213,7 +219,7 @@ print(corpus.dtm)
 
 <br>
 
-# 4. Create a container.
+# **4. Create a container.**
 
 ### A. Set the parameters.  
 
@@ -251,7 +257,7 @@ paste0("For a 10% test holdout, training set = ", trainSize.90, " and test set =
 
 <br>
 
-### B. Create the containers - one each for each of the test holdout levels.
+### B. Create the containers -- one each for each of the test holdout levels.
 
 ```{r}
 
@@ -285,7 +291,12 @@ container.90 <- create_container(corpus.dtm,
 
 <br>
 
-# 5. Train the data - again, at different test holdout levels.  We used three classifiers: SVM, Random Forest, and Maximum Entropy models.  The Random Forest model crashed every machine we tried, so we discontinued that approach.
+# 5. Train the data.  
+
+We started with three classifiers to train the data: Support Vector Machine Models, Random Forest Models, and Maximum Entropy Models.  
+
+* The SVM model provided results that seemed unreasonable; we need more time to refine the approach.
+* The Random Forest model crashed every machine we tried, so we discontinued that approach.
 
 ```{r}
 # Classify using the Support Vector Machines model
@@ -389,7 +400,9 @@ prop.table(table(labels.out.90[,1] == labels.out.90[,3]))
 
 # 7. Evaluation
 
-### Results from the SVM classifier are puzzlingly accurate -- 100%.  This does not vary based on the size of the training and test sets.  We are skeptical, and feel this would benefit from further debugging.
+Results from the SVM classifier are puzzlingly accurate -- 100%.  This does not vary based on the size of the training and test sets.  We are skeptical, and feel this would benefit from further debugging.
 
-### Results from the Maximum Entropy Model were also puzzling, but for a different reason.  Accuracy seemed to decline as the training set grew in size, which runs counter to our intuitions.
+Results from the Maximum Entropy Model were also puzzling, but for a different reason.  Accuracy seemed to decline as the training set grew in size, which runs counter to our intuitions.
+
+As a next step, we need to revisit our algorithms to see if we can improve the performance and reliability of the models.
 
