@@ -1,5 +1,5 @@
 ---
-title: "DATA 607, Project 3: The Most Valued Data Science Skills"
+title: "DATA 607, Project 4"
 date: "March 25, 2018"
 output:
   html_document:
@@ -18,15 +18,36 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <hr>
 
-### Intro
+# Background
 
-Start with a spam/ham dataset, then predict the class of new documents withheld from the training dataset.
+### A. Purpose
 
-Set up our work space
+The purpose of this assignment.....
+
+<br>
+
+### B. Approach
+
+1. Read in the data.
+
+2. Create a corpus.
+   
+3. Clean the data.
+
+4. Create a document-term matrix.
+
+5. Create a container.
+
+6. Train the data.
+
+7. Evaluate the results.
+
+<br>
+
+### B. Libraries and Setup
+
 ```{r, echo = F}
-# Background stuff - tweak and conceal as needed
 
-# Clean up our workspace
 rm(list = ls())
 
 # Identify the workbench
@@ -34,76 +55,37 @@ rm(list = ls())
 #wd.path2 <- "G:/OneDrive/Learning/_CUNY_SPS_MSDS/2018_Spring/DATA 607/"
 ```
 
+
 ```{r message=FALSE, warning=FALSE}
-# Go to the library - thank you open source!
 library(tm)
 library(RTextTools)
 library(dplyr)
 library(ggplot2)
 library(magrittr)
 library(stringr)
-
-# Hygiene factor
-#setwd(file.path(wd.path2, "Projects", "Project 4"))
+library(tidyr)
+library(SnowballC)
 ```
-
-### Approach
-
-The goal is to prepare document data for classification algorithms.  We'll use the tm and RTextTools packages to so, proceeding step by step.
-
-[I don't think we'll have time to use tidy approach to text mining, and weshould probably just keep it to the "tm" package for this assignment]
-
-### JEREMY:
-
-**Step: Read in spam and ham datasets.**
-**Step: Clean the data**
-**Step: Create spam corpus, ham corpus, and full (combined) corpus (I think)**
-**Step: Label which are spam and ham by their source**
-**Step: Create TDM and DTM (if both necessary)**
-**Step: Create train and test sets (if necessary, may be built into other step)**
-**Step: Create container**
-**Step: Extract text from spam and ham documents (if necessary)**
-**Step: Run classifier algorithms**
-**Step: Enumerate conclusions**
 
 <br>
 
-# KAVYA:
-
-1. Read in the data and create a single corpus.
-   
-2. Clean the data for analysis.
-
-3. Create a document-term matrix.
-   - Remove sparse terms.
-   - Assemble a vector of labels.
-
-4. Create a container with relevant information for use in estimation procedures.
-   - Specify training matrix vs. classification matrix
-
-5. Apply the estimation procedure.
-   - Train the model
-   - Classify the model
-
-6. Evaluate the results.
-   - Construct a dataframe containing the correct and predicted labels
-   - Investigate the number of misclassifications
-
 ****
 
-# 1. Read in the data and create a single corpus.
+# 1. Read in the data.
 
-> Set the working directory to be the location of the extracted ham and spam folders.
+### A. Set the working directory to be the location of the extracted ham and spam folders.
 
 ```{r}
 
 setwd <- "C:/Users/Kavya/Desktop/Education/msds/DATA 607 Data Acquisition and Management/Projects/Project 04"
 
+#setwd(file.path(wd.path2, "Projects", "Project 4"))
+
 ```
 
 <br>
 
-> Create separate lists of spam and ham filepaths.
+### B. Create separate lists of spam and ham filepaths.
 
 The name of the folders in your working directory -- in this case, "spam" and "ham" -- become the `path` argument below.
 
@@ -117,82 +99,77 @@ spam.list <- list.files(path = "ham/", full.names = T, recursive = F)
 
 <br>
 
-> Apply the `readLines` function to every filepath to get the contents of the file (i.e., the email itself).
+### C. Apply the `readLines` function to every filepath to get the contents of the file (i.e., the email itself).
 
 ```{r}
-ham.sapply <- sapply(ham.list, readLines)
 
-spam.sapply <- sapply(spam.list, readLines)
+ham.sapply <- sapply(ham.list, readLines, warn = F)
+
+spam.sapply <- sapply(spam.list, readLines, warn = F)
 
 ```
 
 <br>
-
-> Use the `as.VCorpus` function to convert the list of email contents to a volatile corpus.
-
-<a href="https://www.rdocumentation.org/packages/tm/versions/0.7-3/topics/VCorpus", target="_blank">"Volatile"</a> means that the corpus will be stored in your system's memory, as opposed to a `PCorpus` (permanent corpus) which could be stored in an outside database.
-
-```{r}
-ham.corpus <- as.VCorpus(ham.sapply)
-
-spam.corpus <- as.VCorpus(spam.sapply)
-```
-
-<br>
-
-> Add metadata to each corpus to identify it as "spam" or "ham."
-
-The "type" argument `indexed` means the tag is applied to each individual document, and stored in the corpus as a data frame.
-
-```{r}
-meta(spam.corpus, tag = "type", type = "indexed") <- "spam"
-
-meta(ham.corpus, tag = "type", type = "indexed") <- "ham"
-```
-
-<br>
-
-> Combine the two corpora into one corpus.
-
-At this point, the corpus is still in order -- the first ~1400 documents are spam, and the latter ~1400 documents are ham. We need to randomize the order.
-
-```{r}
-combined.corpus <- as.VCorpus(c(spam.corpus, ham.corpus))
-
-head(meta(combined.corpus))
-
-```
-
-<br>
-
-> Use the `sample` function to randomize the order of documents.
-
-```{r}
-
-# "R" means randomized
-combined.corpusR <- as.VCorpus(sample(combined.corpus))
-
-head(meta(combined.corpusR))
-```
-
-<br>
-
-Now we are ready to move on to cleaning the corpus.
 
 ****
 
-<br>
+# 2. Create a corpus
 
-# 2. Clean the data for analysis.
-
-> Use `tm_map` to apply transformations to the corpus.
+### A. Combine the two lists of files and create a dataframe.
 
 ```{r}
 
-clean.corpus <- tm_map(combined.corpusR, stripWhitespace) %>%   # Remove whitespace
-                tm_map(removeWords, stopwords("english")) %>%  # Remove common stopwords
-                tm_map(removePunctuation) %>%                  # Remove punctuation
-                tm_map(stemDocument)
+combined1 <- c(ham.sapply, spam.sapply)
+
+combined2 <- data.frame(t(sapply(combined1,c)))
+
+combined.df <- gather(combined2, "file", "text", 1:2796)
+
+combined.df$text <- as.character(combined.df$text)
+
+```
+
+<br>
+
+### B. Add a column for "type" and label the documents as spam or ham.
+
+```{r}
+
+combined.df$type <- NA
+
+combined.df$type[1:1396] <- "spam"
+
+combined.df$type[1397:2796] <- "ham"
+
+combined.df$type <- factor(combined.df$type)
+
+```
+
+<br>
+
+### C. Perform some basic cleaning
+
+```{r}
+combined.df$text <-  str_replace_all(combined.df$text, "^c\\(", "") %>% 
+                     str_replace_all("[[:punct:]]", " ")
+
+combined.df$text <- enc2utf8(combined.df$text)
+
+head(combined.df, 1)
+
+```
+
+<br>
+
+### D. Create a corpus
+
+```{r}
+
+combined.corpus <- Corpus(VectorSource(combined.df$text))
+
+combined.corpus <- sample(combined.corpus)
+
+print(combined.corpus)
 
 ```
 
@@ -200,23 +177,16 @@ clean.corpus <- tm_map(combined.corpusR, stripWhitespace) %>%   # Remove whitesp
 
 <br>
 
-# 3. ! ! Create a document-term matrix. ! !
-
-The `dtm` function gives me an error if the corpus has letters with diacritics (like accent marks or tildes). It appears to only accept alphanumeric characters. However, I'm stumped as to how to remove the diacritic special characters from the corpus. I believe it is an encoding issue -- making sure that the data is encoded to UTF-8. 
-
-* This StackOverflow page describes the error: https://stackoverflow.com/questions/9637278/r-tm-package-invalid-input-in-utf8towcs
-
-One solution on the page suggested that reading in the corpus as a VectorSource could help, but when I do that (see below), the number of documents goes down to 3, and I get an error in Step 5 (Train the Data) on line 256 below.
+# 3. Create a document-term matrix.
 
 ```{r}
 
-# The dtm function requires that letters with diacritics -- essentially, letters t
+corpus.dtm <- DocumentTermMatrix(combined.corpus)
 
-clean.corpus <- Corpus(VectorSource(clean.corpus))
+corpus.dtm <- removeSparseTerms(corpus.dtm, (1 - 10 / length(combined.corpus)))
 
-corpus.dtm <- DocumentTermMatrix(clean.corpus)
+print(corpus.dtm)
 
-corpus.dtm
 
 ```
 
@@ -226,26 +196,48 @@ corpus.dtm
 
 # 4. Create a container.
 
+### A. Set the parameters.
+
 ```{r}
 
 # Specify the location of the "spam" and "ham" labels
-labels.corpus <- meta(combined.corpusR)
+labels.corpus <- combined.df$type
 
-# The number of documents
-N <- length(clean.corpus)
+# The total number of documents -- 2,786
+N <- length(combined.corpus)
 
 # The percentage of the data to partition
-P <- 0.8 
+P <- 0.7
+
+# Number of documents in the training set
+trainSize <- round(P*N)
+
+trainSize
+
+# Number of documents in the test (holdout) set
+testSize <- N - round(P*N+1)
+
+testSize
+
+```
+
+<br>
+
+### B. Create the container.
+
+```{r}
 
 container <- create_container(corpus.dtm, 
-                              labels = labels.corpus$type, 
-                              trainSize = 1:(P*N), 
-                              testSize = (P*N+1):N,
+                              labels = labels.corpus, 
+                              trainSize = 1:round(P*N), 
+                              testSize = round(P*N+1):N,
                               virgin = F)
 
 slotNames(container)
 
 ```
+
+
 ****
 
 <br>
@@ -253,181 +245,70 @@ slotNames(container)
 # 5. Train the data.
 
 ```{r}
+# Classify using the Support Vector Machines model
 svm_model <- train_model(container, "SVM")
-
 svm_out <- classify_model(container, svm_model)
+
+# Classify using the Random Forest model
+#tree_model <- train_model(container, "TREE")
+#tree_out <- classify_model(container, tree_model)
+
+# Classify using the Maximum Entropy model
+maxent_model <- train_model(container, "MAXENT")
+maxent_out <- classify_model(container, maxent_model)
+
 ```
-
-
-
-
-
-
-
-
 
 ****
 
-### JEREMY:
-**Step: Read in spam and ham datasets.**
+<br>
+
+# 6. Evaluate the results.
+
+### A. Create a new dataframe with the true and expected classifications.
+
 ```{r}
-# Message sets were downloaded from spamassassin's archive to a local folder and unzippedper the tutorial
-# !!! Could attempt to implement and automate this in R if time permits) !!!
 
-# 
-#spam.directory <- file.path(getwd(), "spamundham", "spam")
-#spam.list <- list.files(spam.directory)
-#spam <- readLines(spam.directory, spam.list)
-#str_c(collapse = "") %>% 
-#Corpus(VectorSource())
+labels.out <- data.frame( 
+  correct.label = labels.corpus[round(P*N+1):N], 
+  svm = as.character(svm_out[,1]), 
+  #tree = as.character(tree_out[,1]), 
+  maxent = as.character(maxent_out[,1]), 
+  stringsAsFactors = F)
 
-# ham.directory <- file.path(getwd(), "spamundham", "easy_ham")
-# ham.list <- list.files(ham.directory)
+head(labels.out)
 
-# Create spam, ham, and combined (full) corpuses
-#spam.corpus <- Corpus(DirSource(spam.directory))
-#ham.corpus <- Corpus(DirSource(ham.directory))
-
-# !!! tm_combine function not found. This step isn't working and I think we'll a need a combined corpus for the classifiers.  TBD !!! #
-#full.corpus <- tm_combine(cv(spam.corpus, ham.corpus)
 ```
 
+<br>
 
-**Step: Clean the data**
-**Step: Create spam corpus, ham corpus, and full (combined) corpus (I think)**
-**Step: Label which are spam and ham by their source**
+### B. Performance of Support Vector Machine Model
+
 ```{r}
-**Step: Clean the data**
-# Clean each corpus, changing all text to lower case and removing punctuation, stopwords, and numbers.
-# !!! Annotate with "what for" !!!
-# !!! If we preserve this approach, credit azabet:  https://github.com/azabet/Machine-Learning/blob/master/spam-filter.R !!!
-# !!! Review cleaning procedures to assess whether these steps are necessary / other steps are needed !!!
-# str_replace_all(pattern = "<.*?>", replacement = " ") %>% 
-# str_replace_all(pattern = "\\=", replacement = "") %>%
-# !!! If possible, replace spam and ham corpuses with combined corpus that includes labels.
 
-spam.corpus.clean <- spam.corpus %>%
-  tm_map(tolower) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(removeWords, stopwords('english')) %>% 
-  tm_map(removeNumbers) # %>% 
-  # tm_map(stripWhitespace) 
-  # tm_map(stemDocument, language = "english")
+table(labels.out[,1] == labels.out[,2]) 
 
-ham.corpus.clean<- ham.corpus %>%
-  tm_map(tolower) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(removeWords, stopwords('english')) %>% 
-  tm_map(removeNumbers) # %>% 
-  # tm_map(stripWhitespace) %>% 
-  # tm_map(stemDocument, language = "english")
+prop.table(table(labels.out[,1] == labels.out[,2])) 
 
-full.corpus.clean <- spam.corpus %>%
-  tm_map(tolower) %>% 
-  tm_map(removePunctuation) %>% 
-  tm_map(removeWords, stopwords('english')) %>% 
-  tm_map(removeNumbers) # %>% 
-  # tm_map(stripWhitespace) 
-  # tm_map(stemDocument, language = "english")
-
-# Inspect cleaned corpuses for sense-check
-inspect(spam.corpus.clean[1])
-inspect(ham.corpus.clean[1])
-
-# Create a label vector for ham and spam, or full
-# !!! Think this step may need to occure prior, and that this syntax may not be right !!!
-sh_labels <- prescindMeta(ham.corpus.clean)
 ```
 
+<br>
 
-**Step: Creat TDM and DTM (if both necessary)**
+### C. Performance of Maximum Entropy Model
+
 ```{r}
-# Create Document-Term Matrices for ham and spam corpuses
-# !!! These don't look right... !!!
-ham.dtm <- DocumentTermMatrix(ham.corpus.clean)
-spam.dtm <- DocumentTermMatrix(spam.corpus.clean)
 
-# Create Term-Document Matrices for ham and spam corpuses
-# !!! These don't look right... !!!
-ham.tdm <- TermDocumentMatrix(ham.corpus.clean)
-spam.tdm <- TermDocumentMatrix(spam.corpus.clean)
+table(labels.out[,1] == labels.out[,3]) 
 
-# Check output
-# !!! Look into whether there's anything to say about this sparsity !!!
-inspect(ham.dtm)
-inspect(spam.dtm)
+prop.table(table(labels.out[,1] == labels.out[,3])) 
 
-# Remove some sparsity
-# !!! Not sure if this step will help !!!
-ham.tdm.rich <- removeSparseTerms(ham.tdm, (1 - 10 / length(ham.corpus.clean)))
-spam.dtm.rich <- removeSparseTerms(spam.tdm, (1 - 10 / length(spam.corpus.clean)))
-ham.tdm.rich
-spam.dtm.rich
 ```
 
+<br>
 
-**Step: Create train and test sets (if necessary, may be built into other step)**
-```{r}
-# Partition training and test sets
-# We can take two approaches - one that splits up at the file level, another that splits at the corpus level.  Corpus is implemented below, as it seems to make for simpler approach to controlling sampling rate.
-# !!! Implement once on each spam and ham, or just on full? !!!
+****
 
-# Corpus-oriented approach to sampling to partition for training and test sets
-# This is based on a samping rate holdour of 10% for the test set.  We can tweak as we see appropriate - perhaps there's a benchmark rate?
-training = .9 # set training between 0 and 1 as sampling rate
+# 7. Evaluation
 
-# !!! We may be able to perform this more simply using arguments in create_containter !!!
-
-# First, split the cleaned spam corpus into train and test
-spam.n <- length(spam.corpus.clean)
-spam.n.test <- spam.n * (1 - training)
-spam.test.cut <- sample(1:spam.n, size = spam.n.test, replace = F)
-spam.train.cut <- setdiff(1:spam.n, spam.test.cut)
-spam.train <- spam.corpus.clean[spam.train.cut]
-spam.test <- spam.corpus.clean[spam.test.cut]
-
-# Next, split the cleaned ham corpus into train and test
-ham.n <- length(ham.corpus.clean)
-ham.n.test <- ham.n * (1 - training)
-ham.test.cut <- sample(1:ham.n, size = ham.n.test, replace = F)
-ham.train.cut <- setdiff(1:ham.n, ham.test.cut)
-ham.train <- ham.corpus.clean[ham.train.cut]
-ham.test <- ham.corpus.clean[ham.test.cut]
-```
-
-
-**Step: Extract text from spam and ham documents.**
-```{r}
-# Is include this approach, credit spam filtering code snippet in the "Spam Filtering" chapter Machine Learning for Hackers around page 80.
-# !!! We may not need this prior or not at all.  TBD !!! #
-extract.msg = function(msg) {
-  con = file(msg, open = "rt", encoding = "latin1")
-  text = readLines(con)
-  msg = text[seq(which(text == "")[1] + 1, length(text),1)]
-  close(con)
-  return(paste(msg, collapse = "\\n"))
-}
-```
-
-
-**Step: Create container**
-```{r}
-# container <- create_container(full.corpus.clean, 
-                              #labels = sh.labels, 
-                              #trainSize = 1:?, 
-                              #testSize = ?:n,
-                              # virgin = F)
-```
-
-
-**Step: Run classifier algorithms**
-```{r}
-# svm <- train_model(container, "SVM")
-# tree <- train_model(container, "TREE")
-# maxent <- train_model(container, "MAXENT")
-```
-
-
-### Conclusions
 
 
