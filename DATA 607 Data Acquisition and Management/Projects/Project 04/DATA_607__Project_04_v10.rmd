@@ -1,6 +1,6 @@
 ---
-title: "DATA 607, Project 4: Document Classification"
-date: "April 15, 2018"
+title: "DATA 607, Project 4"
+date: "March 25, 2018"
 output:
   html_document:
     theme: yeti
