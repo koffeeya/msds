@@ -1,5 +1,5 @@
 ---
-title: "DATA 607, Project 4: Document Classification"
+title: "DATA 607, Project 4"
 date: "April 15, 2018"
 output:
   html_document:
@@ -45,11 +45,11 @@ Once the email text was containerized, we ran Support Vector Machine and Maximum
 
 4. Create a document-term matrix.
 
-5. Create a container.
+5. Create containers at different proportions of training set to test holdout.
 
-6. Train the data.
+6. Train the classifiers.
 
-7. Evaluate the results.
+7. Evaluate the results for different classifiers and holdout proportions.
 
 <br>
 
