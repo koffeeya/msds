@@ -94,7 +94,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 <br>
 
-> This means that StumbleUpon has an incentive to show content on popular topics more often compared to unpopular ones, which may or may not align with its purported purpose of content "discovery".
+> This means that StumbleUpon has an incentive to show content on popular topics more often compared to unpopular ones, which may or may not align with its supposed selling point of content "discovery".
 
 <br>
 
