@@ -1,0 +1,148 @@
+---
+title: "DATA 606, Ch. 7 Homework: Introduction to Linear Regression"
+author: "Kavya Beheraj"
+date: "April 22, 2018"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: textmate 
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('DATA606')
+rm(list = ls())
+```
+
+***
+
+<br>
+
+# 7.24 | **Nutrition at Starbucks, Part I**
+
+> **(a)** The relationship between the two variables appears to be positive and moderately strong.
+
+> **(b)** In this scenario, the explanatory variable is calories, and the response variable is carbohydrates.
+
+> **(c)** We might want to fit a regression line to this data to see how well calories can predict carbohydrates at Starbucks.
+
+> **(d)** **Yes.** The data meets all three conditions required for fitting a least-squares line.
+> 
+> * **Linearity**: There does not appear to be a clear pattern of the residuals, suggesting that it may be due to a linear relationship.
+> 
+> * **Nearly normal residuals**: The residuals approach the normal distribution.
+> 
+> * **Constant variablity**: There appear to be roughly the same degree of residuals above and below the horizonal line, suggesting constant variability.
+
+<br>
+
+***
+
+<br>
+
+# 7.26 | **Body Measurements, Part III**
+
+Exercise `7.15` introduces data on shoulder girth and height of a group of individuals. The mean shoulder girth is 107.20 cm with a standard deviation of 10.37 cm. The mean height is 171.14 cm with a standard deviation of 9.41 cm. The correlation between height and shoulder girth is 0.67.
+
+> **(a)** $\hat{height} = 0.4196798 \times$ `shoulder girth` $+ 126.1503$
+
+```{r}
+# Coordinates from mean
+x.26 <- 107.2
+y.26 <- 171.14
+
+# Correlation coefficient
+R.26 <- 0.67
+
+# Slope
+b1.26 <- R.26 * (x.26 / y.26)
+
+b1.26
+
+# Intercept
+b0.26 <- (b1.26 * x.26 - y.26)*-1
+
+b0.26
+
+```
+
+
+> **(b)** Interpretations:
+>
+> * **Slope**: The slope predicts that for every 10 cm of shoulder girth that a person gains, they will gain about 130 cm of height.
+> 
+> * **Intercept**: The intercept is the average height of an individual with 0 shoulder girth. This does not make sense in this context because 0 is not meaningful -- a person cannot have no shoulders.
+
+> **(c)** $R^2 = 0.67^2 = 0.4489$. This means about 45% of the variability in height can be explained by shoulder girth. 
+
+> **(d)** For a shoulder girth of 100 cm, the model predicts a height of about 168 cm.
+
+```{r}
+
+yhat.26 <- b1.26 * 100 + 126.1503
+
+yhat.26
+
+```
+
+
+> **(e)** The residual is $160 - 168 = -8 cm$. A negative residual means that the model overestimates the height of the individual.
+
+> **(f)** It would not be appropriate to use this model to calculate the height of a 1 year old. It would be extrapolation, since it is outside of the model's range.
+
+<br>
+
+***
+
+<br>
+
+# 7.30 | **Cats, Part I**
+
+> **(a)** $\hat{heartwt} = 4.034 * bodywt - 0.357$
+
+> **(b)** The intercept means that for a cat with a body weight of 0 grams, their heart weight would be $-0.357$ grams. This is not meaningful -- it is impossible for a cat to have no body weight.
+
+> **(c)** The slope means that for every 1 gram of body weight that a cat gains, they will gain 3.677 grams of heart weight.
+
+> **(d)** The $R^2$ means that $64.66$% of the variability in heart weight is explained by body weight.
+
+> **(e)** Correlation coefficient $= \sqrt{R^2} = \sqrt{0.6466} \approx 0.8041$
+
+<br>
+
+***
+
+<br>
+
+# 7.40 | **Rate My Professor**
+
+> **(a)** The slope is 0.1325028.
+
+```{r}
+# Given values
+x.40 <- -0.0883
+y.40 <- 3.9983
+b0.40 <- 4.010
+
+# Slope
+b1.40 <- (y.40 - b0.40) / x.40
+
+b1.40
+
+```
+
+> **(b)** The p-value is so small that we reject the null hypothesis and conclude that beauty and teaching evaluation are not positively correlated.
+
+> **(c)** No, the conditions for linear regression are not all met. It does not meet the condition of nearly-normal residuals.
+> 
+> * **Linearity**: There does not appear to be a clear pattern of the residuals, suggesting that it may be due to a linear relationship.
+> 
+> * **Nearly normal residuals**: The residuals apear to be slightly left-skewed, based on the histogram and normal plot.
+> 
+> * **Constant variablity**: There appear to be roughly the same degree of residuals above and below the horizonal line, suggesting constant variability.
+
