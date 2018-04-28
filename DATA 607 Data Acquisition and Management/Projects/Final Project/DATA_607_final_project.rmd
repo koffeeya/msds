@@ -1,0 +1,61 @@
+---
+title: "Untitled"
+author: "Kavya Beheraj"
+date: "April 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+```
+
+
+
+```{r}
+rm(list = ls())
+```
+
+
+
+```{r}
+
+u1 <- "https://static.turi.com/datasets/millionsong/10000.txt"
+
+ratings <- as.data.frame(read.table(u1, header = F, stringsAsFactors = F))
+
+names(ratings) <- c("user_id", "song_id", "listen_count")
+
+```
+
+```{r}
+
+u2 <- "https://static.turi.com/datasets/millionsong/song_data.csv"
+
+metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors = F))
+
+```
+
+
+```{r}
+
+View(head(ratings))
+
+View(head(metadata))
+
+```
+
+```{r}
+
+j <- inner_join(ratings, metadata, by = "song_id")
+
+```
+
+```{r}
+View(head(j, 150))
+```
+
