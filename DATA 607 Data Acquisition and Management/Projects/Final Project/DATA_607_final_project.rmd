@@ -9,9 +9,13 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 library(dplyr)
 library(tidyr)
+library(ggplot2)
+library(devtools)
+# devtools::install_github("nicolewhite/RNeo4j")
+library(RNeo4j)
 ```
 
 
@@ -24,6 +28,8 @@ rm(list = ls())
 
 ```{r}
 
+# Read in the ratings dataframe
+
 u1 <- "https://static.turi.com/datasets/millionsong/10000.txt"
 
 ratings <- as.data.frame(read.table(u1, header = F, stringsAsFactors = F))
@@ -34,6 +40,8 @@ names(ratings) <- c("user_id", "song_id", "listen_count")
 
 ```{r}
 
+# Read in the metadata dataframe
+
 u2 <- "https://static.turi.com/datasets/millionsong/song_data.csv"
 
 metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors = F))
@@ -43,19 +51,50 @@ metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors =
 
 ```{r}
 
-View(head(ratings))
-
-View(head(metadata))
-
-```
-
-```{r}
+# Join data by song ID
 
 j <- inner_join(ratings, metadata, by = "song_id")
 
 ```
 
+
 ```{r}
-View(head(j, 150))
+
+# Summarize joined dataframe by user ID
+
+k <- j %>%
+  select(user_id, listen_count) %>%
+  group_by(user_id) %>%
+  summarise(number_songs = n(), mean_listen_count = mean(listen_count), sum_listen_count = sum(listen_count))
+
 ```
+
+```{r}
+nrow(k)
+```
+
+
+```{r}
+# We see a long tail when we plot the average number of songs that each user listened to.
+
+qplot(k$mean_listen_count)
+```
+
+```{r}
+
+graph = startGraph("http://localhost:7474/db/data/", username="neo4j", password="7u4!9jHBzrJA9C$@")
+
+```
+
+
+```{r}
+
+query = "
+
+CREATE ( user:  )
+
+"
+
+```
+
 
