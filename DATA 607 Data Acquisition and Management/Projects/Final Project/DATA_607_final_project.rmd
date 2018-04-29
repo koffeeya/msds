@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "Untitled"
 author: "Kavya Beheraj"
@@ -67,18 +68,33 @@ k <- j %>%
   group_by(user_id) %>%
   summarise(number_songs = n(), mean_listen_count = mean(listen_count), sum_listen_count = sum(listen_count))
 
-```
-
-```{r}
 nrow(k)
-```
 
+```
 
 ```{r}
 # We see a long tail when we plot the average number of songs that each user listened to.
 
 qplot(k$mean_listen_count)
+
 ```
+
+```{r}
+# Take a random sample of 100 user IDs
+
+random_users <- sample(k$user_id, 100, replace = F)
+```
+
+```{r}
+# Subset the full dataframe by the 100 random user IDs.
+
+sampled <- subset(j, j$user_id %in% random_users)
+nrow(sampled)
+n_distinct(sampled$user_id)
+
+```
+
+
 
 ```{r}
 
@@ -96,5 +112,3 @@ CREATE ( user:  )
 "
 
 ```
-
-
