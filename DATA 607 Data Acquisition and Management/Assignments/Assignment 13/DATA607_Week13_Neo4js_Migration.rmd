@@ -1,0 +1,126 @@
+---
+title: 'DATA 607 HW: Week 13, NoSQL Migration'
+author: "Kavya Beheraj"
+date: "April 29, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(devtools)
+# devtools::install_github("nicolewhite/RNeo4j")
+# devtools::install_github("dataknowledge/visNetwork")
+library(RNeo4j)
+library(visNetwork)
+```
+
+```{r}
+
+# Clean up environment
+
+rm(list = ls())
+
+```
+
+```{r}
+
+# Read in the ratings dataframe and rename the columns
+
+u1 <- "https://static.turi.com/datasets/millionsong/10000.txt"
+
+ratings <- as.data.frame(read.table(u1, header = F, stringsAsFactors = F))
+
+names(ratings) <- c("user_id", "song_id", "listen_count")
+
+
+# Read in the metadata dataframe
+
+u2 <- "https://static.turi.com/datasets/millionsong/song_data.csv"
+
+metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors = F))
+
+```
+
+```{r}
+
+# Join data by song ID
+joined <- inner_join(ratings, metadata, by = "song_id")
+
+```
+
+```{r}
+
+# Group and summarize joined dataframe by user ID
+grouped_id <- joined %>%
+  select(user_id, listen_count) %>%
+  group_by(user_id) %>%
+  summarise(number_songs = n(), mean_listen_count = mean(listen_count), sum_listen_count = sum(listen_count))
+
+```
+
+```{r}
+
+# Take a random sample of 100 user IDs
+random <- sample(grouped_id$user_id, 100, replace = F)
+
+# Subset the full dataframe by the 100 random user IDs.
+sampled <- subset(joined, joined$user_id %in% random)
+
+# Examine the number of songs included in the sample
+nrow(sampled)
+head(sampled)
+
+```
+
+```{r}
+df <- select(sampled, user_id, listen_count, song_id, title)
+View(df)
+```
+
+```{r}
+setwd("C:/Users/Kavya/Desktop/Education/msds/DATA 607 Data Acquisition and Management/Assignments/Assignment 13")
+```
+
+```{r}
+write.csv(df, "songs.csv")
+```
+
+
+```{r include=FALSE, echo=FALSE}
+pw = "7u4!9jHBzrJA9C$@"
+```
+
+```{r}
+graph = startGraph("http://localhost:7474/db/data/", username="neo4j", password=pw)
+```
+
+```{r}
+
+query1 = "
+
+CREATE CONSTRAINT ON (u:User) ASSERT u.email IS UNIQUE;
+
+
+
+LOAD CSV WITH HEADERS FROM 'https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Final%20Project/song_properties.csv' 
+  AS songs 
+  CREATE (a1:Songs {
+    label: songs.song_id, 
+    title: songs.title, 
+    album: songs.release, 
+    artist: songs.artist_name, 
+    year: songs.year})"
+
+cypher(graph, query1)
+
+```
+
+
+
+
