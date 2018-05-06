@@ -1,0 +1,415 @@
+---
+title: "Untitled"
+author: "Kavya Beheraj"
+date: "April 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+set.seed(2346)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(magrittr)
+library(tidyr)
+library(ggplot2)
+library(devtools)
+devtools::install_github("nicolewhite/RNeo4j")
+# add conditional if preinstalled
+library(RNeo4j)
+library(recommenderlab)
+```
+
+```{r}
+
+# Clean up environment
+
+rm(list = ls())
+
+```
+
+<hr>
+
+## COLLECT THE DATA
+
+TO DO: [Add in comments on Million Song Database (MSD)]
+
+TO DO: [Clean up colum naming taxonomy]
+
+```{r}
+
+# Read in the ratings dataframe and rename the columns
+
+u1 <- "https://static.turi.com/datasets/millionsong/10000.txt"
+
+df <- as.data.frame(read.table(u1, header = F, stringsAsFactors = F))
+
+names(df) <- c("user_id", "song_id", "listen_count")
+
+
+# Read in the metadata dataframe
+
+u2 <- "https://static.turi.com/datasets/millionsong/song_data.csv"
+
+metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors = F))
+
+```
+
+```{r}
+
+# Join data by song ID to create a user-item matrix. Remove duplicate song ratings.
+joined <- distinct(inner_join(df, metadata, by = "song_id"))
+
+
+# Group and summarize joined dataframe by user ID
+grouped_id <- joined %>%
+  select(user_id, listen_count) %>%
+  group_by(user_id) %>%
+  summarise(number_songs = n(), 
+            mean_listen_count = mean(listen_count), 
+            sum_listen_count = sum(listen_count))
+
+# Append total number of songs listened to by user (grouped_id$sum_listen_count) for later comparison.
+grouped_id_totals <- grouped_id[, c(1,4)]
+
+```
+
+
+<hr>
+
+## SUMMARIZE THE DATA
+
+MSD is a large dataset, so to better understand it we perform some EDA, including summarization and visualization.
+
+TO DO: [Move summaries below code, capture everything in annotated charts if possible]
+
+<hr>
+
+#### USER-LEVEL SUMMARY STATISTICS
+
+```{r}
+
+# Number of unique user IDs.  The DB has includes 76,353 unique users.
+
+# reminder: str(joined)
+nrow(grouped_id)
+# alternative: length(unique(joined$user_id))
+
+
+# Some user-level summary statistics: Each of those users has listened to at least 1 song (obvious, but a good sense check). On average, users have listened to 3.183 songs.  The most songs is 192.
+
+summary(grouped_id$mean_listen_count)
+
+
+# TO DO: [Describe curve - songs listened on x, number of individuals at the level on y.  Power with long tail.  Peak between 8 and 16 songs listened to (CONFIRM)]
+
+ggplot(data = grouped_id, aes(number_songs)) + 
+  geom_histogram(binwidth = 1)
+# labs: title, subtitle, caption, x, y
+
+ggplot(data = grouped_id, aes(number_songs)) + 
+  geom_histogram(breaks = seq(1, 200, by = 1))
+# labs: title, subtitle, caption, x, y
+
+ggplot(data = grouped_id, aes(x = number_songs, y = sum_listen_count)) +
+         geom_point() +
+         geom_smooth(method = "loess", se = F) +
+         xlim(c(0, 800)) +
+         ylim(c(0, 4000))
+# labs: title, subtitle, caption, x, y
+
+# TO DO: [Plot histograms of mean listens.  Describe]
+
+# TO DO: [Add description of box / whisker, consider whether to look into quantiles using mutate(quintile = ntile(mean_listen_count, 5) or mean_listen_count]
+
+ggplot(data = grouped_id, aes(x = "", y = number_songs)) +
+  geom_boxplot(varwidth = T)
+# labs: title, subtitle, caption, x, y
+
+# TO DO: [Calculate number of users who have listened to more than 1 song, 2 songs, etc.   And / or look into some other measure of sparsity.]
+
+# TO DO: Consider investigating stratification of of listeners - would cluster analysis help us or is it surplus to requirements?
+
+
+```
+
+<hr>
+
+#### SONG-LEVEL SUMMARY STATISTICS
+
+TO DO: ADDITIONAL SUMMARY STATS
+
+```{r}
+
+# Number of unique songs.  Confirmed: the DB has...wait for it...a million songs.
+
+length(unique(joined2$song_id))
+
+# TO DO: [Calculate number of total listens]
+
+summarise(ratings, total_listens = sum(listen_count))
+
+# TO DO: [Analyze whether songs that get lots of listens have lots of listeners and calcuclate mean for that subset.]
+
+# TO DO: [Additional summary stats]
+
+
+```
+
+<hr>
+
+# CALCULATE RATINGS AND CLEAN THE DATA
+
+We can - and shall - treat listens by users as an implict rating of a song.  
+
+However, it's important to take into account what proportion of the songs a user has listened to that a given song's listens represent.  We can calculate this measure by dividing how many times a user has listened to a given song (`joined2$listen_count`) by how many times they've listened to any song recorded in the DB (`joined2$sum_listen_count`).  This provides us with a relative measure of preference which we can use to tune the model.
+
+Certain user behaviors will introduce skew (?) to our recommender.  We can regard these as edge cases for our rating system.  After identifying these edge cases and their impact, we can filter them out.
+
+For instance, single song listeners - user who have only listened to a single song recorded in the database - do not represent a typical behavior, and could just be an artifact of data collection methods.  Given that we are treating song listening as an implicit measure of preference, and that our rating weights songs by the proportion of total listening they represent for a given user, single song listeners skew recommender inputs, leading those single songs to be rated 100%.
+
+TO DO: [Describe other edge cases and potential impact on sample]
+
+TO DO: [Describe other cleaning]
+
+```{r}
+# Join together total listen count to the full dataframe
+joined2 <- left_join(joined, grouped_id_totals, by = "user_id")
+
+# Create a new column to hold a calculated implicit rating (as a percentage from 0 to 100) of user preference for a song. 
+joined_final <- mutate(joined2, rating = round(((joined2$listen_count / joined2$sum_listen_count)*100), 2))
+
+# Filter out users with a 100% rating
+joined_final <- filter(joined_final, rating<100)
+
+
+
+# Filter out other edge cases?
+
+# TO DO: [Decide whether to identify obsessive listeners, defined as those who have listened to a song > 10 times and and their total listens is < 2.  If so, calculate impact: as proportion of listeners, as proportion of listens, and as proportion of songs.  Consider filtering out.]
+
+# grouped_id2 %>% filter(sum_listen_count > 10 & ) %>% 
+#   summarise(total_users = n())
+
+# obsessive <- joined %>%
+#  select(user_id, listen_count) %>%
+#  filter(listen_count > 10) %>% 
+#  group_by(user_id) %>%
+#  summarise(number_songs = n(), mean_listen_count = mean(listen_count), sum_listen_count = sum(listen_count)) %>%
+#  filter(sum_listen_count <= 20)
+
+
+# TO DO: [Decide whether to identify casual listeners, defined as those who have listened to <5 songs once each.  If so, calculate impact: as proportion of listeners, as proportion of listens, and as proportion of songs.  Consider filtering out.]
+
+
+# TO DO: [Decide wheter to do any additional cleaning: drop unneeded columns, remove stray characters, trim white space, check row length and column width?
+
+
+```
+
+<hr>
+
+<br>
+
+# DOWN-SAMPLE THE DATA
+
+Now that we have cleaned data, we can prepare it for modeling.
+
+The Million Song Database comprises a million unique songs, over six million listens, and over 76k listeners.  That's potentially a lot of data for to crunch for in-memory computing.  We will work with a randomized sample to build our recommender and train it.  Sp we can work simply across multiple machines and environments, we lock down our sample set for consistent results. Additionally, as we are not a priori certain about performance, we will extract multiple samples of different sizes so we can evaluate consistently across machines and environments.
+
+To recap, we have crated three dataframes: a list of users (grouped_id), a list of songs (metadata), and list of song listens by user we treat as implicit ratings (joined).
+
+We'll set some arbitrary user-level break points for sampling so we can scale the datasets ingested by models: 100, 200, 500, 1000, and 5000 users.  At each break point, we'll sample from the preceding, larger break point so we're efffectively subtracting observations from the same pool rather than resampling the overall population.
+
+
+### Prepare to sample
+
+```{r}
+
+# Create a dataframe of unique user IDs. There are 75,491 users in the cleaned dataframe joined_final.
+user_list <- distinct(as.data.frame(joined_final$user_id))
+names(user_list) <- c("user_id")
+n <- nrow(user_list)
+
+# Set the sample levels. We are taking samples of 10%, 5%, and 0.5% of all 75,491 users.
+samp_lvls <- c(round(n*0.1), round(n*0.05), round(n*0.005))
+
+print(sprintf('The entire dataset contains %d users.', n))
+print(sprintf('The 1st sample contains %d users.', round(n*0.1)))
+print(sprintf('The 2nd sample contains %d users.', round(n*0.05)))
+print(sprintf('The 3rd sample contains %d users.', round(n*0.005)))
+
+```
+
+<br>
+
+### Sample the Data and Create CSV Files
+
+```{r}
+
+# Initialize a variable
+i <- 1
+
+# Create dataframes and write CSV files with user nodes, song nodes, and ratings at each sample level
+for (i in samp_lvls[i:length(samp_lvls)]) {
+  
+  # Take a random sample of user IDs
+  user_nodes <- sample(user_list$user_id, i, replace = F)
+  names(user_nodes) <- c("user_id")
+
+  # Subset the full dataframe by the random user IDs. Remove duplicate ratings.
+  ratings <- distinct(subset(joined_final, joined_final$user_id %in% user_nodes))
+  ratings <- select(ratings, user_id, rating, title)
+  
+  # Get the unique list of songs contained in the sample.
+  song_nodes <- distinct(as.data.frame(ratings$title))
+  names(song_nodes) <- c("title")
+  
+  # Make unique file names for each sample level
+  user_filename <- sprintf('users_%s.csv', i)
+  rating_filename <- sprintf('ratings_%s.csv', i)
+  song_filename <- sprintf('songs_%s.csv', i)
+  
+  # Write the files as a CSV
+  write.csv(user_nodes, file = user_filename, row.names = F)
+  write.csv(ratings, file = rating_filename, row.names = F)
+  write.csv(song_nodes, file = song_filename, row.names = F)
+  
+  # Success message
+  message <- sprintf('Created CSV Files For %d-User Sample', i)
+  print(message)
+  
+  i <- i+1
+  
+}
+
+
+```
+
+
+
+<hr>
+
+## IMPLEMENT NEO4J APPROACH
+
+TO DO: [Prepare a user-user matrix?]
+
+<hr>
+
+
+## EVALUATE RECOMMENDER PERFORMANCE
+
+<hr>
+
+
+## PREPARE GRAPH DATABASE FOR SHINY UI
+
+<hr>
+
+
+## ASSEMBLE SHINY UI
+
+<hr>
+
+
+## TEST UX
+
+<hr>
+
+
+## APPENDIX IMPLEMENT RECOMMENDERLAB APPROACH
+
+TO DO: [CLEAN UP AND INCLUDE ONLY NEEDED PORTIONS]
+
+#### Background
+RecommenderLab (RL) is based on collaborative filtering approaches.
+Collaborative filtering takes items ratings produced by users.
+Uses those as the basis to predict ratings for other users; or create top-N recos for an active user
+If its memory-based, it does so on the whole dataset; if model-based, it learns a more compact model like preference-clusters users that makes recos.  Not sure if substantive difference for our purposes?
+
+#### Structuring data
+Uses a rating matrix with rows as users and items as columns.
+In our case, rows are listeners and songs are columns.
+This leads to a very wide matrix that is horizontally sparse.
+Not clear if a tidy implementation can be ingested by RL?
+Rating scale?  Require logistic regression?
+What are signals for ratings we should keep out?
+Does it require and adjusted cosine similarity score as input, is that in the black box?
+
+Do we need a user-item matrix?  Used for CF
+Do we need a similarity matrix?  Used for item-item CF
+
+#### Steps 
+Create input matrix
+Normalize using normalize()?  Depends on data prep, transforms, etc. 
+Convert to binaries using binarize()?  Again, depends on data prep, etc.
+Check distro 
+getRatings() to extract vector with non-missing ratings
+hist(getRatings(normalize(r, method = "Z-score")), breaks = 100)
+hist(rowCounts(r), breaks = 50)
+hist(colMeans(r), breaks= 20)
+
+#### Evaluating prediction performance
+
+For rating prediction, Mean Average Error or Root Mean Square Error (penalizes larger errors stronger)
+
+For Top-N recos, create confusion matrix
+Evaluate accuracy through correct recos / total possible recos
+Mean absolute error or mean absolute deviation
+
+To evaluate information retrieval performance, user precision and recall
+Precision = true pos / (true pos + false pos)
+Recall = true pos / (true pos + false neg)
+Precision mapped to y
+Recall to x
+E-measure = 1 / (alpha(1 / precision) + (1 - alpha(1 / recall)))
+
+```{r}
+
+# Will start with sampled data to test out structure.
+
+head(sampled)
+str(sampled)
+rownames(sampled)
+
+# The first step is before feeding recommenderlab models is to create a sparse matrix.  On our first pass, we'll treat listen_count as an implicit rating to test.  We'll try to leverage approach described here: https://rpubs.com/tarashnot/recommender_comparison
+
+# sparse_sampled <- sparseMatrix(i = sampled$user_id, j = sampled$song_id, x = sampled$listen_count, dims = c(length(unique(sampled$user_id)), length(unique(sampled$song_id))), dimnames = list(paste("u", 1:length(unique(sampled$user_id)), sep = ""), paste("m", 1:length(unique(sampled$song_id)), sep = "")))
+
+# This throws an error (non-numeric argument to binary operator).  Looks like we'll need to convert user_id and song_id to integers.  For users, since rows are equivalent to users we can use rownames and coerce to numeric.  For songs, we'll try to create a song_id2 field that creates an integer based on unique values in the song_id field.  We'll implement just for sampled df before trying on the joined df.
+
+sampled2 <- transform(sampled, user_id2 = as.numeric(factor(user_id)))
+sampled3 <- transform(sampled2, song_id2 = as.numeric(factor(song_id)))
+sampled.columns <- c("user_id", "user_id2", "song_id", "song_id2", "listen_count", "title", "release", "artist_name", "year")
+sampled3 <- sampled3[, sampled.columns]
+
+sampled3.test1 <- sampled3[order(sampled3$user_id2),]
+sampled3.test2 <- sampled3[order(sampled3$song_id2),]
+head(sampled3.test1) # kludgy, but looks like the user_id2 approach worked
+head(sampled3.test2) # kludgy, but looks like the song_id2 approach worked
+
+# We'll work with sampled3 dataframe below
+
+sparse_sampled <- sparseMatrix(i = sampled3$user_id2, j = sampled3$song_id2, x = sampled3$listen_count, dims = c(length(unique(sampled3$user_id2)), length(unique(sampled3$song_id2))), dimnames = list(paste("u", 1:length(unique(sampled3$user_id2)), sep = ""), paste("m", 1:length(unique(sampled3$song_id2)), sep = "")))
+
+# We'll create a test matrix to feed the recommender
+
+reco_feed <- as(sparse_sampled, "realRatingMatrix")
+
+# Here's a sample view
+# getRatingMatrix(reco_feed[c(1:5, c(1:4))])
+
+# We'll create a recommender for the 80 users included in the sampled set
+
+r.popular <- Recommender(reco_feed[1:80], method = "POPULAR")
+
+top5reco <- predict(r.popular, reco_feed[81:100], n = 5)
+
+as(top5reco, "list")[1:3]
+
+```
+
+
