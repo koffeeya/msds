@@ -246,56 +246,99 @@ print(sprintf('The 3rd sample contains %d users.', round(n*0.005)))
 
 <br>
 
-### Sample the Data and Create CSV Files
+### Sample the Data and Create Dataframes
 
 ```{r}
 
-# Initialize a variable
-i <- 1
+# Subset the full dataframe by the random user IDs. Remove duplicate ratings.
+s1_user <- sample(user_list$user_id, samp_lvls[1], replace = F)
+names(s1_user) <- c("user_id")
+s1 <- distinct(subset(joined_final, joined_final$user_id %in% s1_user))
+s1 <- as.data.frame(select(ratings, user_id, rating, title))
 
-# Create dataframes and write CSV files with user nodes, song nodes, and ratings at each sample level
-for (i in samp_lvls[i:length(samp_lvls)]) {
-  
-  # Take a random sample of user IDs
-  user_nodes <- sample(user_list$user_id, i, replace = F)
-  names(user_nodes) <- c("user_id")
 
-  # Subset the full dataframe by the random user IDs. Remove duplicate ratings.
-  ratings <- distinct(subset(joined_final, joined_final$user_id %in% user_nodes))
-  ratings <- select(ratings, user_id, rating, title)
-  
-  # Get the unique list of songs contained in the sample.
-  song_nodes <- distinct(as.data.frame(ratings$title))
-  names(song_nodes) <- c("title")
-  
-  # Make unique file names for each sample level
-  user_filename <- sprintf('users_%s.csv', i)
-  rating_filename <- sprintf('ratings_%s.csv', i)
-  song_filename <- sprintf('songs_%s.csv', i)
-  
-  # Write the files as a CSV
-  write.csv(user_nodes, file = user_filename, row.names = F)
-  write.csv(ratings, file = rating_filename, row.names = F)
-  write.csv(song_nodes, file = song_filename, row.names = F)
-  
-  # Success message
-  message <- sprintf('Created CSV Files For %d-User Sample', i)
-  print(message)
-  
-  i <- i+1
-  
-}
+s2_user <- sample(user_list$user_id, samp_lvls[2], replace = F)
+names(s2_user) <- c("user_id")
+s2 <- distinct(subset(joined_final, joined_final$user_id %in% s2_user))
+s2 <- as.data.frame(select(ratings, user_id, rating, title))
 
+
+s3_user <- sample(user_list$user_id, samp_lvls[3], replace = F)
+names(s3_user) <- c("user_id")
+s3 <- distinct(subset(joined_final, joined_final$user_id %in% s3_user))
+s3 <- as.data.frame(select(ratings, user_id, rating, title))
 
 ```
-
-
 
 <hr>
 
 ## IMPLEMENT NEO4J APPROACH
 
-TO DO: [Prepare a user-user matrix?]
+```{r include=FALSE}
+pw = "ssn123123"
+```
+
+```{r}
+graph = startGraph("http://localhost:7474/db/data/", username="neo4j", password=pw)
+```
+
+```{r}
+
+q1 <- "
+MERGE (user:User {id: {user_id}}) 
+MERGE (song:Song {title: {title}}) 
+CREATE (user)-[r:RATED {rating: {rating}}]->(song)
+SET r.rating = TOFLOAT({rating})
+"
+
+
+tx <- newTransaction(graph)
+
+for (i in 1:nrow(s3)) {
+  row <- s3[i , ]
+  appendCypher(tx, q1,
+               user_id = row$user_id,
+               title = row$title,
+               rating = row$rating)
+}
+
+commit(tx)
+
+summary(graph)
+
+```
+
+```{r}
+
+q2 <- 
+"MATCH (p1:User)-[x:RATED]->(s:Song)<-[y:RATED]-(p2:User)
+WITH SUM(x.rating * y.rating) AS xyDotProduct,
+ SQRT(REDUCE(xDot = 0.0, a IN COLLECT(x.rating) | xDot + a^2)) AS xLength,
+ SQRT(REDUCE(yDot = 0.0, b IN COLLECT(y.rating) | yDot + b^2)) AS yLength,
+ p1, p2
+
+MERGE (p1)-[s:SIMILARITY]-(p2)
+
+SET s.similarity = xyDotProduct / (xLength * yLength)"
+
+cypher(graph, q2)
+
+```
+
+```{r}
+
+q3 <- "
+MATCH (p1:User {id:'58a6b202fb7d3cbfe259eb9e3400a499fd4da8d8'})-[s:SIMILARITY]-(p2:User {id:'2aa17d1772763d2d02c2aac3a8493396053bfed2'})
+RETURN s.similarity AS `Cosine Similarity`
+"
+
+f <- cypher(graph, q3)
+
+f
+
+```
+
+
 
 <hr>
 
