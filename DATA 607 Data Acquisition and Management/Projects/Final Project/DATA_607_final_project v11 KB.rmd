@@ -1,0 +1,556 @@
+---
+title: "Untitled"
+author: "Kavya Beheraj and Jeremy O'Brien""
+date: "April 28, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(dplyr)
+library(magrittr)
+library(stringr)
+library(tidyr)
+library(knitr)
+library(kableExtra)
+library(ggplot2)
+library(devtools)
+devtools::install_github("nicolewhite/RNeo4j")
+# add conditional if preinstalled
+library(RNeo4j)
+library(recommenderlab)
+library(psych)
+```
+
+```{r}
+# Clean up environment
+rm(list = ls())
+
+```
+<br>
+
+<hr>
+
+<br>
+
+# 1 | OVERVIEW
+
+TO DO: [Summarize overview in slide presentation]
+
+TO DO: [Complete overview]
+
+### **A. Background**
+
+MSD contains... from sources...  etc.
+
+### **B. Approach**
+
+We'd like to test whether a simple metric of song listens can prove a robust indicator of song preference, and predict other songs to recommend which users will like.
+
+Graph databases... We like the elegance of a graph database to capture the relationships between listeners and the songs they listen to.  We ingest MSD into a neo4j graph created for purpose, and use rneo4j...  
+
+We'd also like to build a UI that makes it easier for living, breathing users to actually interact with the recommender.  We're attempting this using Shiny (our maiden voyage for Shiny and for front-end programming at that).
+
+What this will involve...?
+
+### **C. Assumptions and caveats**
+
+* Hypothesis: the proportion of listens for a given song over 
+* Data does not reflect complete view of listening habits (not all sources known, time span opaque, etc.)
+
+<br>
+
+<hr>
+
+<br>
+
+# 2 | READ IN THE DATA
+
+TO DO: [Add in comments on Million Song Database (MSD)]
+
+TO DO: [Clean up column naming taxonomy]
+
+### **A. Read in data**
+
+```{r}
+
+# Read in the ratings dataframe and rename the columns
+u1 <- "https://static.turi.com/datasets/millionsong/10000.txt"
+df1 <- as.data.frame(read.table(u1, header = F, stringsAsFactors = F))
+names(df1) <- c("user_id", "song_id", "listen_count")
+
+
+# Read in the metadata dataframe
+u2 <- "https://static.turi.com/datasets/millionsong/song_data.csv"
+metadata <- as.data.frame(read.csv(u2, header = T, sep = ",", stringsAsFactors = F))
+
+```
+
+<br>
+
+### **B. Join dataframes**
+
+```{r}
+
+# Join data by song ID. Remove duplicate song ratings.
+joined <- distinct(inner_join(df1, metadata, by = "song_id"))
+
+
+# Group and summarize joined dataframe by user ID
+grouped_id <- joined %>%
+  select(user_id, listen_count) %>%
+  group_by(user_id) %>%
+  summarise(number_songs = n(), 
+            mean_listen_count = mean(listen_count), 
+            sum_listen_count = sum(listen_count))
+
+grouped_song <- joined %>% 
+  select(song_id, title, artist_name) %>% 
+  group_by(title)
+
+nrow(grouped_song)
+
+```
+
+```{r}
+View(grouped_id$user_id)
+```
+
+
+<br>
+
+<hr>
+
+<br>
+
+# 3 | SUMMARIZE THE DATA
+
+MSD is a large dataset, so to better understand it we perform some EDA, including summarization and visualization.
+
+<hr>
+
+### **A. User-Level Summary Statistics**
+
+TO DO: [Quick note here]
+
+```{r}
+
+# TO DO: [Clean out excess code]
+
+# reminder: str(joined)
+nrow(grouped_id)
+
+# alternative: length(unique(joined$user_id))
+summary(grouped_id$sum_listen_count)
+
+```
+
+<br>
+
+Some listener-level summary statistics: the MSD include 76,353 individuals, each of whom has to at least one song (obvious, but a good sense check).  On average, individuals have listened to 3.183 songs.  The most songs any individual has listened to is 192.  
+
+TO DO: [This is based on mean_listen_count, not abs - update based on sum_listen_count]
+
+
+```{r}
+# TO DO: [Plot theses against one another]
+
+# par(mfrow = c(1, 3))
+
+ggplot(data = grouped_id, aes(number_songs)) + 
+  geom_histogram(binwidth = 1) +
+  labs(title = "How people listen: songs vs. listeners", x = "Unique songs", y = "Total listeners")
+
+ggplot(data = grouped_id, aes(number_songs)) + 
+  geom_histogram(breaks = seq(1, 100, by = 1)) +
+  labs(title = "How people listen: songs vs. listeners", subtitle = "<100 songs (Detail)", x = "Unique songs", y = "Total listeners")
+
+# TO DO: calculcate cume peak of histogram
+
+max(grouped_id$number_songs)
+mean(grouped_id$number_songs)
+```
+
+<br>
+
+TO DO: [Describe curve - songs listened on x, number of individuals at the level on y.  Power with long tail.  Peak between 8 and 16 songs listened to (CONFIRM)]
+
+```{r}
+# TO DO: parse meaning of this plot
+
+ggplot(data = grouped_id, aes(x = number_songs, y = sum_listen_count)) +
+         geom_point() +
+         geom_smooth(method = "loess", se = F) +
+         xlim(c(0, 800)) +
+         ylim(c(0, 4000))
+# labs: title, subtitle, caption, x, y
+
+# TO DO: [Plot histograms of mean listens.  Describe]
+
+# TO DO: [Add description of box / whisker, consider whether to look into quantiles using mutate(quintile = ntile(mean_listen_count, 5) or mean_listen_count]
+
+ggplot(data = grouped_id, aes(x = "", y = number_songs)) +
+  geom_boxplot(varwidth = T)
+# labs: title, subtitle, caption, x, y
+
+```
+
+<hr>
+
+### **B. Song-Level Summary Statistics**
+
+TO DO: [Quick note here]
+
+```{r}
+
+length(unique(joined$song_id)) # number of unique songs
+
+min(joined$year[which(joined$year > 0)]) # earliest recording (correcting for null values coded as 0)
+
+max(joined$year[which(joined$year > 0)]) # latest recording (correcting for null values coded as 0
+
+# TO DO: [Disentangle the following.]
+
+sum(joined$listen_count) # total number of listens?
+summarise(df1, total_listens = sum(listen_count)) # total number of listens?
+
+summary(joined$listen_count) # number of times a song was listened to, on average
+
+sd(joined$listen_count)
+
+# TO DO: [Analyze whether songs that get lots of listens have lots of listeners and calcuclate mean for that subset.]
+
+joined %>% 
+  select(user_id, song_id, listen_count) %>% 
+  group_by(song_id) %>% 
+  summarise(total_listens = sum(listen_count), unique_listeners = n_distinct(user_id)) %>%
+  ggplot(aes(x = total_listens, y = unique_listeners)) +
+           geom_point()
+
+# TO DO: [Additional summary stats]
+
+
+```
+
+The MSD is true to its name and includes a million songs, 
+
+<br>
+
+<hr>
+
+<br>
+
+# 4 | PREPARE DATA FOR MODELING
+
+### **A. Calculate ratings and filter dataframe**
+
+```{r}
+
+# Join total listen count to the full dataframe.
+joined2 <- left_join(joined, grouped_id, by = "user_id")
+
+# Create a new column to hold a calculated implicit rating (as a number from 0 to 10) of user preference for a song. 
+joined_final <- mutate(joined2, rating = round((joined2$listen_count / joined2$sum_listen_count)*100, 2))
+
+# Filter out users with a single song rating. Include users who have a diverse set of ratings -- a mean listen count of 2 or more, 15 or more ratings -- and 
+joined_final <- filter(joined_final, rating<100, mean_listen_count>2, number_songs>=15, year>0)
+
+
+```
+
+```{r}
+View(joined_final)
+hist(joined_final$rating)
+```
+
+<br>
+
+### **B. Sample the data**
+
+Now that we have cleaned data, we can prepare it for modeling by taking a random sample.
+
+```{r}
+
+# Create a dataframe of unique user IDs. There are 75,491 users in the cleaned dataframe joined_final.
+
+user_list <- distinct(as.data.frame(joined_final$user_id))
+names(user_list) <- c("user_id")
+n <- nrow(user_list)
+
+s3_user <- sample(user_list$user_id, round(n*0.005), replace = F)
+names(s3_user) <- c("user_id")
+s3 <- distinct(subset(joined_final, joined_final$user_id %in% s3_user))
+s3 <- as.data.frame(select(s3, user_id, song_id, rating, title, release, artist_name))
+
+print(sprintf('The cleaned dataset contains %d users.', n))
+print(sprintf('The sample contains %d users.', round(n*0.005)))
+
+```
+
+<br>
+
+<hr>
+
+<br>
+
+# 5 | BUILD NEO4J RECOMMENDER
+
+### **A. Connect to local Neo4j server**
+
+```{r include=FALSE}
+pw = "dbpassword"
+```
+
+```{r}
+# Connect to the graph
+graph = startGraph("http://localhost:7474/db/data/", username="neo4j", password=pw)
+
+# Clear the environment
+clear_query <- "match (n) detach delete (n)"
+cypher(graph, clear_query)
+```
+
+<br>
+
+### **B. Create nodes and relationships**
+
+Run a query that takes the following actions for every line in our cleaned dataframe:
+
+* Create a user node -- with the property `id` -- for every user in the dataframe.
+* Create a song node -- with the properties `id`, `title`, `artist`, and `album` -- for every song in the dataframe.
+* Define the relationship between the user and song nodes as `RATED`, and define the rating.
+
+```{r}
+
+# Query to create nodes and relationships
+q1 <- "
+      MERGE (user:User {id: {user_id}}) 
+      MERGE (song:Song {song_id: {song_id}, title: {title}, artist: {artist}, album: {album}}) 
+      CREATE (user)-[r:RATED {rating: {rating}}]->(song)
+      SET r.rating = TOFLOAT({rating})
+      "
+
+# Start a new transaction
+tx <- newTransaction(graph)
+
+# Loop through every line in the sample dataframe using the query
+for (i in 1:nrow(s3)) {
+  row <- s3[i , ]
+  appendCypher(tx, q1,
+               user_id = row$user_id,
+               song_id = row$song_id,
+               title = row$title,
+               rating = row$rating,
+               artist = row$artist_name,
+               album = row$release)
+}
+
+# Commit the transaction
+commit(tx)
+
+# Check that the relationship is correct
+summary(graph)
+
+```
+
+<br>
+
+### **C. Find similarities between users**
+
+Now that we have created the nodes and ratings, we can add a relationship that defines the **cosine distance** between user ratings as their `SIMILARITY`.
+
+```{r}
+# Query to find cosine similarity between users, and define the relationship
+q2 <- 
+"MATCH (p1:User)-[x:RATED]->(s:Song)<-[y:RATED]-(p2:User)
+WITH SUM(x.rating * y.rating) AS xyDotProduct,
+ SQRT(REDUCE(xDot = 0.0, a IN COLLECT(x.rating) | xDot + a^2)) AS xLength,
+ SQRT(REDUCE(yDot = 0.0, b IN COLLECT(y.rating) | yDot + b^2)) AS yLength,
+ p1, p2
+
+MERGE (p1)-[s:SIMILARITY]-(p2)
+
+SET s.similarity = xyDotProduct / (xLength * yLength)"
+
+cypher(graph, q2)
+
+```
+
+<br>
+
+### **D. Examine graph**
+
+<br>
+
+<hr>
+
+<br>
+
+
+# 6 | EVALUATE RECOMMENDER PERFORMANCE
+
+### **A. Take random samples and evaluate error**
+
+```{r}
+# Return the predicted ratings of the user
+
+# Initialize a few variables
+k <- 1  # Iterate through random samples
+t <- 1  # Iterate through user IDs within each sample
+i <- 0  # Counter for random samples
+
+dat1 <- data.frame()  # Empty dataframe to store individual sample error rate
+dat2 <- data.frame()  # Empty dataframe to store the error rate of all samples
+
+for (k in 1:25) {
+
+  s3_users <- distinct(select(s3, user_id))              # Pull out a list of User IDs within our sample dataframe s3
+  test_size <- as.numeric(round(nrow(s3_users) * 0.25))  # Set size of each random sample
+  s <- sample(s3_users$user_id, replace = F, test_size)  # Take a sample of the User IDs
+
+  for (t in s[1:length(s)]) {
+
+    # Get the real rating of each user within the sample s3
+    q4 <- "
+          MATCH (a:User {id:'%s'})-[r:RATED]->(m:Song)
+          RETURN m.song_id AS song_id, m.title AS title, m.artist AS artist, r.rating AS rating
+          "
+    real_ratings <- cypher(graph, sprintf(q4, t))   # Run query
+
+  
+    # Get the predicted rating of each user in the sample s3, for songs that overlap
+    q5 <- "
+          MATCH (b:User)-[r:RATED]->(m:Song), (b)-[s:SIMILARITY]-(a:User {id:'%s'})
+          WITH m, s.similarity AS similarity, r.rating AS rating
+          ORDER BY m.title, similarity DESC
+          WITH m.song_id AS song_id, COLLECT(rating)[0..3] AS ratings
+          WITH song_id, REDUCE(s = 0, i IN ratings | s + i)*1.0 / LENGTH(ratings) AS reco
+          ORDER BY reco DESC
+          RETURN song_id AS song_id, reco AS recommendation
+          "
+    predicted_ratings <- cypher(graph, sprintf(q5, t))  # Run query
+    
+    # If the number of rows of the predicted ratings dataframe does not result in a NULL, move forward with the evaluation; otherwise, skip the User ID.
+    if (is.null(nrow(predicted_ratings)) == "FALSE") {
+      
+      # Join the predicted ratings to `grouped_song` to get song information like arist and album.
+      predicted_ratings <- predicted_ratings %>% inner_join(grouped_song, by = "song_id") %>%
+                                                 arrange(desc(recommendation)) %>%
+                                                 distinct()
+
+    
+      # Calculate the error rate between the real vs. predicted ratings as the predicted rating minus the real user rating for the same song.
+      eval <- inner_join(predicted_ratings, real_ratings, by = "song_id") %>%
+              select(song_id, title.x, artist_name, rating, recommendation)
+    
+      # Create a `final_eval` dataframe that contains song information, the real rating, the predicted rating, and the error rate.
+      names(eval) <- c("song_id", "title", "artist", "user_rating", "predicted_rating")
+      eval <- mutate(eval, error_rate = as.numeric((predicted_rating - user_rating), 2))
+      final_eval <- select(eval, user_rating, predicted_rating, error_rate)
+  
+      # Skip the User ID if the number of rows results in a NULL dataframe.
+      dat1 <- rbind(dat1, final_eval) } else if (is.null(nrow(predicted_ratings)) == "TRUE") {
+        next
+    }
+  
+  }
+
+  # Set a counter to keep track of the random sample
+  i <- as.numeric(i+1)
+
+  # Gather the counter, the mean user rating, the test size, the mean predicted rating, and the mean error rate for the entire sample
+  mean_error <- c(i, test_size, mean(dat1$user_rating), mean(dat1$predicted_rating), mean(dat1$error_rate*100))
+
+  # Print a confirmation that the random sample successfully looped
+  print(sprintf('For random sample #%d, the mean error of our recommender was %f percent.', i, mean(dat1$error_rate*100), 2))
+
+  # Bind the information on each random sample to an empty datframe, and rename the columns
+  dat2 <- rbind(dat2, mean_error)
+  names(dat2) <- c("test_run", "mean_real_rating", "test_size", "mean_predicted_rating", "mean_error") 
+
+}
+
+```
+
+### **B. Results of evaluation**
+
+```{r}
+# Calculate the overall mean error for all random samples, and print the results
+mean_error_sample <- mean(dat2$mean_error)
+print(sprintf('After taking %d random samples of %d users each, the mean error of our recommender was %f percent.', i, test_size, mean_error_sample))
+
+dat2
+hist(dat2$mean_error)
+
+```
+
+```{r}
+
+```
+
+
+<br>
+
+<hr>
+
+<br>
+
+
+# 7 | PREPARE GRAPH DATABASE FOR SHINY UI
+
+<br>
+
+<hr>
+
+<br>
+
+
+# 8 | ASSEMBLE SHINY UI
+
+Our Shiny implementation should have three elements.  While these elements are web-enabled, for the purposes of this project we are not building a web-accessible database, so neo4j will need to be installed and open locally in order to run the recommender.
+
+1) The first element is intended to elicit user ratings of three songs in the MSD graph - presumably (though no necessarily) songs they like.  This information is used to find similar users in the graph.  It is output to a temporary dataframe, so that the user name and song can be added to the neo4j graph as additional nodes / relationships.
+* A bar in which to enter the user's name, which is used to key the node 
+* Three "search bars" for users to type the name of each song
+* An adjacent slider on which to rank each song on a 1-10 scale
+* When users type a song, the "search bar"dynamically queries the graph
+* Optimally the search bar autofills so users don't go to the trouble of entering a song not recorded in the graph
+* As a fallback, the search bar includes a search button users will need to push to query the database and return results in a clickable list of songs and corresponding artists
+* In either case, if users enter a song not recorded, some sort of warning indicates no results found, and to choose another song
+
+2) The second element is a a list of recommended songs yielded by user-user similarity measures mapped in the MSD graph.  This information serves is the output of the recommender system.  The MSD graph returns a temporary dataframe of top-N songs i.e. those highly rated by similar users.  This is based on the three songs the user proferred
+* This list of songs and corresponding artists (provided for reference) is visualized as a simple table.
+* As a feature improvement, this list could click to a search engine to provide users an opportunity to listen to the recommended songs or learn more about the recommended artists.
+
+3) The third element is a "restart" button.
+* This refreshes the first and second elements so a user can restart the recommender.
+
+
+TO DO: [Build dummy app to explore UI feature set based on temporary input / output dataframes]
+
+
+TO DO: [Integrate RNeo4j and Shiny code, so user choices are directed to the graph database and returned to the Shinu UI.]
+
+
+<br>
+
+<hr>
+
+<br>
+
+
+# 9 | TEST UX
+
+TO DO: [We'll need to create some test cases (i.e. song lookups) that we know work for a demo, as our data subsets won't call the full OMD (right?).]
+
+
+<br>
+
+<hr>
+
+<br>
+
+# 10 | CONCLUSIONS
