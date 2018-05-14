@@ -1,17 +1,23 @@
 ---
-title: "Untitled"
-author: "Kavya Beheraj and Jeremy O'Brien""
-date: "April 28, 2018"
-output: html_document
+title: "DATA 607, Final Project -- Music Recommender with Neo4j"
+author: "Kavya Beheraj and Jeremy O'Brien"
+date: "May 13, 2018"
+output:
+  html_document:
+    theme: yeti
+    highlight: haddock
+    toc: true
+    toc_depth: 3
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
 ---
-
-**TO DO: RMD formatting**
 
 ```{r setup, include = F}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r setup, message = F, warning = F}
+```{r message = F, warning = F}
 
 library(dplyr)
 library(magrittr)
@@ -21,11 +27,14 @@ library(knitr)
 library(kableExtra)
 library(ggplot2)
 library(devtools)
-devtools::install_github("nicolewhite/RNeo4j")
+# devtools::install_github("nicolewhite/RNeo4j")
 library(RNeo4j)
 library(recommenderlab)
 library(psych)
 library(rstudioapi)
+library("knitr")
+library("kableExtra")
+
 ```
 
 ```{r setup, echo = F}
