@@ -102,13 +102,13 @@ pw = "dbpassword"
 
 ### **C. Background**
 
-> The Million Song Database, or MSD (https://labrosa.ee.columbia.edu/millionsong/) is an open source dataset of one million popular songs made freely available by The Echo Nest (http://the.echonest.com/).
+> The **<a href="https://labrosa.ee.columbia.edu/millionsong/", target="_blank">Million Song Database</a>**, or MSD, is an open source dataset of one million popular songs made freely available by **<a href="http://the.echonest.com/", target="_blank">The Echo Nest</a>**.
 
-The Echo Nest is a music intelligence and data platform chartered to understand the audio and textual content of recorded music.  It was spun off from MIT Media Lab around 2005 and acquired by Spotify in 2014 to power playlist curation (https://en.wikipedia.org/wiki/The_Echo_Nest).  
+The Echo Nest is a music intelligence and data platform chartered to understand the audio and textual content of recorded music.  It was spun off from MIT Media Lab around 2005 and <a href="https://en.wikipedia.org/wiki/The_Echo_Nest", target="_blank">acquired by Spotify in 2014 to power playlist creation</a>.
 
 In addition to a wealth of other song metadata, the dataset also charts the intersection of unique listeners with specific songs, providing a view into people's listening habits.
 
-The MSD data was collected using The Echo Nest API and musicbrainz, an open music encyclopedia (https://musicbrainz.org/).  The MSD FAQ indicates that data was "downloaded during December 2010" but does not provide detail on the span of time, platforms, or geographies over which data was collected.  This presents some constraints on treating the dataset as a representative sample of listening behavior or song popularity.
+The MSD data was collected using The Echo Nest API and <a href="https://musicbrainz.org/", target="_blank">musicbrainz</a>, an open music encyclopedia. The MSD FAQ indicates that data was "downloaded during December 2010" but does not provide detail on the span of time, platforms, or geographies over which data was collected.  This presents some constraints on treating the dataset as a representative sample of listening behavior or song popularity.
 
 The full dataset is available via AWS and has been mirrored by the Open Science Data Cloud.  
 
@@ -168,7 +168,7 @@ However, this approach has its downsides:
 
 > The MSD contains many datasets, however we focused on two: one that captured user listen counts, and the other that provided metadata on each song.
 
-We found links to CSV files of both datasets in the Medium article 
+We found links to CSV files of both datasets in the Medium article <a href="https://towardsdatascience.com/how-to-build-a-simple-song-recommender-296fcbc8c85", target="_blank">"How to build a simple song recommender system"</a> by Eric Le.
 
 ### **A. Read in data**
 
@@ -393,7 +393,13 @@ print(sprintf('The sample contains %d users.', round(n*0.005)))
 
 # 6 | BUILD NEO4J RECOMMENDER
 
+We found the article <a href="https://neo4j.com/graphgist/movie-recommendations-with-k-nearest-neighbors-and-cosine-similarity", target="_blank">"Movie Recommendations with k-Nearest Neighbors and Cosine Similarity"</a> by Nicole White (who also created `RNeo4j`) invaluable for this section.
+
 ### **A. Connect to local Neo4j server**
+
+Prior to this step, <a href="https://neo4j.com/download/", target="_blank">download Neo4j</a> and <a href="https://neo4j.com/developer/guide-neo4j-browser/", target="_blank">start the browser in a new graph database</a>.
+
+Then, connect to the graph database using your password.
 
 ```{r}
 # Connect to the graph
