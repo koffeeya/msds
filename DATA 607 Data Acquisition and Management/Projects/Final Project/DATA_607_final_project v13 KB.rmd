@@ -88,13 +88,24 @@ pw = "dbpassword"
 
 ### **A. Purpose**
 
+> In this project, we created a song recommender system based on nearest-neighbor collaborative filtering. We trained and evaluated our data source in Neo4j, a graph database platform, and (as a stretch goal) began building out a user interface in RShiny.
+
 <br>
 
-### **B. Background**
+### **B. Team**
 
-The Million Song Database, or MSD (https://labrosa.ee.columbia.edu/millionsong/) is an open source dataset of one million popular songs made freely available by The Echo Nest (http://the.echonest.com/).
+* Kavya Beheraj, <a href="https://github.com/koffeeya", target="_blank">GitHub</a>
 
-The Echo Nest is a music intelligence and data platform chartered to understand the audio and textual content of recorded music.  It was spun off from MIT Media Lab around 2005 and acquired by Spotify in 2014 to power playlist curation (https://en.wikipedia.org/wiki/The_Echo_Nest).   
+* Jeremy O'Brien, <a href="https://github.com/JeremyOBrien16", target="_blank">GitHub</a>
+
+<br>
+
+### **C. Background**
+
+> The Million Song Database, or MSD (https://labrosa.ee.columbia.edu/millionsong/) is an open source dataset of one million popular songs made freely available by The Echo Nest (http://the.echonest.com/).
+
+The Echo Nest is a music intelligence and data platform chartered to understand the audio and textual content of recorded music.  It was spun off from MIT Media Lab around 2005 and acquired by Spotify in 2014 to power playlist curation (https://en.wikipedia.org/wiki/The_Echo_Nest).  
+
 In addition to a wealth of other song metadata, the dataset also charts the intersection of unique listeners with specific songs, providing a view into people's listening habits.
 
 The MSD data was collected using The Echo Nest API and musicbrainz, an open music encyclopedia (https://musicbrainz.org/).  The MSD FAQ indicates that data was "downloaded during December 2010" but does not provide detail on the span of time, platforms, or geographies over which data was collected.  This presents some constraints on treating the dataset as a representative sample of listening behavior or song popularity.
@@ -103,27 +114,49 @@ The full dataset is available via AWS and has been mirrored by the Open Science 
 
 <br>
 
-### **C. Approach**
+### **D. Research Question**
 
-The MSD provides a count of song listens by unique (hashed) user IDs.  These song listens can be treated as implicit "ratings" of a song.  Interpreting this at scale can provide an interesting picture of aggregate song popularity.  Examining these implicit "ratings"" at the level of specific listeners can provide an indication of individual preference, both by the songs included and those not included, as well as the proportion of total listens a given song represent for a listener.
+> **Our research question:** How reliable is the **proportion of times** that a user listened to a song in predicting the **strength of their preference** for another song?
 
-NB: the MSD does not define whether listens represent song starts, track-time completes, or some other measure of active listernership.  This is an important consideration when using the data as a listening behavior signal.
+> More generally: **How reliable are implicit ratings in predicting user preference?**
 
-We'd like to evaluate whether a simple metric of song listens can prove a robust indicator of listeners' song preferences and help us predict - based on a set of song preferences - other songs to recommend which a given listeners would like.
+Each user in the MSD has a `**listen count**` variable that records the number of times they listened to a song. We can treat a user's `listen count` of a song -- compared to their total number of song listens -- as the user's **implicit rating** of the song. An implicit rating infers user preference from behavior, as opposed to an explicit rating, which is given directly by the user.
 
-To restate explicitly, our hypothesis is that the proportion of times a listener listens to a given song compared with total listens of all other songs represents a useful signal of preference.
+In this case, we are assuming that if a certain song takes up a greater share of a user's total song listens, then the user prefers that song more.
 
-**TO DO: [Elaborate on steps and confirm they tick all requirements in project brief**
+    * **For example:** Let's say that a user has two songs recorded in the MSD. They listened to the first song **5 times** and the second song **9 times**. The user's `rating` of the first song will be **5 / 14 = 0.36**, and the `rating` of the second song will be **9 / 14 = 0.64**. We can then assume that the user prefers the second song more than the first song.
 
-* We evaluate this by analyzing the MSD and constructing...
-* We build a graph database from our dataset using Neo4j (our first time ever!), interfacing with R through RNeo4J.  This is an elegant approach to representing the relationships between listeners and the songs they listen to.  As this is a proof-of-concept (POC), we are not hosting this database on the web and require local installation of Neo4j.
-* We also explored RecommenderLab as an alternative approach to building implicit rating matrices, but concentrated our efforts on Neo4j based on early success.
-* We build a similarity matrix
-* We train the recommender model in Neo4j 
-* We test the recommender model, evaluating its performance on predicted song rating vs. 
-* We build a simple UI in Shiny (another maide voyage for us!) to make it easier to interact with the recommender.  Again, as this is a POC, we are not hosting the Shiny app on the web so the code in this RMD must be run in order to demonstrate the Shiny UX.
+Defining our rating system in this way allows us to **compare the strength of preference** for multiple users who have listened to the same song -- the basis of collaborative filtering.
 
-**TO DO: [stretch goal]**
+However, this approach has its downsides: 
+
+* Users in the MSD tend to listen to a few songs very often, and the rest not very often at all. This introduces a "long tail" that skews the ratings lower.
+
+* Our research question reveals that we are also unsure about how much we can extrapolate of a user's real song preference based on an implicit rating.
+
+<br>
+
+### **E. Approach**
+
+> We applied the ***CRISP* Data Mining Process** to organize our workflow:
+
+1. **Business Understanding** -- Define our goal: to create a song recommender system based on nearest-neighbor collaborative filtering.
+
+2. **Data Understanding** -- Read in the data, conduct exploratory data analysis, and calculate summary statistics for the Million Songs Database.
+
+3. **Data Preparation** -- Calculate song ratings, clean the dataframe, and create a random sample for downstream analysis.
+
+4. **Modeling** -- Train and test the recommender in Neo4j: create nodes and relationships, find cosine similarities among users, and return a list of recommended songs.
+
+    * We initially explored using `RecommenderLab` to train and test the recommender, but ultimately decided to go with Neo4j (specifically, the package `RNeo4j`) since we liked how the graph database represented the relationship between users and the songs they listened to.
+
+5. **Evaluation** -- Evaluate the error rate of the recommender system.
+
+    * We defined "error" as the difference between the user's real rating and the recommender's predicted rating of a song.
+
+6. **Deployment** -- This was our stretch goal. We aimed to build a proof-of-concept (POC) user interface in Shiny that could provide real-time song recommendations for users.
+
+    * We ended up building a simple user interface in Shiny (another maiden voyage for us!) to make it easier to interact with the recommender. Again, as this is a proof of concept, we are not hosting the Shiny app on the web so the code in this RMD must be run in order to demonstrate the Shiny UX.
 
 <br>
 
@@ -133,7 +166,9 @@ To restate explicitly, our hypothesis is that the proportion of times a listener
 
 # 3 | READ IN THE DATA
 
-**TO DO: [Explain how we collected the dataset, and what it includes / does not - i.e. not the 300GB master file, right?]**
+> The MSD contains many datasets, however we focused on two: one that captured user listen counts, and the other that provided metadata on each song.
+
+We found links to CSV files of both datasets in the Medium article 
 
 ### **A. Read in data**
 
