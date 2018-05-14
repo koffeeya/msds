@@ -32,12 +32,12 @@ library(RNeo4j)
 library(recommenderlab)
 library(psych)
 library(rstudioapi)
-library("knitr")
-library("kableExtra")
+library(knitr)
+library(kableExtra)
 
 ```
 
-```{r setup, echo = F}
+```{r echo = F}
 
 # Clean up environment
 # rm(list = ls())
@@ -214,10 +214,6 @@ grouped_id <- joined %>%
 grouped_song <- joined %>% 
   select(song_id, title, artist_name) %>% 
   group_by(title)
-
-# TO DO: [Do we need nrow(grouped_song)?]
-
-nrow(grouped_song)
 
 ```
 
@@ -563,7 +559,7 @@ shiny_output2 <- cypher(graph, sprintf(reco2, test_id)) %>%
           arrange(desc(recommendation)) %>% 
           distinct()
 
-eval2 <- inner_join(shiny_output2, real_ratings, by = "song_id") %>%
+eval2 <- inner_join(shiny_output2, test_ratings, by = "song_id") %>%
               select(song_id, title.x, artist_name, rating, recommendation)
 
 names(eval2) <- c("song_id", "title", "artist", "user_rating", "predicted_rating")
@@ -700,7 +696,7 @@ dat_viz <- gather(dat2, "rating_type", "rating", 3:5)
 ggplot(data=dat_viz, aes(x=test_run, y=rating, group=rating_type)) +
   geom_line(aes(color=rating_type)) +
   geom_point(aes(color=rating_type)) + 
-  labs(title="Real vs. Predicted Song Ratings of 100 Random Samples", x="Random Sample (100 Users Each)", y="Song Rating")
+  labs(title="Real vs. Predicted Song Ratings of 10 Random Samples", x="Random Sample (100 Users Each)", y="Song Rating")
   scale_color_brewer(palette="Paired") + 
     theme_minimal()
 
