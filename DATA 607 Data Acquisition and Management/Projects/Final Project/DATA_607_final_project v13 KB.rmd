@@ -13,12 +13,6 @@ output:
       smooth_scroll: true
 ---
 
-**TO DO: RMD formatting**
-
-**TO DO: [We'll need to create some test cases (i.e. song lookups) that we know work for a demo, as our data subsets won't call the full OMD (right?).]**
-
-**TO DO: [Include RMD-friendly example of recommender / UI performance?]**
-
 ```{r setup, include = F}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -92,17 +86,11 @@ pw = "dbpassword"
 
 # 2 | OVERVIEW
 
-**TO DO: [Summarize overview in slide presentation]**
+### **A. Purpose**
 
-The aim of this project is to create a proof-of-concept (POC) song recommender...
+<br>
 
-Quick summary
-
-**TO DO: [Complete overview last]**
-
-<hr>
-
-### **A. Background**
+### **B. Background**
 
 The Million Song Database, or MSD (https://labrosa.ee.columbia.edu/millionsong/) is an open source dataset of one million popular songs made freely available by The Echo Nest (http://the.echonest.com/).
 
@@ -113,11 +101,9 @@ The MSD data was collected using The Echo Nest API and musicbrainz, an open musi
 
 The full dataset is available via AWS and has been mirrored by the Open Science Data Cloud.  
 
-**TO DO: [Add reference to where we found our subset]**
+<br>
 
-<hr>
-
-### **B. Approach**
+### **C. Approach**
 
 The MSD provides a count of song listens by unique (hashed) user IDs.  These song listens can be treated as implicit "ratings" of a song.  Interpreting this at scale can provide an interesting picture of aggregate song popularity.  Examining these implicit "ratings"" at the level of specific listeners can provide an indication of individual preference, both by the songs included and those not included, as well as the proportion of total listens a given song represent for a listener.
 
@@ -131,7 +117,7 @@ To restate explicitly, our hypothesis is that the proportion of times a listener
 
 * We evaluate this by analyzing the MSD and constructing...
 * We build a graph database from our dataset using Neo4j (our first time ever!), interfacing with R through RNeo4J.  This is an elegant approach to representing the relationships between listeners and the songs they listen to.  As this is a proof-of-concept (POC), we are not hosting this database on the web and require local installation of Neo4j.
-* We also explored RecommenderLab (appendix) as an alternative approach to building implicit rating matrices, but concentrated our efforts on Neo4j based on early success...
+* We also explored RecommenderLab as an alternative approach to building implicit rating matrices, but concentrated our efforts on Neo4j based on early success.
 * We build a similarity matrix
 * We train the recommender model in Neo4j 
 * We test the recommender model, evaluating its performance on predicted song rating vs. 
@@ -451,6 +437,23 @@ cypher(graph, q2)
 
 <br>
 
+### **D. Examine graph database**
+
+<br>
+
+### **E. Test recommender**
+
+To test the performance of the recommender on a small scale, we will take one random user ID and:
+
+1. Get the user's real song ratings.
+2. Get recommended songs that the user has *not* already listened to based on similarity to other users.
+3. Compare the real and predicted ratings of songs that both the user and recommender have rated.
+4. Calculate error as the difference between the real and predicted rating.
+
+<br>
+
+1. Get the user's real song ratings.
+
 ```{r}
 
 test_id <- sample(s3$user_id, 1)
@@ -460,16 +463,19 @@ q4 <- "
       RETURN m.song_id AS song_id, m.title AS title, m.artist AS artist, r.rating AS rating
       "
 
-real_ratings <- cypher(graph, sprintf(q4, test_id))
+test_ratings <- cypher(graph, sprintf(q4, test_id))
 
-head(real_ratings) %>% 
+head(test_ratings) %>% 
     kable("html")  %>% 
     kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
 
-View(real_ratings)
 ```
 
 <br>
+
+2. Get recommended songs that the user has *not* already listened to based on similarity to other users.
+
+Build the recommendations using a query that averages the top 3 song ratings of the user's nearest neighbors. It will return songs that the user has *not* already rated in a dataframe called `shiny_output`. Our goal is to feed this dataframe into our Shiny app to display as an output.
 
 ```{r}
 
@@ -489,8 +495,6 @@ shiny_output <- cypher(graph, sprintf(reco, test_id)) %>%
           arrange(desc(recommendation)) %>% 
           distinct()
 
-View(shiny_output)
-
 head(shiny_output) %>% 
     kable("html")  %>% 
     kable_styling(bootstrap_options = c("striped", "hover", "condensed"))
@@ -498,6 +502,8 @@ head(shiny_output) %>%
 ```
 
 <br>
+
+3. Compare the real and predicted ratings of songs that both the user and recommender have rated.
 
 ```{r}
 
@@ -527,7 +533,15 @@ head(eval2) %>%
 
 ```
 
-### **D. Examine graph**
+<br>
+
+4. Calculate error as the difference between the real and predicted rating.
+
+```{r}
+test_error <- mean(eval2$predicted_rating) - mean(eval2$user_rating)
+test_error
+```
+
 
 <br>
 
@@ -537,6 +551,8 @@ head(eval2) %>%
 
 
 # 7 | EVALUATE RECOMMENDER PERFORMANCE
+
+We will now evaluate our recommender on a larger scale by repeating the 4 steps in part 6E above for a series of 10 random samples of 100 users from our full dataframe.
 
 ### **A. Take random samples and evaluate error**
 
@@ -552,9 +568,9 @@ dat2 <- data.frame()  # Empty dataframe to store the error rate of all samples
 
 for (k in 1:10) {
 
-  s3_users <- distinct(select(s3, user_id))              # Pull out a list of User IDs within our sample dataframe s3
-  test_size <- as.numeric(round(nrow(s3_users) * 0.25))  # Set size of each random sample
-  s <- sample(s3_users$user_id, replace = F, test_size)  # Take a sample of the User IDs
+  s3_users <- distinct(select(joined_final, user_id))              # Pull out a list of User IDs within our sample dataframe s3
+  test_size <- 100                                           # Set size of each random sample
+  s <- sample(joined_final$user_id, replace = F, test_size)  # Take a sample of the User IDs
 
   for (t in s[1:length(s)]) {
 
@@ -607,16 +623,14 @@ for (k in 1:10) {
   i <- as.numeric(i+1)
 
   # Gather the counter, the mean user rating, the test size, the mean predicted rating, and the mean error rate for the entire sample
-  mean_error <- c(i, test_size, mean(dat1$user_rating), mean(dat1$predicted_rating), mean(dat1$error_rate*100))
+  mean_error <- c(i, test_size, mean(dat1$user_rating), mean(dat1$predicted_rating), mean(dat1$error_rate))
 
   # Print a confirmation that the random sample successfully looped
-  # print(sprintf('For random sample #%d, the mean error of our recommender was %f percent.', i, mean(dat1$error_rate*100), 2))
+  print(sprintf('Done with random sample #%d!', i))
 
   # Bind the information on each random sample to an empty datframe, and rename the columns
   dat2 <- rbind(dat2, mean_error)
-  names(dat2) <- c("test_run", "mean_real_rating", "test_size", "mean_predicted_rating", "mean_error")
-  
-  print(c(i, "Done!"))
+  names(dat2) <- c("test_run", "test_size", "mean_real_rating", "mean_predicted_rating", "mean_error")
 
 }
 
@@ -624,8 +638,12 @@ for (k in 1:10) {
 
 ### **B. Results of evaluation**
 
+We can now calculate the overall mean error for all random samples, and visualize the results.
+
 ```{r}
-# Calculate the overall mean error for all random samples, and print the results
+
+dat2 <- filter(dat2, is.na(dat2$mean_error) == FALSE)
+
 mean_error_sample <- mean(dat2$mean_error)
 print(sprintf('After taking %d random samples of %d users each, the mean error of our recommender was %f percent.', i, test_size, mean_error_sample))
 
@@ -636,9 +654,18 @@ dat2  %>%
 ```
 
 ```{r}
+dat_viz <- gather(dat2, "rating_type", "rating", 3:5)
+
+ggplot(data=dat_viz, aes(x=test_run, y=rating, group=rating_type)) +
+  geom_line(aes(color=rating_type)) +
+  geom_point(aes(color=rating_type)) + 
+  labs(title="Real vs. Predicted Song Ratings of 100 Random Samples", x="Random Sample (100 Users Each)", y="Song Rating")
+  scale_color_brewer(palette="Paired") + 
+    theme_minimal()
 
 ```
 
+In most random samples we took, the predicted rating fell slightly above the real rating.
 
 <br>
 
