@@ -682,7 +682,7 @@ We can now calculate the overall mean error for all random samples, and visualiz
 dat2 <- filter(dat2, is.na(dat2$mean_error) == FALSE)
 
 mean_error_sample <- mean(dat2$mean_error)
-print(sprintf('After taking %d random samples of %d users each, the mean error of our recommender was %f percent.', i, test_size, mean_error_sample))
+print(sprintf('After taking %d random samples of %d users each, the mean error of our recommender was %f points.', i, test_size, mean_error_sample))
 
 dat2  %>% 
   kable("html")     %>% 
@@ -732,7 +732,7 @@ While this implementation collects the requisite user inputs, we have not yet su
 
 The demonstration begins below - the app will run automatically.  when complete, please exit the app and return to this window.
 
-```{r, echo = FALSE}
+```{r, echo = FALSE, eval=FALSE}
 
 # Open the app
 shinyAppDir(dir.app,
@@ -752,53 +752,70 @@ runApp(app)
 
 # 9 | CONCLUSIONS
 
-**TO DO: [Add conclusions / findings and next steps for iteration of the recommender / UI]**
+### **Our Conclusions**
+
+**Research question:** How reliable is the proportion of times that a user listened to a song in predicting the strength of their preference for another song?
+
+> **Evaluation:** Our recommender predicted song ratings for users that were usually within **0.1 points** of the user's real song rating.
+
+> **Conclusion:** The proportion of user song listens is an implicit rating that can reliably predict user song preferences.
 
 This was an exciting, collaborative undertaking which stretched both team members outside of our comfort zones.  We worked with a large dataset new to us both; used database technology, language, and structure new to us both; and built our first interactive data application.
 
-The research question we set out to address was whether the proportion of times a listeners listens to a given song compared with the total times they listen to all other songs -- an implicit measure we treat as ratings -- represents a useful signal of preference.  While a seemingly simple metric, the performance the recommender exhibited in predicting ratings of a holdout set suggests that it is useful signal.  **TO DO: [Elaborate?]**
+The research question we set out to address was whether the proportion of times a listeners listens to a given song compared with the total times they listen to all other songs -- an implicit measure we treat as ratings -- represents a useful signal of preference.  While a seemingly simple metric, the performance the recommender exhibited in predicting ratings of a holdout set suggests that it is useful signal.
 
 Despite the difficulties we encountered connecting Neo4j and Shiny, we found both of these useful additions to our toolbox.
+
 * Neo4j represents relational data intuitively and makes it easy to define matrices.  While we initially set up and read data into recommenderLab as an alternative approach to building a recommender, Neo4j proved a more interesting challenge and versatile tool.    
+
 * Shiny provides a host of options to reduce friction and improve user interaction with R functionality, and web-based server implementations would allow us to expose our findings to a wider audience.
 
-**TO DO: [Elaborate any other points?]**
-
-<hr>
-
-## Other takeaways
-
-**Data:**  The MSD is a hefty dataset and we made tradeoffs where they were not deleterious to graph structure, recommender performance, and app UX.
-<br>
-* To get production ready, clean up special characters in artist, title, and other fields.
 <br>
 
-**Neo4j:**  The graph structure and query syntax are elegant, but support for R is limited.
-<br>
-* Web-hosted?
-* RNeo4j appears to be deprecated / not updated?
-* As noted, Neo4j-Shiny integrations appear few and far between.  This is New territory - adding to general knwoledge about how the two wil connect, as we iterates..
+### **Other Takeaways and Next Steps**
+
+> **Data:**  The MSD is a hefty dataset and we made tradeoffs where they were not deleterious to graph structure, recommender performance, and app UX.
+
+* To get production ready, we would clean up special characters in artist, title, and other fields.
+
 <br>
 
-**Recommenders:** **TO DO: [Add considerations]**
-<br>
-* Striking performance - complete RecommenderLab build to compare.
-* Evaluate recommender performance using precision-recall curves?
+> **Neo4j:**  The graph structure and query syntax are elegant, but support for R is limited.
+
+* To make this recommender truly stand-alone, we could host it in a web-based Neo4j server.
+* RNeo4j appears to be deprecated / not updated.
+* As noted, Neo4j-Shiny integrations appear few and far between. This is new territory -- we are adding to general knowledge about how the two connect as we iterate.
+
 <br>
 
-**Shiny app:** As we worked through builds and tests of the recommender app UX we logged improvements to consider for subsequent iterations:
+> **Recommender System:** Our Neo4j recommender was surprisingly accurate in predicting song ratings.
+
+* How does it compare to RecommenderLab?
+
+* We could employ other ways of evaluating performance -- for exmaple, through precision-recall curves.
+
 <br>
+
+> **Shiny app:** As we worked through builds and tests of the recommender app UX we logged improvements to consider for subsequent iterations:
+
 * Obviously, successfully connect the pipes between the Neo4j graph and Shiny I/O.
+
 * Prevent duplication between the first, second, and third titles users select.
+
 * Where there are identically names songs, confirm artist for selected songs via an additional filtered selctize drop down.
+
 * If possible, add logic to randomize selectize drop down list or mask it so the users isn't biased.
+
 * Programmatically include clickable hyperlinks direct to search engines based on recommended titles and artists so the user can watch / listen to videos and experience the recommendation.
-* Add a restart button to wipe results (fairly complex to control state with reactive per multiple commenters),
+
+* Add a restart button to wipe results (fairly complex to control state with reactive per multiple commenters).
+
 * Prepare the app for web deployment using Shinapps.io, eliminating reliance on RStudio global environment and leveraging web services for the graph. 
 
 <br>
 
-Reference links for app building:
+### **References**
+
 http://shiny.rstudio.com/gallery/
 https://shiny.rstudio.com/reference/shiny/1.0.2/textInput.html
 https://shiny.rstudio.com/reference/shiny/1.0.1/selectInput.html
