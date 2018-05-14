@@ -469,7 +469,16 @@ cypher(graph, q2)
 
 ### **D. Examine graph database**
 
-[]!("https://github.com/koffeeya/msds/blob/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Final%20Project/graph.png")
+> Here is a small visual sample of our graph database.
+
+* The blue nodes are **users**.
+* The pink nodes are **songs**
+* There are two classes of relationships (lines) between them:
+
+    - A user's rating of a song; and
+    - A user's similarity to another user
+
+![](https://raw.githubusercontent.com/koffeeya/msds/master/DATA%20607%20Data%20Acquisition%20and%20Management/Projects/Final%20Project/graph.png)
 
 <br>
 
